@@ -101,11 +101,39 @@ This project follows patterns from the [Ardalis Clean Architecture template](htt
 
 See [docs/ImplementationPlan.md](docs/ImplementationPlan.md) for detailed architectural decisions.
 
+## Core Foundation
+
+The Core layer provides the foundation for the domain model:
+
+### Base Classes
+
+- **`BaseEntity`**: Base class for all domain entities with `Id` property (Guid)
+- **`IAuditableEntity`**: Interface for entities requiring audit tracking (CreatedAt, UpdatedAt)
+- **`ValueObject`**: Base class for immutable value objects with equality comparison
+- **`IAggregateRoot`**: Marker interface for aggregate root entities
+
+### Common Abstractions
+
+- **`IRepository<T>`**: Generic repository interface for aggregate roots (uses Specification pattern)
+- **Enums**: `UserRole`, `ProviderType`, `EncounterType`, `RecordType`
+
+### Result Pattern
+
+- **`Result<T>`**: Represents operation outcomes (success with value or failure with error)
+- **`Error`**: Represents errors with code and message
+- **`ResultExtensions`**: Extension methods for Result operations (Map, Bind)
+
+### Architecture Notes
+
+- **Audit Tracking**: Entities opt-in to audit tracking via `IAuditableEntity` interface. Audit properties are set automatically by EF Core interceptor (not all entities are auditable, e.g., `ActionLog`).
+- **Repository Pattern**: Only aggregate roots are accessible through repositories. Non-aggregate entities use query services.
+- **Result Pattern**: Used for operation outcomes instead of exceptions for expected business errors.
+
 ## Implementation Status
 
 - ✅ Phase 1: Solution Scaffolding & Git Setup
-- ⏳ Phase 2: Core Foundation & Base Classes (Next)
-- ⏳ Phase 3: Infrastructure Foundation
+- ✅ Phase 2: Core Foundation & Base Classes
+- ⏳ Phase 3: Infrastructure Foundation (Next)
 - ⏳ Phase 4: Identity System Foundation
 - ⏳ Phase 5: Patient Aggregate & Medical Attributes
 - ⏳ Phase 6: Medical Records & Encounters
