@@ -6,7 +6,5 @@
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/MedicalCenter.Core.Tests/MedicalCenter.Core.Tests.csproj" />
-    <Project Path="tests/MedicalCenter.Infrastructure.Tests/MedicalCenter.Infrastructure.Tests.csproj" />
-    <Project Path="tests/MedicalCenter.WebApi.Tests/MedicalCenter.WebApi.Tests.csproj" />
   </Folder>
 </Solution>

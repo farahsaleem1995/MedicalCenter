@@ -52,9 +52,7 @@ MedicalCenter/
 │   ├── MedicalCenter.Infrastructure/    # Data access & external services
 │   └── MedicalCenter.WebApi/            # API endpoints & presentation
 ├── tests/
-│   ├── MedicalCenter.Core.Tests/        # Domain unit tests
-│   ├── MedicalCenter.Infrastructure.Tests/  # Integration tests
-│   └── MedicalCenter.WebApi.Tests/      # API integration tests
+│   └── MedicalCenter.Core.Tests/        # Domain unit tests
 └── docs/                                 # Documentation
 ```
 
@@ -380,14 +378,12 @@ Endpoints/
 ### 4.3 Authentication & Authorization
 
 - JWT-based authentication
-- Role-based authorization policies:
-  - `SystemAdmin`
-  - `Patient`
-  - `Doctor`
-  - `HealthcareStaff`
-  - `LabUser`
-  - `ImagingUser`
-- Claims-based access control
+- **Role-Based Access Control (RBAC)**: Primary authorization mechanism using ASP.NET Core Identity roles
+- **Claims-Based Authorization**: Fine-grained access control using JWT claims
+- **Authorization Policies**: Named policies combining roles and claims for endpoint protection
+- **Resource-Based Authorization**: Additional checks for resource ownership (e.g., patients accessing their own data)
+
+See [Authorization Architecture](#authorization-architecture) section for detailed implementation.
 
 ### 4.4 Validation
 
@@ -437,6 +433,209 @@ User (abstract base)
   - `LabDetails`
   - `ImagingDetails`
 - **SQL Views**: Join Users + role-specific tables for domain aggregates
+
+---
+
+## Authorization Architecture
+
+### Overview
+
+The system uses a **hybrid authorization approach** combining:
+1. **Role-Based Access Control (RBAC)** - Primary mechanism using ASP.NET Core Identity roles
+2. **Claims-Based Authorization** - Fine-grained permissions via JWT claims
+3. **Authorization Policies** - Named policies combining roles and claims
+4. **Resource-Based Authorization** - Runtime checks for resource ownership
+
+### 1. Roles (RBAC)
+
+Roles are stored in ASP.NET Core Identity (`AspNetRoles`, `AspNetUserRoles`) and assigned during user creation:
+
+| Role | Description | Use Case |
+|------|-------------|----------|
+| `SystemAdmin` | System administrators | Full system access, user management |
+| `Patient` | Patients receiving care | Access to own medical records, self-registration |
+| `Doctor` | Medical doctors | Create records, view patient data, modify medical attributes |
+| `HealthcareStaff` | Hospital/clinic staff | Create records, view patient data, modify medical attributes |
+| `LabUser` | Laboratory technicians | Create lab records, view related patient data |
+| `ImagingUser` | Imaging technicians | Create imaging records, view related patient data |
+
+### 2. JWT Claims Structure
+
+JWT tokens contain the following claims:
+
+**Standard Claims:**
+- `sub` (Subject) - User ID (Guid)
+- `email` - User email address
+- `name` - User full name
+- `role` - User role (from Identity roles)
+
+**Custom Claims:**
+- `userId` - User ID (Guid, for convenience)
+- `userRole` - User role enum value (for type-safe checks)
+- `specialty` - Doctor specialty (for doctors only)
+- `organizationId` - Organization ID (for healthcare entities, labs, imaging centers)
+
+**Example JWT Claims:**
+```json
+{
+  "sub": "550e8400-e29b-41d4-a716-446655440000",
+  "email": "doctor@example.com",
+  "name": "Dr. John Smith",
+  "role": "Doctor",
+  "userId": "550e8400-e29b-41d4-a716-446655440000",
+  "userRole": "3",
+  "specialty": "Cardiology"
+}
+```
+
+### 3. Authorization Policies
+
+Authorization policies are defined in Infrastructure layer and registered in `Program.cs`:
+
+#### 3.1 Role-Based Policies
+
+```csharp
+// Basic role policies
+options.AddPolicy("RequirePatient", policy => 
+    policy.RequireRole(UserRole.Patient.ToString()));
+
+options.AddPolicy("RequireDoctor", policy => 
+    policy.RequireRole(UserRole.Doctor.ToString()));
+
+options.AddPolicy("RequireAdmin", policy => 
+    policy.RequireRole(UserRole.SystemAdmin.ToString()));
+
+// Composite role policies
+options.AddPolicy("RequireProvider", policy => 
+    policy.RequireRole(
+        UserRole.Doctor.ToString(),
+        UserRole.HealthcareStaff.ToString(),
+        UserRole.LabUser.ToString(),
+        UserRole.ImagingUser.ToString()));
+
+options.AddPolicy("RequirePatientOrProvider", policy => 
+    policy.RequireRole(
+        UserRole.Patient.ToString(),
+        UserRole.Doctor.ToString(),
+        UserRole.HealthcareStaff.ToString(),
+        UserRole.LabUser.ToString(),
+        UserRole.ImagingUser.ToString()));
+```
+
+#### 3.2 Claims-Based Policies
+
+```csharp
+// Fine-grained permission policies
+options.AddPolicy("CanModifyMedicalAttributes", policy =>
+    policy.RequireClaim("role", "Doctor", "HealthcareStaff")
+          .RequireAssertion(context => 
+              context.User.HasClaim("permission", "modify_medical_attributes")));
+
+options.AddPolicy("CanCreateRecords", policy =>
+    policy.RequireClaim("role", "Doctor", "HealthcareStaff", "LabUser", "ImagingUser"));
+
+options.AddPolicy("CanViewAllPatients", policy =>
+    policy.RequireClaim("role", "Doctor", "HealthcareStaff", "SystemAdmin"));
+```
+
+#### 3.3 Resource-Based Policies
+
+Resource-based authorization is handled at the endpoint level using custom authorization handlers or inline checks:
+
+```csharp
+// Example: Patient accessing own data
+public override async Task HandleAsync(GetPatientRecordsRequest req, CancellationToken ct)
+{
+    var currentUserId = User.FindFirstValue("userId");
+    if (req.PatientId.ToString() != currentUserId && !User.IsInRole("Doctor"))
+    {
+        await SendUnauthorizedAsync(ct);
+        return;
+    }
+    // ... rest of handler
+}
+```
+
+### 4. Policy-to-Endpoint Mapping
+
+| Endpoint | Policy | Additional Checks |
+|----------|--------|-------------------|
+| `POST /patients` | None (public) | N/A (self-registration) |
+| `GET /patients/self/*` | `RequirePatient` | Verify `userId` claim matches resource |
+| `PUT /patients/self/medical-attributes` | `RequirePatient` | Verify ownership + business rules |
+| `POST /doctors/records` | `RequireDoctor` | N/A |
+| `GET /doctors/records` | `RequireDoctor` | Optional: filter by own records |
+| `POST /healthcare/records` | `RequireProvider` | Verify role is HealthcareStaff |
+| `POST /labs/records` | `RequireProvider` | Verify role is LabUser |
+| `POST /imaging/records` | `RequireProvider` | Verify role is ImagingUser |
+| `GET /admin/users` | `RequireAdmin` | N/A |
+| `POST /admin/users` | `RequireAdmin` | N/A |
+
+### 5. FastEndpoints Integration
+
+FastEndpoints uses policies via the `Policies()` method:
+
+```csharp
+public class GetPatientRecordsEndpoint : Endpoint<GetPatientRecordsRequest>
+{
+    public override void Configure()
+    {
+        Get("/patients/self/records");
+        Policies("RequirePatient");
+        // OR use claims directly
+        // Claims("role", "Patient");
+    }
+    
+    public override async Task HandleAsync(GetPatientRecordsRequest req, CancellationToken ct)
+    {
+        // Resource-based check
+        var currentUserId = Guid.Parse(User.FindFirstValue("userId")!);
+        if (req.PatientId != currentUserId)
+        {
+            await SendUnauthorizedAsync(ct);
+            return;
+        }
+        
+        // ... rest of handler
+    }
+}
+```
+
+### 6. Authorization Implementation Details
+
+#### 6.1 Token Generation
+
+JWT tokens are generated in `TokenProvider` (Infrastructure) with claims populated from:
+- Identity user roles → `role` claim
+- Domain user entity → custom claims (specialty, organizationId, etc.)
+
+#### 6.2 Policy Registration
+
+Policies are registered in `DependencyInjection.AddInfrastructure()` or a dedicated `AddAuthorizationPolicies()` extension method in Infrastructure layer.
+
+#### 6.3 Resource Ownership Verification
+
+Resource-based authorization patterns:
+- **Patient Resources**: Verify `userId` claim matches resource owner
+- **Provider Resources**: Verify role has access + optional organization/entity checks
+- **Admin Resources**: Verify `SystemAdmin` role
+
+### 7. Security Considerations
+
+- **Principle of Least Privilege**: Users only get minimum required permissions
+- **Defense in Depth**: Multiple layers (policies + resource checks)
+- **Token Expiration**: JWT tokens have reasonable expiration times
+- **Refresh Tokens**: Secure refresh token mechanism for token renewal
+- **Audit Logging**: All authorization decisions logged for security auditing
+
+### 8. Testing Authorization
+
+Authorization tests should verify:
+- ✅ Policies correctly allow/deny access based on roles
+- ✅ Claims are correctly included in JWT tokens
+- ✅ Resource-based checks prevent unauthorized access
+- ✅ Endpoints return 401/403 for unauthorized requests
+- ✅ Endpoints return 200 for authorized requests
 
 ---
 
@@ -843,28 +1042,50 @@ This section provides a comprehensive, phase-by-phase implementation guide. Each
    - Configure ASP.NET Core Identity in Infrastructure
    - Create custom `UserStore` for role-specific users
    - Set up Identity DbContext (or integrate with main DbContext)
+   - Configure Identity options (password requirements, lockout, etc.)
 
 3. **Identity Services**
    - Create `IIdentityService` interface in Core
    - Implement `IdentityService` in Infrastructure
    - Create `ITokenProvider` interface in Core
    - Implement `TokenProvider` in Infrastructure (JWT)
+   - Include role and custom claims in JWT tokens
 
 4. **Database Schema**
    - Create migrations for Users table and role-specific tables
-   - Create SQL views for user aggregates (if using views approach)
+   - Create SQL views for user aggregates (using views approach)
    - Configure EF Core mappings for user hierarchy
+   - Seed initial roles (SystemAdmin, Patient, Doctor, etc.)
 
-5. **Authentication Endpoints**
+5. **Authorization Policies Setup**
+   - Register authorization policies in Infrastructure layer
+   - Define role-based policies (RequirePatient, RequireDoctor, RequireProvider, etc.)
+   - Define claims-based policies for fine-grained control
+   - Create policy registration extension method
+
+6. **Authentication Endpoints**
    - Create login endpoint (POST /auth/login)
    - Create patient registration endpoint (POST /patients)
    - Configure JWT authentication middleware
-   - Set up authorization policies
+   - Configure authorization middleware with policies
 
-6. **Tests**
-   - Test user registration
-   - Test login and token generation
-   - Test authorization policies
+7. **Tests**
+   - ✅ **Domain Object Tests** (Completed):
+     - Test `BaseEntity` behavior (ID generation)
+     - Test `ValueObject` equality and comparison
+     - Test `User` activation/deactivation behavior
+     - Test `Patient` creation and properties
+     - Test `Doctor` creation and properties
+     - Test `HealthcareEntity` creation and properties
+     - Test `Laboratory` creation and properties
+     - Test `ImagingCenter` creation and properties
+     - Test `Result<T>` pattern behavior
+     - Test `Error` class behavior
+   - ⏳ Test user registration (patient self-registration)
+   - ⏳ Test login and token generation (verify claims included)
+   - ⏳ Test authorization policies (each policy allows/denies correctly)
+   - ⏳ Test resource-based authorization (patients can only access own data)
+   - ⏳ Test JWT token validation
 
 7. **Update README.md**
    - Authentication flow documentation
