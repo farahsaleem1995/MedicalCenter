@@ -11,7 +11,7 @@ namespace MedicalCenter.WebApi.Endpoints.Admin;
 /// </summary>
 public class ChangePasswordEndpoint(
     IIdentityService identityService)
-    : Endpoint<ChangePasswordRequest, ChangePasswordResponse>
+    : Endpoint<ChangePasswordRequest>
 {
     public override void Configure()
     {
@@ -22,7 +22,7 @@ public class ChangePasswordEndpoint(
         {
             s.Summary = "Change user password (admin)";
             s.Description = "Allows system admin to change a user's password without requiring the current password";
-            s.Responses[200] = "Password changed successfully";
+            s.Responses[204] = "Password changed successfully";
             s.Responses[400] = "Validation error";
             s.Responses[401] = "Unauthorized";
             s.Responses[403] = "Forbidden - Admin access required";
@@ -41,11 +41,7 @@ public class ChangePasswordEndpoint(
             return;
         }
 
-        Response = new ChangePasswordResponse
-        {
-            UserId = req.Id,
-            Message = "Password changed successfully"
-        };
+        await Send.NoContentAsync(ct);
     }
 }
 

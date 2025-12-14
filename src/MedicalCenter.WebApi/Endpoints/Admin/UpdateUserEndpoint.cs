@@ -11,8 +11,9 @@ namespace MedicalCenter.WebApi.Endpoints.Admin;
 /// </summary>
 public class UpdateUserEndpoint(
     IUserQueryService userQueryService,
+    IIdentityService identityService,
     MedicalCenterDbContext context)
-    : Endpoint<UpdateUserRequest, UpdateUserResponse>
+    : Endpoint<UpdateUserRequest>
 {
     public override void Configure()
     {
@@ -23,7 +24,7 @@ public class UpdateUserEndpoint(
         {
             s.Summary = "Update user";
             s.Description = "Allows system admin to update user details";
-            s.Responses[200] = "User updated successfully";
+            s.Responses[204] = "User updated successfully";
             s.Responses[400] = "Validation error";
             s.Responses[401] = "Unauthorized";
             s.Responses[403] = "Forbidden - Admin access required";
@@ -68,11 +69,10 @@ public class UpdateUserEndpoint(
         context.Update(user);
         await context.SaveChangesAsync(ct);
 
-        Response = new UpdateUserResponse
-        {
-            UserId = user.Id,
-            Message = "User updated successfully"
-        };
+        // Invalidate all refresh tokens for this user
+        await identityService.InvalidateUserRefreshTokensAsync(user.Id, ct);
+
+        await Send.NoContentAsync(ct);
     }
 }
 

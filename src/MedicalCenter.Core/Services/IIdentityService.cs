@@ -121,5 +121,12 @@ public interface IIdentityService
     Task<Result> RevokeRefreshTokenAsync(
         string token,
         CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Invalidates all refresh tokens for a user.
+    /// </summary>
+    Task<Result> InvalidateUserRefreshTokensAsync(
+        Guid userId,
+        CancellationToken cancellationToken = default);
 }
 

@@ -74,13 +74,13 @@ public class CreateUserEndpoint(
             return;
         }
 
-        Response = new CreateUserResponse
+        await Send.OkAsync(new CreateUserResponse
         {
             UserId = result.Value,
             Email = req.Email,
             FullName = req.FullName,
             Role = req.Role.ToString()
-        };
+        }, ct);
     }
 }
 

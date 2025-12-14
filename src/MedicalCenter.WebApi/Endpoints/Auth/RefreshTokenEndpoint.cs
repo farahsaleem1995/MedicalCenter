@@ -75,7 +75,7 @@ public class RefreshTokenEndpoint(
             return;
         }
 
-        Response = new RefreshTokenResponse
+        await Send.OkAsync(new RefreshTokenResponse
         {
             Token = newToken,
             RefreshToken = newRefreshToken,
@@ -83,7 +83,7 @@ public class RefreshTokenEndpoint(
             Email = user.Email,
             FullName = user.FullName,
             Role = user.Role.ToString()
-        };
+        }, ct);
     }
 }
 

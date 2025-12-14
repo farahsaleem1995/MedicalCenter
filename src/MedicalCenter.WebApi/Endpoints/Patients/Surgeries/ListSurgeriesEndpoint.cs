@@ -39,7 +39,7 @@ public class ListSurgeriesEndpoint(IRepository<Patient> patientRepository)
             return;
         }
 
-        Response = new ListSurgeriesResponse
+        await Send.OkAsync(new ListSurgeriesResponse
         {
             Surgeries = patient.Surgeries.Select(s => new SurgeryDto
             {
@@ -52,7 +52,7 @@ public class ListSurgeriesEndpoint(IRepository<Patient> patientRepository)
                 CreatedAt = s.CreatedAt,
                 UpdatedAt = s.UpdatedAt
             }).ToList()
-        };
+        }, ct);
     }
 }
 

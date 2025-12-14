@@ -39,7 +39,7 @@ public class GetUserEndpoint(
             return;
         }
 
-        Response = GetUserResponse.FromUser(user);
+        await Send.OkAsync(GetUserResponse.FromUser(user), ct);
     }
 }
 

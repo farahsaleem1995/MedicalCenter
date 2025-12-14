@@ -39,7 +39,7 @@ public class ListAllergiesEndpoint(IRepository<Patient> patientRepository)
             return;
         }
 
-        Response = new ListAllergiesResponse
+        await Send.OkAsync(new ListAllergiesResponse
         {
             Allergies = patient.Allergies.Select(a => new AllergyDto
             {
@@ -51,7 +51,7 @@ public class ListAllergiesEndpoint(IRepository<Patient> patientRepository)
                 CreatedAt = a.CreatedAt,
                 UpdatedAt = a.UpdatedAt
             }).ToList()
-        };
+        }, ct);
     }
 }
 

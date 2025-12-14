@@ -49,7 +49,7 @@ public class UpdateSurgeryEndpoint(
 
         var updatedSurgery = patient.Surgeries.First(s => s.Id == req.SurgeryId);
 
-        Response = new UpdateSurgeryResponse
+        await Send.OkAsync(new UpdateSurgeryResponse
         {
             Id = updatedSurgery.Id,
             PatientId = updatedSurgery.PatientId,
@@ -58,7 +58,7 @@ public class UpdateSurgeryEndpoint(
             Surgeon = updatedSurgery.Surgeon,
             Notes = updatedSurgery.Notes,
             UpdatedAt = updatedSurgery.UpdatedAt
-        };
+        }, ct);
     }
 }
 

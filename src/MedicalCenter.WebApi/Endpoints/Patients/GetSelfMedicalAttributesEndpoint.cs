@@ -45,7 +45,7 @@ public class GetSelfMedicalAttributesEndpoint(IRepository<Patient> patientReposi
             return;
         }
 
-        Response = new GetSelfMedicalAttributesResponse
+        await Send.OkAsync(new GetSelfMedicalAttributesResponse
         {
             Allergies = patient.Allergies.Select(a => new AllergySummaryDto
             {
@@ -78,7 +78,7 @@ public class GetSelfMedicalAttributesEndpoint(IRepository<Patient> patientReposi
                 Surgeon = s.Surgeon,
                 Notes = s.Notes
             }).ToList()
-        };
+        }, ct);
     }
 }
 

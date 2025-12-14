@@ -49,7 +49,7 @@ public class UpdateChronicDiseaseEndpoint(
 
         var updatedChronicDisease = patient.ChronicDiseases.First(cd => cd.Id == req.ChronicDiseaseId);
 
-        Response = new UpdateChronicDiseaseResponse
+        await Send.OkAsync(new UpdateChronicDiseaseResponse
         {
             Id = updatedChronicDisease.Id,
             PatientId = updatedChronicDisease.PatientId,
@@ -57,7 +57,7 @@ public class UpdateChronicDiseaseEndpoint(
             DiagnosisDate = updatedChronicDisease.DiagnosisDate,
             Notes = updatedChronicDisease.Notes,
             UpdatedAt = updatedChronicDisease.UpdatedAt
-        };
+        }, ct);
     }
 }
 

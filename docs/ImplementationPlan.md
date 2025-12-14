@@ -33,6 +33,7 @@ This document outlines the high-level implementation plan for the Medical Center
 - ✅ Provider entities (Doctor, HealthcareEntity, Laboratory, ImagingCenter) with shared primary key
 - ✅ Identity service for user management
 - ✅ Admin user management endpoints (CRUD, change password)
+- ✅ Get current user endpoint (`GET /auth/self`)
 - ✅ FluentValidation for all endpoints
 - ✅ Swagger/OpenAPI documentation (FastEndpoints.Swagger)
 - ✅ Security enhancements (RequirePatient policy, JWT role mapping)

@@ -39,7 +39,7 @@ public class ListChronicDiseasesEndpoint(IRepository<Patient> patientRepository)
             return;
         }
 
-        Response = new ListChronicDiseasesResponse
+        await Send.OkAsync(new ListChronicDiseasesResponse
         {
             ChronicDiseases = patient.ChronicDiseases.Select(cd => new ChronicDiseaseDto
             {
@@ -51,7 +51,7 @@ public class ListChronicDiseasesEndpoint(IRepository<Patient> patientRepository)
                 CreatedAt = cd.CreatedAt,
                 UpdatedAt = cd.UpdatedAt
             }).ToList()
-        };
+        }, ct);
     }
 }
 

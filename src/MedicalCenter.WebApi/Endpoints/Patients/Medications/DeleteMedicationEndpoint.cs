@@ -52,7 +52,7 @@ public class DeleteMedicationEndpoint(
         await patientRepository.UpdateAsync(patient, ct);
         await unitOfWork.SaveChangesAsync(ct);
 
-        HttpContext.Response.StatusCode = 204;
+        await Send.NoContentAsync(ct);
     }
 }
 

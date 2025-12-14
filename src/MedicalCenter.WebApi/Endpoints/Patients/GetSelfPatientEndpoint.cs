@@ -45,15 +45,11 @@ public class GetSelfPatientEndpoint(IRepository<Patient> patientRepository)
             return;
         }
 
-        Response = new GetSelfPatientResponse
+        await Send.OkAsync(new GetSelfPatientResponse
         {
-            Id = patient.Id,
-            FullName = patient.FullName,
-            Email = patient.Email,
             NationalId = patient.NationalId,
             DateOfBirth = patient.DateOfBirth,
             BloodType = patient.BloodType?.ToString(),
-            IsActive = patient.IsActive,
             Allergies = patient.Allergies.Select(a => new AllergySummaryDto
             {
                 Id = a.Id,
@@ -85,7 +81,7 @@ public class GetSelfPatientEndpoint(IRepository<Patient> patientRepository)
                 Surgeon = s.Surgeon,
                 Notes = s.Notes
             }).ToList()
-        };
+        }, ct);
     }
 }
 

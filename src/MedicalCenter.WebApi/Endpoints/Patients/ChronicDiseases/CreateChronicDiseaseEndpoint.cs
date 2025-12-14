@@ -23,7 +23,7 @@ public class CreateChronicDiseaseEndpoint(
         {
             s.Summary = "Create chronic disease for patient";
             s.Description = "Creates a new chronic disease for a specific patient";
-            s.Responses[201] = "Chronic disease created successfully";
+            s.Responses[200] = "Chronic disease created successfully";
             s.Responses[400] = "Validation error";
             s.Responses[401] = "Unauthorized";
             s.Responses[403] = "Forbidden";
@@ -47,7 +47,7 @@ public class CreateChronicDiseaseEndpoint(
         await patientRepository.UpdateAsync(patient, ct);
         await unitOfWork.SaveChangesAsync(ct);
 
-        Response = new CreateChronicDiseaseResponse
+        await Send.OkAsync(new CreateChronicDiseaseResponse
         {
             Id = chronicDisease.Id,
             PatientId = chronicDisease.PatientId,
@@ -55,7 +55,7 @@ public class CreateChronicDiseaseEndpoint(
             DiagnosisDate = chronicDisease.DiagnosisDate,
             Notes = chronicDisease.Notes,
             CreatedAt = chronicDisease.CreatedAt
-        };
+        }, ct);
     }
 }
 

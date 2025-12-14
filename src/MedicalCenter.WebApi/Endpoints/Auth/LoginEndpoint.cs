@@ -58,7 +58,7 @@ public class LoginEndpoint(
             return;
         }
 
-        Response = new LoginResponse
+        await Send.OkAsync(new LoginResponse
         {
             Token = token,
             RefreshToken = refreshToken,
@@ -66,6 +66,6 @@ public class LoginEndpoint(
             Email = user.Email,
             FullName = user.FullName,
             Role = user.Role.ToString()
-        };
+        }, ct);
     }
 }

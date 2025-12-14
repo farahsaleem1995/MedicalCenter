@@ -23,7 +23,7 @@ public class CreateMedicationEndpoint(
         {
             s.Summary = "Create medication for patient";
             s.Description = "Creates a new medication for a specific patient";
-            s.Responses[201] = "Medication created successfully";
+            s.Responses[200] = "Medication created successfully";
             s.Responses[400] = "Validation error";
             s.Responses[401] = "Unauthorized";
             s.Responses[403] = "Forbidden";
@@ -47,7 +47,7 @@ public class CreateMedicationEndpoint(
         await patientRepository.UpdateAsync(patient, ct);
         await unitOfWork.SaveChangesAsync(ct);
 
-        Response = new CreateMedicationResponse
+        await Send.OkAsync(new CreateMedicationResponse
         {
             Id = medication.Id,
             PatientId = medication.PatientId,
@@ -57,7 +57,7 @@ public class CreateMedicationEndpoint(
             EndDate = medication.EndDate,
             Notes = medication.Notes,
             CreatedAt = medication.CreatedAt
-        };
+        }, ct);
     }
 }
 

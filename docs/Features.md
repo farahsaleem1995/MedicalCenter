@@ -80,6 +80,32 @@ This document provides a comprehensive overview of all implemented features in t
 }
 ```
 
+### Get Current User Information
+
+**Endpoint**: `GET /auth/self`
+
+- Returns authenticated user's generic information
+- Available to all authenticated users
+- Does not include sensitive information like `IsActive` status
+
+**Response**:
+```json
+{
+  "id": "550e8400-e29b-41d4-a716-446655440000",
+  "email": "john.doe@example.com",
+  "fullName": "John Doe",
+  "role": "Patient"
+}
+```
+
+### Logout
+
+**Endpoint**: `POST /auth/logout`
+
+- Invalidates all refresh tokens for the authenticated user
+- Requires authentication
+- Returns 204 No Content on success
+
 ### User Roles
 
 - **SystemAdmin**: System administrators with full access
@@ -95,26 +121,25 @@ This document provides a comprehensive overview of all implemented features in t
 
 **Endpoint**: `GET /patients/self`
 
-- Returns authenticated patient's information
+- Returns authenticated patient's medical and patient-specific information
 - Includes blood type and medical attributes summary
+- Does not include generic user information (use `/auth/self` for that)
 - Requires `RequirePatient` policy
 
 **Response**:
 ```json
 {
-  "id": "550e8400-e29b-41d4-a716-446655440000",
-  "fullName": "John Doe",
-  "email": "john.doe@example.com",
   "nationalId": "123456789",
   "dateOfBirth": "1990-01-01T00:00:00Z",
   "bloodType": "A+",
-  "isActive": true,
   "allergies": [...],
   "chronicDiseases": [...],
   "medications": [...],
   "surgeries": [...]
 }
 ```
+
+**Note**: Generic user information (ID, email, full name, role) should be retrieved from `/auth/self` endpoint.
 
 ### Get Medical Attributes
 
@@ -270,6 +295,7 @@ All admin endpoints require `RequireAdmin` policy (SystemAdmin only).
 
 - Returns detailed user information
 - Includes provider-specific details if applicable
+- **Note**: Only system admins can see `IsActive` status. This field is not exposed in non-admin endpoints.
 
 #### Create User
 **Endpoint**: `POST /users`
@@ -404,6 +430,7 @@ All endpoints use FluentValidation for request validation:
 - Role-based access control (RBAC)
 - Policy-based authorization
 - Resource-based authorization (users can only access their own data)
+- **Sensitive Information**: `IsActive` status is only exposed to system administrators through admin endpoints
 
 ### Password Security
 

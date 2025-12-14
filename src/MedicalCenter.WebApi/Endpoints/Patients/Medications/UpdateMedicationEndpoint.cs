@@ -49,7 +49,7 @@ public class UpdateMedicationEndpoint(
 
         var updatedMedication = patient.Medications.First(m => m.Id == req.MedicationId);
 
-        Response = new UpdateMedicationResponse
+        await Send.OkAsync(new UpdateMedicationResponse
         {
             Id = updatedMedication.Id,
             PatientId = updatedMedication.PatientId,
@@ -59,7 +59,7 @@ public class UpdateMedicationEndpoint(
             EndDate = updatedMedication.EndDate,
             Notes = updatedMedication.Notes,
             UpdatedAt = updatedMedication.UpdatedAt
-        };
+        }, ct);
     }
 }
 

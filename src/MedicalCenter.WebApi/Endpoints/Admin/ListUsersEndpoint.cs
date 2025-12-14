@@ -53,11 +53,11 @@ public class ListUsersEndpoint(
             isActive,
             ct);
 
-        Response = new ListUsersResponse
+        await Send.OkAsync(new ListUsersResponse
         {
             Items = paginatedResult.Items.Select(GetUserResponse.FromUser).ToList(),
             Metadata = paginatedResult.Metadata
-        };
+        }, ct);
     }
 }
 

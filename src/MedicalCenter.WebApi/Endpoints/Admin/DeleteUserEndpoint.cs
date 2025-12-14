@@ -11,7 +11,7 @@ namespace MedicalCenter.WebApi.Endpoints.Admin;
 public class DeleteUserEndpoint(
     IUserQueryService userQueryService,
     MedicalCenterDbContext context)
-    : Endpoint<DeleteUserRequest, DeleteUserResponse>
+    : Endpoint<DeleteUserRequest>
 {
     public override void Configure()
     {
@@ -22,7 +22,7 @@ public class DeleteUserEndpoint(
         {
             s.Summary = "Delete/deactivate user";
             s.Description = "Allows system admin to deactivate a user (soft delete)";
-            s.Responses[200] = "User deactivated successfully";
+            s.Responses[204] = "User deactivated successfully";
             s.Responses[401] = "Unauthorized";
             s.Responses[403] = "Forbidden - Admin access required";
             s.Responses[404] = "User not found";
@@ -45,11 +45,7 @@ public class DeleteUserEndpoint(
         context.Update(user);
         await context.SaveChangesAsync(ct);
 
-        Response = new DeleteUserResponse
-        {
-            UserId = user.Id,
-            Message = "User deactivated successfully"
-        };
+        await Send.NoContentAsync(ct);
     }
 }
 

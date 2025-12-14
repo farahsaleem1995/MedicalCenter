@@ -86,14 +86,14 @@ public class RegisterPatientEndpoint(
             // Commit transaction
             await unitOfWork.CommitTransactionAsync(ct);
 
-            Response = new RegisterPatientResponse
+            await Send.OkAsync(new RegisterPatientResponse
             {
                 Token = token,
                 RefreshToken = refreshToken,
                 UserId = patient.Id,
                 Email = patient.Email,
                 FullName = patient.FullName
-            };
+            }, ct);
         }
         catch
         {

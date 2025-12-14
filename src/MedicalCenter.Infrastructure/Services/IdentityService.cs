@@ -78,6 +78,9 @@ public class IdentityService(
             return Result.Failure(Error.Validation(string.Join("; ", errors)));
         }
 
+        // Invalidate all refresh tokens for this user
+        await InvalidateUserRefreshTokensAsync(userId, cancellationToken);
+
         return Result.Success();
     }
 
@@ -107,6 +110,9 @@ public class IdentityService(
             var errors = addResult.Errors.Select(e => e.Description);
             return Result.Failure(Error.Validation(string.Join("; ", errors)));
         }
+
+        // Invalidate all refresh tokens for this user
+        await InvalidateUserRefreshTokensAsync(userId, cancellationToken);
 
         return Result.Success();
     }
@@ -367,6 +373,11 @@ public class IdentityService(
             return Result<Guid>.Failure(Error.Unauthorized("Invalid refresh token."));
         }
 
+        if (refreshToken.Revoked)
+        {
+            return Result<Guid>.Failure(Error.Unauthorized("Refresh token has been revoked."));
+        }
+
         if (refreshToken.ExpiryDate < DateTime.UtcNow)
         {
             // Token expired, remove it
@@ -390,7 +401,25 @@ public class IdentityService(
             return Result.Failure(Error.NotFound("Refresh token"));
         }
 
-        context.RefreshTokens.Remove(refreshToken);
+        refreshToken.Revoked = true;
+        await unitOfWork.SaveChangesAsync(cancellationToken);
+
+        return Result.Success();
+    }
+
+    public async Task<Result> InvalidateUserRefreshTokensAsync(
+        Guid userId,
+        CancellationToken cancellationToken = default)
+    {
+        var refreshTokens = await context.RefreshTokens
+            .Where(rt => rt.UserId == userId && !rt.Revoked)
+            .ToListAsync(cancellationToken);
+
+        foreach (var token in refreshTokens)
+        {
+            token.Revoked = true;
+        }
+
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
         return Result.Success();

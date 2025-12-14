@@ -23,7 +23,7 @@ public class CreateSurgeryEndpoint(
         {
             s.Summary = "Create surgery for patient";
             s.Description = "Creates a new surgery for a specific patient";
-            s.Responses[201] = "Surgery created successfully";
+            s.Responses[200] = "Surgery created successfully";
             s.Responses[400] = "Validation error";
             s.Responses[401] = "Unauthorized";
             s.Responses[403] = "Forbidden";
@@ -47,7 +47,7 @@ public class CreateSurgeryEndpoint(
         await patientRepository.UpdateAsync(patient, ct);
         await unitOfWork.SaveChangesAsync(ct);
 
-        Response = new CreateSurgeryResponse
+        await Send.OkAsync(new CreateSurgeryResponse
         {
             Id = surgery.Id,
             PatientId = surgery.PatientId,
@@ -56,7 +56,7 @@ public class CreateSurgeryEndpoint(
             Surgeon = surgery.Surgeon,
             Notes = surgery.Notes,
             CreatedAt = surgery.CreatedAt
-        };
+        }, ct);
     }
 }
 

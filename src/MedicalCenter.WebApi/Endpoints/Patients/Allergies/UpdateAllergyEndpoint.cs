@@ -49,7 +49,7 @@ public class UpdateAllergyEndpoint(
 
         var updatedAllergy = patient.Allergies.First(a => a.Id == req.AllergyId);
 
-        Response = new UpdateAllergyResponse
+        await Send.OkAsync(new UpdateAllergyResponse
         {
             Id = updatedAllergy.Id,
             PatientId = updatedAllergy.PatientId,
@@ -57,7 +57,7 @@ public class UpdateAllergyEndpoint(
             Severity = updatedAllergy.Severity,
             Notes = updatedAllergy.Notes,
             UpdatedAt = updatedAllergy.UpdatedAt
-        };
+        }, ct);
     }
 }
 

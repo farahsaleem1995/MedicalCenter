@@ -23,7 +23,7 @@ public class CreateAllergyEndpoint(
         {
             s.Summary = "Create allergy for patient";
             s.Description = "Creates a new allergy for a specific patient";
-            s.Responses[201] = "Allergy created successfully";
+            s.Responses[200] = "Allergy created successfully";
             s.Responses[400] = "Validation error";
             s.Responses[401] = "Unauthorized";
             s.Responses[403] = "Forbidden";
@@ -47,7 +47,7 @@ public class CreateAllergyEndpoint(
         await patientRepository.UpdateAsync(patient, ct);
         await unitOfWork.SaveChangesAsync(ct);
 
-        Response = new CreateAllergyResponse
+        await Send.OkAsync(new CreateAllergyResponse
         {
             Id = allergy.Id,
             PatientId = allergy.PatientId,
@@ -55,7 +55,7 @@ public class CreateAllergyEndpoint(
             Severity = allergy.Severity,
             Notes = allergy.Notes,
             CreatedAt = allergy.CreatedAt
-        };
+        }, ct);
     }
 }
 
