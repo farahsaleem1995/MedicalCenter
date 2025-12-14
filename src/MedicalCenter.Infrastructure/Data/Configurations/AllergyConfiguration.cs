@@ -34,6 +34,8 @@ public class AllergyConfiguration : IEntityTypeConfiguration<Allergy>
         builder.Property(a => a.UpdatedAt);
 
         builder.HasIndex(a => a.PatientId);
+
+        builder.HasQueryFilter(a => a.Patient.IsActive);
     }
 }
 

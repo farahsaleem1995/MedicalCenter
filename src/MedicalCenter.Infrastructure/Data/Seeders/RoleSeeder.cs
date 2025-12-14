@@ -3,6 +3,7 @@ using System.Text;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using MedicalCenter.Core.Enums;
+using MedicalCenter.Infrastructure.Identity;
 
 namespace MedicalCenter.Infrastructure.Data.Seeders;
 
@@ -20,7 +21,7 @@ public static class RoleSeeder
             .Select(role => role.ToString())
             .ToList();
 
-        var roleEntities = roles.Select(roleName => new IdentityRole<Guid>
+        var roleEntities = roles.Select(roleName => new ApplicationRole
         {
             Id = GetRoleId(roleName),
             Name = roleName,
@@ -28,7 +29,7 @@ public static class RoleSeeder
             ConcurrencyStamp = GetRoleId($"{roleName}_ConcurrencyStamp").ToString()
         }).ToArray();
 
-        modelBuilder.Entity<IdentityRole<Guid>>().HasData(roleEntities);
+        modelBuilder.Entity<ApplicationRole>().HasData(roleEntities);
     }
 
     /// <summary>

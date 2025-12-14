@@ -37,6 +37,8 @@ public class SurgeryConfiguration : IEntityTypeConfiguration<Surgery>
         builder.Property(s => s.UpdatedAt);
 
         builder.HasIndex(s => s.PatientId);
+
+        builder.HasQueryFilter(s => s.Patient.IsActive);
     }
 }
 

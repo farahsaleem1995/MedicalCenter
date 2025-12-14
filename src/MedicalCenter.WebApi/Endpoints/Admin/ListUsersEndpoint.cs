@@ -34,22 +34,13 @@ public class ListUsersEndpoint(
 
     public override async Task HandleAsync(ListUsersRequest req, CancellationToken ct)
     {
-        UserRole? role = null;
-        if (!string.IsNullOrWhiteSpace(req.Role))
-        {
-            if (Enum.TryParse<UserRole>(req.Role, true, out var parsedRole))
-            {
-                role = parsedRole;
-            }
-        }
-
         bool? isActive = req.IsActive;
 
         // Use admin method to ignore query filters (include deactivated users)
-        var paginatedResult = await userQueryService.ListUsersAdminPaginatedAsync(
+        var paginatedResult = await userQueryService.ListUsersPaginatedAsync(
             req.PageNumber ?? 1,
             req.PageSize ?? 10,
-            role,
+            req.Role,
             isActive,
             ct);
 

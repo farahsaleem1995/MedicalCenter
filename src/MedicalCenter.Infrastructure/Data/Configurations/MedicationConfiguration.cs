@@ -39,6 +39,8 @@ public class MedicationConfiguration : IEntityTypeConfiguration<Medication>
         builder.Property(m => m.UpdatedAt);
 
         builder.HasIndex(m => m.PatientId);
+
+        builder.HasQueryFilter(m => m.Patient.IsActive);
     }
 }
 

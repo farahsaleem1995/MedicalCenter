@@ -34,6 +34,8 @@ public class ChronicDiseaseConfiguration : IEntityTypeConfiguration<ChronicDisea
         builder.Property(cd => cd.UpdatedAt);
 
         builder.HasIndex(cd => cd.PatientId);
+
+        builder.HasQueryFilter(cd => cd.Patient.IsActive);
     }
 }
 

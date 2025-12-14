@@ -53,6 +53,8 @@ The Infrastructure layer implements data access and external service integration
 
 - **Entity Framework Core**:
   - `MedicalCenterDbContext`: Main database context
+    - Inherits from `IdentityDbContext<ApplicationUser, ApplicationRole, Guid, IdentityUserClaim<Guid>, ApplicationUserRole, ...>`
+    - Uses `ApplicationUserRole` directly (no inheritance mapping, no discriminator column)
   - Entity configurations for all domain entities
   - Migrations for database schema management
 
@@ -80,7 +82,9 @@ The Infrastructure layer implements data access and external service integration
 
 #### Database Schema
 
-- **Identity Tables**: ASP.NET Core Identity tables (AspNetUsers, AspNetRoles, etc.)
+- **Identity Tables**: ASP.NET Core Identity tables (AspNetUsers, AspNetRoles, AspNetUserRoles, etc.)
+  - `ApplicationUserRole`: Custom user-role join entity with navigation properties
+  - Configured directly in `IdentityDbContext` generics to avoid inheritance mapping
 - **Domain Tables**: Patient, Doctor, HealthcareEntity, Laboratory, ImagingCenter
 - **Relationships**: Provider entities use shared primary key with ApplicationUser
 
@@ -230,6 +234,10 @@ The Web API layer handles HTTP requests, validation, authorization, and DTOs.
 ### Query Filters
 
 - **Global Query Filters**: EF Core filters for soft-delete (`IsActive`)
+  - `Patient`: `HasQueryFilter(p => p.IsActive)`
+  - `Allergy`, `ChronicDisease`, `Medication`, `Surgery`: Matching filters `HasQueryFilter(x => x.Patient.IsActive)`
+  - `Doctor`, `HealthcareEntity`, `Laboratory`, `ImagingCenter`: `HasQueryFilter(x => x.IsActive)`
+- **Matching Filters**: Child entities (medical attributes) have matching query filters to prevent inconsistent states when parent is filtered out
 - **Admin Override**: `IgnoreQueryFilters()` for admin operations
 
 ### Migrations

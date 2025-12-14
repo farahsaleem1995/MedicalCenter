@@ -1,8 +1,10 @@
+using MedicalCenter.Core.Enums;
+
 namespace MedicalCenter.WebApi.Endpoints.Admin;
 
 public class ListUsersRequest
 {
-    public string? Role { get; set; }
+    public UserRole? Role { get; set; }
     
     public bool? IsActive { get; set; }
 

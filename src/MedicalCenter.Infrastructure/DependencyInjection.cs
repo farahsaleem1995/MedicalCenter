@@ -36,7 +36,7 @@ public static class DependencyInjection
         });
 
         // Configure ASP.NET Core Identity
-        services.AddIdentity<ApplicationUser, IdentityRole<Guid>>(options =>
+        services.AddIdentity<ApplicationUser, ApplicationRole>(options =>
         {
             // Password settings
             options.Password.RequireDigit = true;

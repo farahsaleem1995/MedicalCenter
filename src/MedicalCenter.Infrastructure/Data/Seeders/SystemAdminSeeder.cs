@@ -47,13 +47,13 @@ public static class SystemAdminSeeder
         modelBuilder.Entity<ApplicationUser>().HasData(adminUser);
 
         // Seed user-role relationship
-        IdentityUserRole<Guid> userRole = new IdentityUserRole<Guid>
+        var userRole = new ApplicationUserRole
         {
             UserId = adminId,
             RoleId = systemAdminRoleId
         };
 
-        modelBuilder.Entity<IdentityUserRole<Guid>>().HasData(userRole);
+        modelBuilder.Entity<ApplicationUserRole>().HasData(userRole);
     }
 
     /// <summary>

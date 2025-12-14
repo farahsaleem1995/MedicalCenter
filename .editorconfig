@@ -154,7 +154,10 @@ csharp_preserve_single_line_blocks = true
 # Code style rules
 csharp_style_var_for_built_in_types = false:warning
 csharp_style_var_when_type_is_apparent = true:warning
-csharp_style_var_elsewhere = false:warning
+csharp_style_var_elsewhere = true:suggestion
+
+# IDE0007: Use 'var' instead of explicit type (when type is obvious)
+dotnet_diagnostic.IDE0007.severity = none
 
 # Expression-bodied members
 csharp_style_expression_bodied_methods = false:silent

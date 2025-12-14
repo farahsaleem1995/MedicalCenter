@@ -14,7 +14,15 @@ namespace MedicalCenter.Infrastructure.Data;
 /// Entity Framework Core DbContext for the Medical Center application.
 /// Integrates ASP.NET Core Identity with domain entities.
 /// </summary>
-public class MedicalCenterDbContext : IdentityDbContext<ApplicationUser, IdentityRole<Guid>, Guid>
+public class MedicalCenterDbContext : IdentityDbContext<
+    ApplicationUser, 
+    ApplicationRole, 
+    Guid,
+    IdentityUserClaim<Guid>,
+    ApplicationUserRole,
+    IdentityUserLogin<Guid>,
+    IdentityRoleClaim<Guid>,
+    IdentityUserToken<Guid>>
 {
     private readonly AuditableEntityInterceptor _auditableEntityInterceptor;
 

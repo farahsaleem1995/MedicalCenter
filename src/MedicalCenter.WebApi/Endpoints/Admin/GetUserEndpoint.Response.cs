@@ -1,5 +1,7 @@
+using MedicalCenter.Core.Aggregates.Patient;
 using MedicalCenter.Core.Entities;
 using MedicalCenter.Core.Enums;
+using MedicalCenter.Core.ValueObjects;
 
 namespace MedicalCenter.WebApi.Endpoints.Admin;
 
@@ -13,19 +15,11 @@ public class GetUserResponse
     public DateTime CreatedAt { get; set; }
     public DateTime? UpdatedAt { get; set; }
 
-    // Doctor-specific
-    public string? LicenseNumber { get; set; }
-    public string? Specialty { get; set; }
-
-    // HealthcareStaff-specific
-    public string? OrganizationName { get; set; }
-    public string? Department { get; set; }
-
-    // LabUser-specific
-    public string? LabName { get; set; }
-
-    // ImagingUser-specific
-    public string? CenterName { get; set; }
+    public PatientDetails? PatientDetails { get; set; }
+    public DoctorDetails? DoctorDetails { get; set; }
+    public HealthcareEntityDetails? HealthcareEntityDetails { get; set; }
+    public LaboratoryDetails? LaboratoryDetails { get; set; }
+    public ImagingCenterDetails? ImagingCenterDetails { get; set; }
 
     public static GetUserResponse FromUser(User user)
     {
@@ -43,25 +37,72 @@ public class GetUserResponse
         // Set role-specific properties
         switch (user)
         {
+            case Patient patient:
+                response.PatientDetails = new PatientDetails
+                {
+                    NationalId = patient.NationalId,
+                    DateOfBirth = patient.DateOfBirth,
+                    BloodType = patient.BloodType
+                };
+                break;
             case Doctor doctor:
-                response.LicenseNumber = doctor.LicenseNumber;
-                response.Specialty = doctor.Specialty;
+                response.DoctorDetails = new DoctorDetails
+                {
+                    LicenseNumber = doctor.LicenseNumber,
+                    Specialty = doctor.Specialty
+                };
                 break;
             case HealthcareEntity healthcare:
-                response.OrganizationName = healthcare.OrganizationName;
-                response.Department = healthcare.Department;
+                response.HealthcareEntityDetails = new HealthcareEntityDetails
+                {
+                    OrganizationName = healthcare.OrganizationName,
+                    Department = healthcare.Department
+                };
                 break;
             case Laboratory lab:
-                response.LabName = lab.LabName;
-                response.LicenseNumber = lab.LicenseNumber;
+                response.LaboratoryDetails = new LaboratoryDetails
+                {
+                    LabName = lab.LabName
+                };
                 break;
             case ImagingCenter imaging:
-                response.CenterName = imaging.CenterName;
-                response.LicenseNumber = imaging.LicenseNumber;
+                response.ImagingCenterDetails = new ImagingCenterDetails
+                {
+                    CenterName = imaging.CenterName
+                };
                 break;
         }
 
         return response;
     }
+}
+
+public class PatientDetails
+{
+    public string NationalId { get; set; } = string.Empty;
+    public DateTime DateOfBirth { get; set; }
+    public BloodType? BloodType { get; set; }
+}
+
+public class DoctorDetails
+{
+    public string LicenseNumber { get; set; } = string.Empty;
+    public string Specialty { get; set; } = string.Empty;
+}
+
+public class HealthcareEntityDetails
+{
+    public string OrganizationName { get; set; } = string.Empty;
+    public string Department { get; set; } = string.Empty;
+}
+
+public class LaboratoryDetails
+{
+    public string LabName { get; set; } = string.Empty;
+}
+
+public class ImagingCenterDetails
+{
+    public string CenterName { get; set; } = string.Empty;
 }
 
