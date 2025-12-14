@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using MedicalCenter.Core.Entities;
+using MedicalCenter.Core.Common;
 
 namespace MedicalCenter.Infrastructure.Data.Interceptors;
 

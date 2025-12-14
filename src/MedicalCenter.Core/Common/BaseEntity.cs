@@ -1,4 +1,4 @@
-namespace MedicalCenter.Core.Entities;
+namespace MedicalCenter.Core.Common;
 
 /// <summary>
 /// Base class for all domain entities.

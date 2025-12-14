@@ -1,5 +1,5 @@
 using FluentAssertions;
-using MedicalCenter.Core.Entities;
+using MedicalCenter.Core.Aggregates.Patient;
 using MedicalCenter.Core.Enums;
 using Xunit;
 

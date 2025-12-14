@@ -1,4 +1,4 @@
-namespace MedicalCenter.Core.Entities;
+namespace MedicalCenter.Core.Common;
 
 /// <summary>
 /// Marker interface for aggregate root entities.

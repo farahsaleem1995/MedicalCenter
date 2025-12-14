@@ -4,6 +4,7 @@ using System.Security.Cryptography;
 using System.Text;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using MedicalCenter.Core.Aggregates.Patient;
 using MedicalCenter.Core.Entities;
 using MedicalCenter.Core.Enums;
 using MedicalCenter.Core.Services;

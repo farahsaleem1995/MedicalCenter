@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using MedicalCenter.Core.Entities;
+using MedicalCenter.Core.Aggregates.Patient;
 
 namespace MedicalCenter.Core.Services;
 

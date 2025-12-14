@@ -1,4 +1,4 @@
-namespace MedicalCenter.Core.Entities;
+namespace MedicalCenter.Core.Common;
 
 /// <summary>
 /// Interface for entities that require audit tracking.

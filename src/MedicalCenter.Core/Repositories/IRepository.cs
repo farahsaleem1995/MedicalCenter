@@ -1,5 +1,5 @@
 using Ardalis.Specification;
-using MedicalCenter.Core.Entities;
+using MedicalCenter.Core.Common;
 
 namespace MedicalCenter.Core.Repositories;
 

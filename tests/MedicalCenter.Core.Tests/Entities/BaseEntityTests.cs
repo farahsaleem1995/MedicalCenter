@@ -1,5 +1,5 @@
 using FluentAssertions;
-using MedicalCenter.Core.Entities;
+using MedicalCenter.Core.Common;
 using Xunit;
 
 namespace MedicalCenter.Core.Tests.Entities;

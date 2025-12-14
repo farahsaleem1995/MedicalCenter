@@ -1,6 +1,8 @@
+using MedicalCenter.Core.Common;
+using MedicalCenter.Core.Entities;
 using MedicalCenter.Core.Enums;
 
-namespace MedicalCenter.Core.Entities;
+namespace MedicalCenter.Core.Aggregates.Patient;
 
 /// <summary>
 /// Patient aggregate root.
