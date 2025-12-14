@@ -537,6 +537,41 @@ All medical attribute endpoints are scoped to a specific patient: `/patients/{pa
 - Requires `CanModifyMedicalAttributes` policy
 - Returns 204 No Content on success
 
+### Blood Type
+
+#### Update Blood Type
+**Endpoint**: `PUT /patients/{patientId}/blood-type`
+
+- Updates the blood type for a specific patient
+- Requires `CanModifyMedicalAttributes` policy
+- Both ABO and Rh must be provided together, or both omitted to clear the blood type
+
+**Request**:
+```json
+{
+  "abo": 1,
+  "rh": 1
+}
+```
+
+Or to clear the blood type:
+```json
+{
+  "abo": null,
+  "rh": null
+}
+```
+
+**Response**:
+```json
+{
+  "patientId": "550e8400-e29b-41d4-a716-446655440001",
+  "bloodType": "A+"
+}
+```
+
+**Note**: When blood type is cleared, `bloodType` will be `null` in the response.
+
 ## Admin Features
 
 All admin endpoints require `RequireAdmin` policy (SystemAdmin only).
@@ -917,6 +952,90 @@ All list endpoints return paginated results using the `PaginatedList<T>` pattern
   "toItem": 10
 }
 ```
+
+## Enum Values
+
+The API uses numeric enum values in requests and responses. API clients must use the numeric values (integers) when sending enum values in requests, and should expect numeric values in responses. Below are the mappings for all enums used in the API.
+
+### BloodABO
+
+Enum values for ABO blood group types:
+
+| Numeric Value | String Name | Description |
+|--------------|-------------|-------------|
+| 1 | A | Blood type A |
+| 2 | B | Blood type B |
+| 3 | AB | Blood type AB |
+| 4 | O | Blood type O |
+
+**Usage**: Used in blood type requests and responses. When updating a patient's blood type, both `abo` (BloodABO) and `rh` (BloodRh) must be provided together.
+
+### BloodRh
+
+Enum values for Rh factor:
+
+| Numeric Value | String Name | Description |
+|--------------|-------------|-------------|
+| 1 | Positive | Rh positive (+) |
+| 2 | Negative | Rh negative (-) |
+
+**Usage**: Used in blood type requests and responses. Combined with BloodABO to represent complete blood types (e.g., "A+", "B-", "AB+", "O-").
+
+### UserRole
+
+Enum values for user roles:
+
+| Numeric Value | String Name | Description |
+|--------------|-------------|-------------|
+| 1 | SystemAdmin | System administrator |
+| 2 | Patient | Patient user |
+| 3 | Doctor | Doctor/physician |
+| 4 | HealthcareStaff | Healthcare staff member |
+| 5 | LabUser | Laboratory user |
+| 6 | ImagingUser | Imaging center user |
+
+**Usage**: Used in user management endpoints and authentication responses. String representation is returned in responses (e.g., `"role": "Patient"`), but numeric values are used in database storage and internal processing.
+
+### RecordType
+
+Enum values for medical record types:
+
+| Numeric Value | String Name | Description |
+|--------------|-------------|-------------|
+| 1 | ConsultationNote | Consultation note |
+| 2 | LaboratoryResult | Laboratory test result |
+| 3 | ImagingReport | Imaging study report |
+| 4 | Prescription | Prescription record |
+| 5 | Diagnosis | Diagnosis record |
+| 6 | TreatmentPlan | Treatment plan |
+| 99 | Other | Other record type |
+
+**Usage**: Used in medical records endpoints (future feature).
+
+### Notes for API Clients
+
+1. **Request Format**: Always send numeric enum values (integers) in requests:
+   - Blood type enums: `"abo": 1, "rh": 1` (not `"abo": "A"` or `"rh": "Positive"`)
+   - UserRole: `"role": 3` (not `"role": "Doctor"`)
+   - RecordType: `"recordType": 2` (not `"recordType": "LaboratoryResult"`)
+
+2. **Response Format**: Enum values in responses depend on the endpoint:
+   - **BloodABO** and **BloodRh**: Always numeric values (e.g., `"abo": 1, "rh": 1`)
+   - **UserRole**: Always string representation (e.g., `"role": "Patient"`, `"role": "Doctor"`) for backward compatibility and readability
+   - **RecordType**: Numeric values when used in responses
+
+3. **Null Values**: Some enum fields may be nullable. Use `null` to clear or omit optional enum values (e.g., clearing blood type by setting both `abo` and `rh` to `null`).
+
+4. **Validation**: Invalid enum values will result in a 400 Bad Request validation error with details about the invalid value.
+
+5. **Example Request (Update Blood Type)**:
+```json
+{
+  "abo": 1,
+  "rh": 1
+}
+```
+This sets the blood type to "A+". The numeric values correspond to the enum mappings shown above.
 
 ## Validation
 
