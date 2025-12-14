@@ -44,14 +44,19 @@ Edit `.env` file to customize:
 #### Step 3: Start with Docker Compose
 
 ```bash
-docker-compose up
+# First time or after code changes (rebuilds and recreates containers)
+docker-compose up --build
+
+# Or if you want to force recreate containers even if image hasn't changed
+docker-compose up --build --force-recreate
 ```
 
 This will:
 - Build the .NET application Docker image
+- Recreate containers to ensure latest code and migrations are applied
 - Start SQL Server container
-- Start the Web API container
-- Automatically run database migrations
+- Start the Web API container (waits for SQL Server to be healthy)
+- Automatically run database migrations on startup
 - Seed initial data (roles, system admin)
 
 The API will be available at:
