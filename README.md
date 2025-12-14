@@ -192,7 +192,7 @@ A system administrator account is automatically seeded when the database is crea
 #### Register a Patient
 
 ```bash
-curl -X POST https://localhost:5001/patients \
+curl -X POST https://localhost:5001/auth/patients \
   -H "Content-Type: application/json" \
   -d '{
     "fullName": "John Doe",
@@ -262,7 +262,7 @@ MedicalCenter/
 ### Patient Management
 
 - ✅ Patient aggregate with medical attributes
-- ✅ Blood type management
+- ✅ Blood type management (create/update)
 - ✅ Allergies, Chronic Diseases, Medications, Surgeries
 - ✅ Patient self-service endpoints
 
@@ -290,7 +290,7 @@ MedicalCenter/
 ## Documentation
 
 - **[Architecture](docs/Architecture.md)** - Comprehensive architecture documentation
-- **[Features](docs/Features.md)** - Detailed features documentation
+- **[Features](docs/Features.md)** - Detailed features documentation with API endpoint details and enum value mappings
 - **[Implementation Plan](docs/ImplementationPlan.md)** - Implementation roadmap and progress
 
 ## Testing
