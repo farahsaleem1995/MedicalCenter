@@ -8,7 +8,7 @@ This document provides a comprehensive overview of all implemented features in t
 
 ### User Registration
 
-**Endpoint**: `POST /patients`
+**Endpoint**: `POST /auth/patients`
 
 - Patient self-registration
 - Creates both Identity user and Patient aggregate
@@ -77,6 +77,14 @@ This document provides a comprehensive overview of all implemented features in t
 ```json
 {
   "refreshToken": "base64-encoded-refresh-token"
+}
+```
+
+**Response**:
+```json
+{
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "refreshToken": "base64-encoded-new-refresh-token"
 }
 ```
 
@@ -149,6 +157,23 @@ This document provides a comprehensive overview of all implemented features in t
 - Includes allergies, chronic diseases, medications, surgeries
 - Requires `RequirePatient` policy
 
+**Response**:
+```json
+{
+  "allergies": [
+    {
+      "id": "...",
+      "name": "Peanuts",
+      "severity": "Severe",
+      "notes": "Causes anaphylaxis"
+    }
+  ],
+  "chronicDiseases": [...],
+  "medications": [...],
+  "surgeries": [...]
+}
+```
+
 ## Medical Attributes Management
 
 Medical attributes endpoints use separate policies for view and modify operations:
@@ -157,13 +182,38 @@ Medical attributes endpoints use separate policies for view and modify operation
 
 This separation provides flexibility for future role-based permission changes.
 
+All medical attribute endpoints are scoped to a specific patient: `/patients/{patientId}/{attributeType}/{attributeId?}`
+
 ### Allergies
 
 #### List Allergies
 **Endpoint**: `GET /patients/{patientId}/allergies`
 
+- Returns all allergies for a specific patient
+- Requires `CanViewMedicalAttributes` policy
+
+**Response**:
+```json
+{
+  "allergies": [
+    {
+      "id": "550e8400-e29b-41d4-a716-446655440000",
+      "patientId": "550e8400-e29b-41d4-a716-446655440001",
+      "name": "Peanuts",
+      "severity": "Severe",
+      "notes": "Causes anaphylaxis",
+      "createdAt": "2024-01-01T00:00:00Z",
+      "updatedAt": "2024-01-02T00:00:00Z"
+    }
+  ]
+}
+```
+
 #### Create Allergy
 **Endpoint**: `POST /patients/{patientId}/allergies`
+
+- Creates a new allergy for a specific patient
+- Requires `CanModifyMedicalAttributes` policy
 
 **Request**:
 ```json
@@ -174,19 +224,81 @@ This separation provides flexibility for future role-based permission changes.
 }
 ```
 
+**Response**:
+```json
+{
+  "id": "550e8400-e29b-41d4-a716-446655440000",
+  "patientId": "550e8400-e29b-41d4-a716-446655440001",
+  "name": "Peanuts",
+  "severity": "Severe",
+  "notes": "Causes anaphylaxis",
+  "createdAt": "2024-01-01T00:00:00Z"
+}
+```
+
 #### Update Allergy
 **Endpoint**: `PUT /patients/{patientId}/allergies/{allergyId}`
 
+- Updates an existing allergy (name cannot be changed)
+- Requires `CanModifyMedicalAttributes` policy
+
+**Request**:
+```json
+{
+  "severity": "Moderate",
+  "notes": "Updated notes"
+}
+```
+
+**Response**:
+```json
+{
+  "id": "550e8400-e29b-41d4-a716-446655440000",
+  "patientId": "550e8400-e29b-41d4-a716-446655440001",
+  "name": "Peanuts",
+  "severity": "Moderate",
+  "notes": "Updated notes",
+  "updatedAt": "2024-01-02T00:00:00Z"
+}
+```
+
 #### Delete Allergy
 **Endpoint**: `DELETE /patients/{patientId}/allergies/{allergyId}`
+
+- Deletes an existing allergy
+- Requires `CanModifyMedicalAttributes` policy
+- Returns 204 No Content on success
 
 ### Chronic Diseases
 
 #### List Chronic Diseases
 **Endpoint**: `GET /patients/{patientId}/chronic-diseases`
 
+- Returns all chronic diseases for a specific patient
+- Requires `CanViewMedicalAttributes` policy
+
+**Response**:
+```json
+{
+  "chronicDiseases": [
+    {
+      "id": "550e8400-e29b-41d4-a716-446655440000",
+      "patientId": "550e8400-e29b-41d4-a716-446655440001",
+      "name": "Diabetes Type 2",
+      "diagnosisDate": "2020-01-15T00:00:00Z",
+      "notes": "Controlled with medication",
+      "createdAt": "2024-01-01T00:00:00Z",
+      "updatedAt": "2024-01-02T00:00:00Z"
+    }
+  ]
+}
+```
+
 #### Create Chronic Disease
 **Endpoint**: `POST /patients/{patientId}/chronic-diseases`
+
+- Creates a new chronic disease for a specific patient
+- Requires `CanModifyMedicalAttributes` policy
 
 **Request**:
 ```json
@@ -197,19 +309,82 @@ This separation provides flexibility for future role-based permission changes.
 }
 ```
 
+**Response**:
+```json
+{
+  "id": "550e8400-e29b-41d4-a716-446655440000",
+  "patientId": "550e8400-e29b-41d4-a716-446655440001",
+  "name": "Diabetes Type 2",
+  "diagnosisDate": "2020-01-15T00:00:00Z",
+  "notes": "Controlled with medication",
+  "createdAt": "2024-01-01T00:00:00Z"
+}
+```
+
 #### Update Chronic Disease
 **Endpoint**: `PUT /patients/{patientId}/chronic-diseases/{chronicDiseaseId}`
 
+- Updates an existing chronic disease (name and diagnosisDate cannot be changed)
+- Requires `CanModifyMedicalAttributes` policy
+
+**Request**:
+```json
+{
+  "notes": "Updated notes"
+}
+```
+
+**Response**:
+```json
+{
+  "id": "550e8400-e29b-41d4-a716-446655440000",
+  "patientId": "550e8400-e29b-41d4-a716-446655440001",
+  "name": "Diabetes Type 2",
+  "diagnosisDate": "2020-01-15T00:00:00Z",
+  "notes": "Updated notes",
+  "updatedAt": "2024-01-02T00:00:00Z"
+}
+```
+
 #### Delete Chronic Disease
 **Endpoint**: `DELETE /patients/{patientId}/chronic-diseases/{chronicDiseaseId}`
+
+- Deletes an existing chronic disease
+- Requires `CanModifyMedicalAttributes` policy
+- Returns 204 No Content on success
 
 ### Medications
 
 #### List Medications
 **Endpoint**: `GET /patients/{patientId}/medications`
 
+- Returns all medications for a specific patient
+- Requires `CanViewMedicalAttributes` policy
+
+**Response**:
+```json
+{
+  "medications": [
+    {
+      "id": "550e8400-e29b-41d4-a716-446655440000",
+      "patientId": "550e8400-e29b-41d4-a716-446655440001",
+      "name": "Aspirin",
+      "dosage": "100mg daily",
+      "startDate": "2024-01-01T00:00:00Z",
+      "endDate": null,
+      "notes": "For heart health",
+      "createdAt": "2024-01-01T00:00:00Z",
+      "updatedAt": "2024-01-02T00:00:00Z"
+    }
+  ]
+}
+```
+
 #### Create Medication
 **Endpoint**: `POST /patients/{patientId}/medications`
+
+- Creates a new medication for a specific patient
+- Requires `CanModifyMedicalAttributes` policy
 
 **Request**:
 ```json
@@ -222,19 +397,88 @@ This separation provides flexibility for future role-based permission changes.
 }
 ```
 
+**Response**:
+```json
+{
+  "id": "550e8400-e29b-41d4-a716-446655440000",
+  "patientId": "550e8400-e29b-41d4-a716-446655440001",
+  "name": "Aspirin",
+  "dosage": "100mg daily",
+  "startDate": "2024-01-01T00:00:00Z",
+  "endDate": null,
+  "notes": "For heart health",
+  "createdAt": "2024-01-01T00:00:00Z"
+}
+```
+
 #### Update Medication
 **Endpoint**: `PUT /patients/{patientId}/medications/{medicationId}`
 
+- Updates an existing medication (name and startDate cannot be changed)
+- EndDate must be after startDate
+- Requires `CanModifyMedicalAttributes` policy
+
+**Request**:
+```json
+{
+  "dosage": "200mg daily",
+  "endDate": "2024-12-31T00:00:00Z",
+  "notes": "Updated notes"
+}
+```
+
+**Response**:
+```json
+{
+  "id": "550e8400-e29b-41d4-a716-446655440000",
+  "patientId": "550e8400-e29b-41d4-a716-446655440001",
+  "name": "Aspirin",
+  "dosage": "200mg daily",
+  "startDate": "2024-01-01T00:00:00Z",
+  "endDate": "2024-12-31T00:00:00Z",
+  "notes": "Updated notes",
+  "updatedAt": "2024-01-02T00:00:00Z"
+}
+```
+
 #### Delete Medication
 **Endpoint**: `DELETE /patients/{patientId}/medications/{medicationId}`
+
+- Deletes an existing medication
+- Requires `CanModifyMedicalAttributes` policy
+- Returns 204 No Content on success
 
 ### Surgeries
 
 #### List Surgeries
 **Endpoint**: `GET /patients/{patientId}/surgeries`
 
+- Returns all surgeries for a specific patient
+- Requires `CanViewMedicalAttributes` policy
+
+**Response**:
+```json
+{
+  "surgeries": [
+    {
+      "id": "550e8400-e29b-41d4-a716-446655440000",
+      "patientId": "550e8400-e29b-41d4-a716-446655440001",
+      "name": "Appendectomy",
+      "date": "2015-06-10T00:00:00Z",
+      "surgeon": "Dr. Smith",
+      "notes": "Laparoscopic procedure",
+      "createdAt": "2024-01-01T00:00:00Z",
+      "updatedAt": "2024-01-02T00:00:00Z"
+    }
+  ]
+}
+```
+
 #### Create Surgery
 **Endpoint**: `POST /patients/{patientId}/surgeries`
+
+- Creates a new surgery for a specific patient
+- Requires `CanModifyMedicalAttributes` policy
 
 **Request**:
 ```json
@@ -246,11 +490,52 @@ This separation provides flexibility for future role-based permission changes.
 }
 ```
 
+**Response**:
+```json
+{
+  "id": "550e8400-e29b-41d4-a716-446655440000",
+  "patientId": "550e8400-e29b-41d4-a716-446655440001",
+  "name": "Appendectomy",
+  "date": "2015-06-10T00:00:00Z",
+  "surgeon": "Dr. Smith",
+  "notes": "Laparoscopic procedure",
+  "createdAt": "2024-01-01T00:00:00Z"
+}
+```
+
 #### Update Surgery
 **Endpoint**: `PUT /patients/{patientId}/surgeries/{surgeryId}`
 
+- Updates an existing surgery (name and date cannot be changed)
+- Requires `CanModifyMedicalAttributes` policy
+
+**Request**:
+```json
+{
+  "surgeon": "Dr. Johnson",
+  "notes": "Updated notes"
+}
+```
+
+**Response**:
+```json
+{
+  "id": "550e8400-e29b-41d4-a716-446655440000",
+  "patientId": "550e8400-e29b-41d4-a716-446655440001",
+  "name": "Appendectomy",
+  "date": "2015-06-10T00:00:00Z",
+  "surgeon": "Dr. Johnson",
+  "notes": "Updated notes",
+  "updatedAt": "2024-01-02T00:00:00Z"
+}
+```
+
 #### Delete Surgery
 **Endpoint**: `DELETE /patients/{patientId}/surgeries/{surgeryId}`
+
+- Deletes an existing surgery
+- Requires `CanModifyMedicalAttributes` policy
+- Returns 204 No Content on success
 
 ## Admin Features
 
@@ -259,17 +544,18 @@ All admin endpoints require `RequireAdmin` policy (SystemAdmin only).
 ### User Management
 
 #### List Users
-**Endpoint**: `GET /users`
+**Endpoint**: `GET /admin/users`
 
 - Paginated list of all users
 - Optional filtering by role and active status
 - Supports pagination with `pageNumber` and `pageSize` query parameters
+- Includes deactivated users (admin override)
 
 **Query Parameters**:
-- `pageNumber` (optional, default: 1)
-- `pageSize` (optional, default: 10)
-- `role` (optional): Filter by user role
-- `isActive` (optional): Filter by active status
+- `pageNumber` (optional, default: 1, minimum: 1)
+- `pageSize` (optional, default: 10, minimum: 1, maximum: 100)
+- `role` (optional): Filter by user role (Doctor, HealthcareStaff, LabUser, ImagingUser, Patient, SystemAdmin)
+- `isActive` (optional): Filter by active status (true, false)
 
 **Response**:
 ```json
@@ -295,48 +581,311 @@ All admin endpoints require `RequireAdmin` policy (SystemAdmin only).
 ```
 
 #### Get User
-**Endpoint**: `GET /users/{id}`
+**Endpoint**: `GET /admin/users/{id}`
 
 - Returns detailed user information
-- Includes provider-specific details if applicable
+- Includes role-specific details if applicable
 - **Note**: Only system admins can see `IsActive` status. This field is not exposed in non-admin endpoints.
 
+**Response Examples**:
+
+**Patient**:
+```json
+{
+  "id": "550e8400-e29b-41d4-a716-446655440000",
+  "fullName": "John Doe",
+  "email": "john.doe@example.com",
+  "role": "Patient",
+  "isActive": true,
+  "createdAt": "2024-01-01T00:00:00Z",
+  "updatedAt": "2024-01-02T00:00:00Z",
+  "patientDetails": {
+    "nationalId": "123456789",
+    "dateOfBirth": "1990-01-01T00:00:00Z",
+    "bloodType": "A+"
+  },
+  "doctorDetails": null,
+  "healthcareEntityDetails": null,
+  "laboratoryDetails": null,
+  "imagingCenterDetails": null
+}
+```
+
+**Doctor**:
+```json
+{
+  "id": "550e8400-e29b-41d4-a716-446655440000",
+  "fullName": "Dr. Jane Smith",
+  "email": "doctor@example.com",
+  "role": "Doctor",
+  "isActive": true,
+  "createdAt": "2024-01-01T00:00:00Z",
+  "updatedAt": "2024-01-02T00:00:00Z",
+  "patientDetails": null,
+  "doctorDetails": {
+    "licenseNumber": "MD12345",
+    "specialty": "Cardiology"
+  },
+  "healthcareEntityDetails": null,
+  "laboratoryDetails": null,
+  "imagingCenterDetails": null
+}
+```
+
+**HealthcareStaff**:
+```json
+{
+  "id": "550e8400-e29b-41d4-a716-446655440000",
+  "fullName": "John Staff",
+  "email": "staff@example.com",
+  "role": "HealthcareStaff",
+  "isActive": true,
+  "createdAt": "2024-01-01T00:00:00Z",
+  "updatedAt": "2024-01-02T00:00:00Z",
+  "patientDetails": null,
+  "doctorDetails": null,
+  "healthcareEntityDetails": {
+    "organizationName": "City Hospital",
+    "department": "Emergency"
+  },
+  "laboratoryDetails": null,
+  "imagingCenterDetails": null
+}
+```
+
+**LabUser**:
+```json
+{
+  "id": "550e8400-e29b-41d4-a716-446655440000",
+  "fullName": "Lab Technician",
+  "email": "lab@example.com",
+  "role": "LabUser",
+  "isActive": true,
+  "createdAt": "2024-01-01T00:00:00Z",
+  "updatedAt": "2024-01-02T00:00:00Z",
+  "patientDetails": null,
+  "doctorDetails": null,
+  "healthcareEntityDetails": null,
+  "laboratoryDetails": {
+    "labName": "City Lab"
+  },
+  "imagingCenterDetails": null
+}
+```
+
+**ImagingUser**:
+```json
+{
+  "id": "550e8400-e29b-41d4-a716-446655440000",
+  "fullName": "Imaging Technician",
+  "email": "imaging@example.com",
+  "role": "ImagingUser",
+  "isActive": true,
+  "createdAt": "2024-01-01T00:00:00Z",
+  "updatedAt": "2024-01-02T00:00:00Z",
+  "patientDetails": null,
+  "doctorDetails": null,
+  "healthcareEntityDetails": null,
+  "laboratoryDetails": null,
+  "imagingCenterDetails": {
+    "centerName": "City Imaging Center"
+  }
+}
+```
+
+**SystemAdmin**:
+```json
+{
+  "id": "550e8400-e29b-41d4-a716-446655440000",
+  "fullName": "System Administrator",
+  "email": "admin@example.com",
+  "role": "SystemAdmin",
+  "isActive": true,
+  "createdAt": "2024-01-01T00:00:00Z",
+  "updatedAt": "2024-01-02T00:00:00Z",
+  "patientDetails": null,
+  "doctorDetails": null,
+  "healthcareEntityDetails": null,
+  "laboratoryDetails": null,
+  "imagingCenterDetails": null
+}
+```
+
 #### Create User
-**Endpoint**: `POST /users`
+**Endpoint**: `POST /admin/users`
 
 - Creates provider users (Doctor, HealthcareStaff, LabUser, ImagingUser)
 - Cannot create patients (use registration endpoint)
 - Validates email uniqueness
 
-**Request**:
+**Request** (Doctor):
 ```json
 {
   "email": "doctor@example.com",
   "password": "SecurePass123!",
   "fullName": "Dr. Jane Smith",
   "role": "Doctor",
-  "specialization": "Cardiology"
+  "licenseNumber": "MD12345",
+  "specialty": "Cardiology"
+}
+```
+
+**Request** (HealthcareStaff):
+```json
+{
+  "email": "staff@example.com",
+  "password": "SecurePass123!",
+  "fullName": "John Staff",
+  "role": "HealthcareStaff",
+  "organizationName": "City Hospital",
+  "department": "Emergency"
+}
+```
+
+**Request** (LabUser):
+```json
+{
+  "email": "lab@example.com",
+  "password": "SecurePass123!",
+  "fullName": "Lab Technician",
+  "role": "LabUser",
+  "labName": "City Lab"
+}
+```
+
+**Request** (ImagingUser):
+```json
+{
+  "email": "imaging@example.com",
+  "password": "SecurePass123!",
+  "fullName": "Imaging Technician",
+  "role": "ImagingUser",
+  "centerName": "City Imaging Center"
+}
+```
+
+**Response**:
+```json
+{
+  "id": "550e8400-e29b-41d4-a716-446655440000",
+  "email": "doctor@example.com",
+  "fullName": "Dr. Jane Smith",
+  "role": "Doctor"
 }
 ```
 
 #### Update User
-**Endpoint**: `PUT /users/{id}`
+**Endpoint**: `PUT /admin/users/{id}`
 
 - Updates user information
 - Cannot change email or role
 - Updates provider-specific details
 
+**Request**:
+```json
+{
+  "fullName": "Dr. Jane Smith Updated",
+  "specialty": "Neurology"
+}
+```
+
+**Response Examples**:
+
+**Doctor**:
+```json
+{
+  "id": "550e8400-e29b-41d4-a716-446655440000",
+  "fullName": "Dr. Jane Smith Updated",
+  "email": "doctor@example.com",
+  "role": "Doctor",
+  "isActive": true,
+  "createdAt": "2024-01-01T00:00:00Z",
+  "updatedAt": "2024-01-02T00:00:00Z",
+  "patientDetails": null,
+  "doctorDetails": {
+    "licenseNumber": "MD12345",
+    "specialty": "Neurology"
+  },
+  "healthcareEntityDetails": null,
+  "laboratoryDetails": null,
+  "imagingCenterDetails": null
+}
+```
+
+**HealthcareStaff**:
+```json
+{
+  "id": "550e8400-e29b-41d4-a716-446655440000",
+  "fullName": "John Staff Updated",
+  "email": "staff@example.com",
+  "role": "HealthcareStaff",
+  "isActive": true,
+  "createdAt": "2024-01-01T00:00:00Z",
+  "updatedAt": "2024-01-02T00:00:00Z",
+  "patientDetails": null,
+  "doctorDetails": null,
+  "healthcareEntityDetails": {
+    "organizationName": "City Hospital Updated",
+    "department": "Cardiology"
+  },
+  "laboratoryDetails": null,
+  "imagingCenterDetails": null
+}
+```
+
+**LabUser**:
+```json
+{
+  "id": "550e8400-e29b-41d4-a716-446655440000",
+  "fullName": "Lab Technician Updated",
+  "email": "lab@example.com",
+  "role": "LabUser",
+  "isActive": true,
+  "createdAt": "2024-01-01T00:00:00Z",
+  "updatedAt": "2024-01-02T00:00:00Z",
+  "patientDetails": null,
+  "doctorDetails": null,
+  "healthcareEntityDetails": null,
+  "laboratoryDetails": {
+    "labName": "City Lab Updated"
+  },
+  "imagingCenterDetails": null
+}
+```
+
+**ImagingUser**:
+```json
+{
+  "id": "550e8400-e29b-41d4-a716-446655440000",
+  "fullName": "Imaging Technician Updated",
+  "email": "imaging@example.com",
+  "role": "ImagingUser",
+  "isActive": true,
+  "createdAt": "2024-01-01T00:00:00Z",
+  "updatedAt": "2024-01-02T00:00:00Z",
+  "patientDetails": null,
+  "doctorDetails": null,
+  "healthcareEntityDetails": null,
+  "laboratoryDetails": null,
+  "imagingCenterDetails": {
+    "centerName": "City Imaging Center Updated"
+  }
+}
+```
+
 #### Delete User (Deactivate)
-**Endpoint**: `DELETE /users/{id}`
+**Endpoint**: `DELETE /admin/users/{id}`
 
 - Soft-deletes user (sets `IsActive` to false)
 - Does not permanently delete user data
+- Returns 204 No Content on success
 
 #### Change Password
-**Endpoint**: `PUT /users/{id}/password`
+**Endpoint**: `PUT /admin/users/{id}/password`
 
-- Changes user password
+- Changes user password (admin can change without current password)
 - Validates password strength
+- Returns 204 No Content on success
 
 **Request**:
 ```json
@@ -378,8 +927,9 @@ All endpoints use FluentValidation for request validation:
 - **Email**: Valid email format, uniqueness check
 - **Password**: Minimum 8 characters, complexity requirements
 - **Required Fields**: Non-nullable fields validated
-- **Date Ranges**: Start date before end date
+- **Date Ranges**: Start date before end date, end date after start date
 - **Enum Values**: Valid enum values
+- **String Length**: Maximum length constraints
 
 ### Validation Error Response
 
@@ -396,9 +946,10 @@ All endpoints use FluentValidation for request validation:
 
 ### Swagger/OpenAPI
 
-- **Swagger UI**: Available at `/swagger` when running
+- **Swagger UI**: Available at root path (`/`) when running in development
 - **OpenAPI Spec**: Available at `/openapi/v1.json`
-- **Endpoint Groups**: Organized by feature (Admin, Auth, Patients, Allergies, etc.)
+- **JWT Authentication**: Swagger UI supports JWT Bearer token authentication
+- **Endpoint Groups**: Organized by feature (Admin, Auth, Patients, Allergies, Chronic-Diseases, Medications, Surgeries)
 
 ## Error Responses
 
@@ -415,6 +966,7 @@ All endpoints use FluentValidation for request validation:
 
 - **200 OK**: Successful request
 - **201 Created**: Resource created
+- **204 No Content**: Successful deletion or update (no response body)
 - **400 Bad Request**: Validation error
 - **401 Unauthorized**: Authentication required
 - **403 Forbidden**: Insufficient permissions
@@ -428,12 +980,20 @@ All endpoints use FluentValidation for request validation:
 - JWT Bearer token authentication
 - Refresh token mechanism
 - Token expiration and renewal
+- Secure password hashing via ASP.NET Core Identity
 
 ### Authorization
 
-- Role-based access control (RBAC)
-- Policy-based authorization
-- Resource-based authorization (users can only access their own data)
+- **Role-Based Access Control (RBAC)**: Primary authorization mechanism
+- **Policy-Based Authorization**: Named policies for fine-grained control
+  - `RequireAdmin`: SystemAdmin only
+  - `RequirePatient`: Patient only
+  - `CanViewMedicalAttributes`: Doctor, HealthcareStaff, SystemAdmin
+  - `CanModifyMedicalAttributes`: Doctor, HealthcareStaff, SystemAdmin
+  - `CanViewRecords`: Doctor, HealthcareStaff, LabUser, ImagingUser
+  - `CanModifyRecords`: Doctor, HealthcareStaff, LabUser, ImagingUser
+  - `CanViewAllPatients`: Doctor, HealthcareStaff, SystemAdmin
+- **Resource-Based Authorization**: Users can only access their own data (for patient endpoints)
 - **Sensitive Information**: `IsActive` status is only exposed to system administrators through admin endpoints
 
 ### Password Security
@@ -451,6 +1011,7 @@ All endpoints use FluentValidation for request validation:
 - **Action Logging**: Comprehensive audit trail
 - **Patient Reports**: Generate patient health reports
 - **Provider Endpoints**: Complete provider-specific endpoints
+- **Lab Results**: Manage laboratory test results
+- **Imaging Studies**: Manage imaging study records
 
 See [ImplementationPlan.md](ImplementationPlan.md) for detailed roadmap.
-
