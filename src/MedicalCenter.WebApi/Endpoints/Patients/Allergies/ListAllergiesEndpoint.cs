@@ -14,7 +14,7 @@ public class ListAllergiesEndpoint(IRepository<Patient> patientRepository)
 {
     public override void Configure()
     {
-        Get("/patients/{patientId}/allergies");
+        Get("/");
         Group<AllergiesGroup>();
         Policies(AuthorizationPolicies.CanModifyMedicalAttributes);
         Summary(s =>

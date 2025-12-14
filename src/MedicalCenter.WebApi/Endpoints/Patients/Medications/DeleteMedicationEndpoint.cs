@@ -16,7 +16,7 @@ public class DeleteMedicationEndpoint(
 {
     public override void Configure()
     {
-        Delete("/patients/{patientId}/medications/{medicationId}");
+        Delete("/{medicationId}");
         Group<MedicationsGroup>();
         Policies(AuthorizationPolicies.CanModifyMedicalAttributes);
         Summary(s =>

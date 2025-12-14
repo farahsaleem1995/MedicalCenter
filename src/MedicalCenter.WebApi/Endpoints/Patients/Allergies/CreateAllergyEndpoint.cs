@@ -16,7 +16,7 @@ public class CreateAllergyEndpoint(
 {
     public override void Configure()
     {
-        Post("/patients/{patientId}/allergies");
+        Post("/");
         Group<AllergiesGroup>();
         Policies(AuthorizationPolicies.CanModifyMedicalAttributes);
         Summary(s =>

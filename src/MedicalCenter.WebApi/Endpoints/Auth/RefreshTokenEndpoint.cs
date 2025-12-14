@@ -17,7 +17,7 @@ public class RefreshTokenEndpoint(
 {
     public override void Configure()
     {
-        Post("/auth/refresh");
+        Post("/refresh");
         AllowAnonymous();
         Group<AuthGroup>();
         Summary(s =>

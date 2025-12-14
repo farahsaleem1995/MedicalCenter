@@ -9,8 +9,9 @@ public class AllergiesGroup : Group
 {
     public AllergiesGroup()
     {
-        Configure("allergies", ep =>
+        Configure("/patients/{patientId}/allergies", ep =>
         {
+            ep.DontAutoTag();
             ep.Description(d => d
                 .WithTags("Allergies")
                 .Produces(401)

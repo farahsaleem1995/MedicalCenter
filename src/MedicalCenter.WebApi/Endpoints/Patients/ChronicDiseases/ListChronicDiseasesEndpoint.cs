@@ -14,7 +14,7 @@ public class ListChronicDiseasesEndpoint(IRepository<Patient> patientRepository)
 {
     public override void Configure()
     {
-        Get("/patients/{patientId}/chronic-diseases");
+        Get("/");
         Group<ChronicDiseasesGroup>();
         Policies(AuthorizationPolicies.CanModifyMedicalAttributes);
         Summary(s =>

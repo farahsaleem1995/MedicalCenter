@@ -16,7 +16,7 @@ public class DeleteChronicDiseaseEndpoint(
 {
     public override void Configure()
     {
-        Delete("/patients/{patientId}/chronic-diseases/{chronicDiseaseId}");
+        Delete("/{chronicDiseaseId}");
         Group<ChronicDiseasesGroup>();
         Policies(AuthorizationPolicies.CanModifyMedicalAttributes);
         Summary(s =>

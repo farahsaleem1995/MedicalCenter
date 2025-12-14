@@ -9,8 +9,9 @@ public class ChronicDiseasesGroup : Group
 {
     public ChronicDiseasesGroup()
     {
-        Configure("chronic-diseases", ep =>
+        Configure("/patients/{patientId}/chronic-diseases", ep =>
         {
+            ep.DontAutoTag();
             ep.Description(d => d
                 .WithTags("Chronic-Diseases")
                 .Produces(401)

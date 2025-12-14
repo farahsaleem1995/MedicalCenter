@@ -16,7 +16,7 @@ public class CreateChronicDiseaseEndpoint(
 {
     public override void Configure()
     {
-        Post("/patients/{patientId}/chronic-diseases");
+        Post("/");
         Group<ChronicDiseasesGroup>();
         Policies(AuthorizationPolicies.CanModifyMedicalAttributes);
         Summary(s =>

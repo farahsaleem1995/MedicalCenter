@@ -16,7 +16,7 @@ public class CreateSurgeryEndpoint(
 {
     public override void Configure()
     {
-        Post("/patients/{patientId}/surgeries");
+        Post("/");
         Group<SurgeriesGroup>();
         Policies(AuthorizationPolicies.CanModifyMedicalAttributes);
         Summary(s =>

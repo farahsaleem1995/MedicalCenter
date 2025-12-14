@@ -13,7 +13,7 @@ public class LogoutEndpoint(
 {
     public override void Configure()
     {
-        Post("/auth/logout");
+        Post("/logout");
         Group<AuthGroup>();
         Summary(s =>
         {

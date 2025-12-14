@@ -17,7 +17,7 @@ public class LoginEndpoint(
 {
     public override void Configure()
     {
-        Post("/auth/login");
+        Post("/login");
         AllowAnonymous();
         Group<AuthGroup>();
         Summary(s =>

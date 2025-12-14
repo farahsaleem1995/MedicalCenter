@@ -9,8 +9,9 @@ public class MedicationsGroup : Group
 {
     public MedicationsGroup()
     {
-        Configure("medications", ep =>
+        Configure("/patients/{patientId}/medications", ep =>
         {
+            ep.DontAutoTag();
             ep.Description(d => d
                 .WithTags("Medications")
                 .Produces(401)

@@ -9,8 +9,9 @@ public class SurgeriesGroup : Group
 {
     public SurgeriesGroup()
     {
-        Configure("surgeries", ep =>
+        Configure("/patients/{patientId}/surgeries", ep =>
         {
+            ep.DontAutoTag();
             ep.Description(d => d
                 .WithTags("Surgeries")
                 .Produces(401)

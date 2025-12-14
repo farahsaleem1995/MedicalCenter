@@ -16,7 +16,7 @@ public class CreateMedicationEndpoint(
 {
     public override void Configure()
     {
-        Post("/patients/{patientId}/medications");
+        Post("/");
         Group<MedicationsGroup>();
         Policies(AuthorizationPolicies.CanModifyMedicalAttributes);
         Summary(s =>

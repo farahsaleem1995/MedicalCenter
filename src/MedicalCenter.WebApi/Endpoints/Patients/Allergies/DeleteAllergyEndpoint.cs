@@ -16,7 +16,7 @@ public class DeleteAllergyEndpoint(
 {
     public override void Configure()
     {
-        Delete("/patients/{patientId}/allergies/{allergyId}");
+        Delete("/{allergyId}");
         Group<AllergiesGroup>();
         Policies(AuthorizationPolicies.CanModifyMedicalAttributes);
         Summary(s =>

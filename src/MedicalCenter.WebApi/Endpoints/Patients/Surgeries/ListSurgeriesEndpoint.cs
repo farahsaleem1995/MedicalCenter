@@ -14,7 +14,7 @@ public class ListSurgeriesEndpoint(IRepository<Patient> patientRepository)
 {
     public override void Configure()
     {
-        Get("/patients/{patientId}/surgeries");
+        Get("/");
         Group<SurgeriesGroup>();
         Policies(AuthorizationPolicies.CanModifyMedicalAttributes);
         Summary(s =>

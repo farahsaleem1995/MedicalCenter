@@ -16,7 +16,7 @@ public class UpdateSurgeryEndpoint(
 {
     public override void Configure()
     {
-        Put("/patients/{patientId}/surgeries/{surgeryId}");
+        Put("/{surgeryId}");
         Group<SurgeriesGroup>();
         Policies(AuthorizationPolicies.CanModifyMedicalAttributes);
         Summary(s =>
