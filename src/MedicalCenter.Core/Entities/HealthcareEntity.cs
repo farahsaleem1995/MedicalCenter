@@ -28,5 +28,13 @@ public class HealthcareEntity : User
         
         return new HealthcareEntity(fullName, email, organizationName, department);
     }
+
+    public void UpdateOrganization(string organizationName, string department)
+    {
+        Guard.Against.NullOrWhiteSpace(organizationName, nameof(organizationName));
+        Guard.Against.NullOrWhiteSpace(department, nameof(department));
+        OrganizationName = organizationName;
+        Department = department;
+    }
 }
 

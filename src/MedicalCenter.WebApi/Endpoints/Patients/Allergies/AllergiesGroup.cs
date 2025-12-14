@@ -9,7 +9,7 @@ public class AllergiesGroup : Group
 {
     public AllergiesGroup()
     {
-        Configure("", ep =>
+        Configure("allergies", ep =>
         {
             ep.Description(d => d
                 .WithTags("Allergies")

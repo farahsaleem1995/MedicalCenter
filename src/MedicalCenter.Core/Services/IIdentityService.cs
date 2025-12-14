@@ -21,11 +21,63 @@ public interface IIdentityService
         CancellationToken cancellationToken = default);
 
     /// <summary>
+    /// Creates a doctor user with Identity and domain entity.
+    /// </summary>
+    Task<Result<Guid>> CreateDoctorAsync(
+        string fullName,
+        string email,
+        string password,
+        string licenseNumber,
+        string specialty,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Creates a healthcare entity user with Identity and domain entity.
+    /// </summary>
+    Task<Result<Guid>> CreateHealthcareEntityAsync(
+        string fullName,
+        string email,
+        string password,
+        string organizationName,
+        string department,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Creates a laboratory user with Identity and domain entity.
+    /// </summary>
+    Task<Result<Guid>> CreateLaboratoryAsync(
+        string fullName,
+        string email,
+        string password,
+        string labName,
+        string licenseNumber,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Creates an imaging center user with Identity and domain entity.
+    /// </summary>
+    Task<Result<Guid>> CreateImagingCenterAsync(
+        string fullName,
+        string email,
+        string password,
+        string centerName,
+        string licenseNumber,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
     /// Changes a user's password.
     /// </summary>
     Task<Result> ChangePasswordAsync(
         Guid userId,
         string currentPassword,
+        string newPassword,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Admin can change a user's password without providing the current password.
+    /// </summary>
+    Task<Result> AdminChangePasswordAsync(
+        Guid userId,
         string newPassword,
         CancellationToken cancellationToken = default);
 

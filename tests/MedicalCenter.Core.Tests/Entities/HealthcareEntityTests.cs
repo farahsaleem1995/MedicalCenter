@@ -103,5 +103,38 @@ public class HealthcareEntityTests
         // Assert
         healthcareEntity.IsActive.Should().BeTrue();
     }
+
+    [Fact]
+    public void UpdateOrganization_UpdatesOrganizationAndDepartment_WhenValidValuesProvided()
+    {
+        // Arrange
+        var healthcareEntity = new HealthcareEntity("Nurse Jane Doe", "jane.doe@hospital.com", "City General Hospital", "Emergency Department");
+        var newOrganizationName = "Regional Medical Center";
+        var newDepartment = "Intensive Care Unit";
+
+        // Act
+        healthcareEntity.UpdateOrganization(newOrganizationName, newDepartment);
+
+        // Assert
+        healthcareEntity.OrganizationName.Should().Be(newOrganizationName);
+        healthcareEntity.Department.Should().Be(newDepartment);
+    }
+
+    [Theory]
+    [InlineData(null, "Department")]
+    [InlineData("", "Department")]
+    [InlineData("   ", "Department")]
+    [InlineData("Organization", null)]
+    [InlineData("Organization", "")]
+    [InlineData("Organization", "   ")]
+    public void UpdateOrganization_ThrowsArgumentException_WhenValuesAreNullOrWhiteSpace(string? invalidOrganization, string? invalidDepartment)
+    {
+        // Arrange
+        var healthcareEntity = new HealthcareEntity("Nurse Jane Doe", "jane.doe@hospital.com", "City General Hospital", "Emergency Department");
+
+        // Act & Assert
+        var act = () => healthcareEntity.UpdateOrganization(invalidOrganization!, invalidDepartment!);
+        act.Should().Throw<ArgumentException>();
+    }
 }
 

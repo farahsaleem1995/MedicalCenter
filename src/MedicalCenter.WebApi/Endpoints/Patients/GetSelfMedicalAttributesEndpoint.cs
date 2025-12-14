@@ -2,6 +2,7 @@ using FastEndpoints;
 using MedicalCenter.Core.Aggregates.Patient;
 using MedicalCenter.Core.Aggregates.Patient.Specifications;
 using MedicalCenter.Core.Repositories;
+using MedicalCenter.Infrastructure.Authorization;
 
 namespace MedicalCenter.WebApi.Endpoints.Patients;
 
@@ -15,6 +16,7 @@ public class GetSelfMedicalAttributesEndpoint(IRepository<Patient> patientReposi
     {
         Get("/patients/self/medical-attributes");
         Group<PatientsGroup>();
+        Policies(AuthorizationPolicies.RequirePatient);
         Summary(s =>
         {
             s.Summary = "Get current patient's medical attributes";

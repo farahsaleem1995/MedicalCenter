@@ -103,5 +103,33 @@ public class ImagingCenterTests
         // Assert
         imagingCenter.IsActive.Should().BeTrue();
     }
+
+    [Fact]
+    public void UpdateCenterName_UpdatesCenterName_WhenValidCenterNameProvided()
+    {
+        // Arrange
+        var imagingCenter = new ImagingCenter("Imaging Tech Alice", "alice@imaging.com", "City Imaging Center", "IMG123456");
+        var newCenterName = "Advanced Medical Imaging";
+
+        // Act
+        imagingCenter.UpdateCenterName(newCenterName);
+
+        // Assert
+        imagingCenter.CenterName.Should().Be(newCenterName);
+    }
+
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    [InlineData("   ")]
+    public void UpdateCenterName_ThrowsArgumentException_WhenCenterNameIsNullOrWhiteSpace(string? invalidCenterName)
+    {
+        // Arrange
+        var imagingCenter = new ImagingCenter("Imaging Tech Alice", "alice@imaging.com", "City Imaging Center", "IMG123456");
+
+        // Act & Assert
+        var act = () => imagingCenter.UpdateCenterName(invalidCenterName!);
+        act.Should().Throw<ArgumentException>();
+    }
 }
 

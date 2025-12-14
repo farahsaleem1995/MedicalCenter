@@ -81,6 +81,194 @@ public class IdentityService(
         return Result.Success();
     }
 
+    public async Task<Result> AdminChangePasswordAsync(
+        Guid userId,
+        string newPassword,
+        CancellationToken cancellationToken = default)
+    {
+        var identityUser = await userManager.FindByIdAsync(userId.ToString());
+        if (identityUser == null)
+        {
+            return Result.Failure(Error.NotFound("User"));
+        }
+
+        // Remove password
+        var removeResult = await userManager.RemovePasswordAsync(identityUser);
+        if (!removeResult.Succeeded)
+        {
+            var errors = removeResult.Errors.Select(e => e.Description);
+            return Result.Failure(Error.Validation(string.Join("; ", errors)));
+        }
+
+        // Add new password
+        var addResult = await userManager.AddPasswordAsync(identityUser, newPassword);
+        if (!addResult.Succeeded)
+        {
+            var errors = addResult.Errors.Select(e => e.Description);
+            return Result.Failure(Error.Validation(string.Join("; ", errors)));
+        }
+
+        return Result.Success();
+    }
+
+    public async Task<Result<Guid>> CreateDoctorAsync(
+        string fullName,
+        string email,
+        string password,
+        string licenseNumber,
+        string specialty,
+        CancellationToken cancellationToken = default)
+    {
+        await unitOfWork.BeginTransactionAsync(cancellationToken);
+
+        try
+        {
+            // Create Identity user
+            var createUserResult = await CreateUserAsync(email, password, UserRole.Doctor, cancellationToken);
+            if (createUserResult.IsFailure)
+            {
+                await unitOfWork.RollbackTransactionAsync(cancellationToken);
+                return createUserResult;
+            }
+
+            var userId = createUserResult.Value;
+
+            // Create domain entity
+            var doctor = Doctor.Create(fullName, email, licenseNumber, specialty);
+            SetEntityId(doctor, userId);
+            context.Doctors.Add(doctor);
+            await unitOfWork.SaveChangesAsync(cancellationToken);
+
+            await unitOfWork.CommitTransactionAsync(cancellationToken);
+            return Result<Guid>.Success(userId);
+        }
+        catch
+        {
+            await unitOfWork.RollbackTransactionAsync(cancellationToken);
+            throw;
+        }
+    }
+
+    public async Task<Result<Guid>> CreateHealthcareEntityAsync(
+        string fullName,
+        string email,
+        string password,
+        string organizationName,
+        string department,
+        CancellationToken cancellationToken = default)
+    {
+        await unitOfWork.BeginTransactionAsync(cancellationToken);
+
+        try
+        {
+            // Create Identity user
+            var createUserResult = await CreateUserAsync(email, password, UserRole.HealthcareStaff, cancellationToken);
+            if (createUserResult.IsFailure)
+            {
+                await unitOfWork.RollbackTransactionAsync(cancellationToken);
+                return createUserResult;
+            }
+
+            var userId = createUserResult.Value;
+
+            // Create domain entity
+            var healthcareEntity = HealthcareEntity.Create(fullName, email, organizationName, department);
+            SetEntityId(healthcareEntity, userId);
+            context.HealthcareEntities.Add(healthcareEntity);
+            await unitOfWork.SaveChangesAsync(cancellationToken);
+
+            await unitOfWork.CommitTransactionAsync(cancellationToken);
+            return Result<Guid>.Success(userId);
+        }
+        catch
+        {
+            await unitOfWork.RollbackTransactionAsync(cancellationToken);
+            throw;
+        }
+    }
+
+    public async Task<Result<Guid>> CreateLaboratoryAsync(
+        string fullName,
+        string email,
+        string password,
+        string labName,
+        string licenseNumber,
+        CancellationToken cancellationToken = default)
+    {
+        await unitOfWork.BeginTransactionAsync(cancellationToken);
+
+        try
+        {
+            // Create Identity user
+            var createUserResult = await CreateUserAsync(email, password, UserRole.LabUser, cancellationToken);
+            if (createUserResult.IsFailure)
+            {
+                await unitOfWork.RollbackTransactionAsync(cancellationToken);
+                return createUserResult;
+            }
+
+            var userId = createUserResult.Value;
+
+            // Create domain entity
+            var laboratory = Laboratory.Create(fullName, email, labName, licenseNumber);
+            SetEntityId(laboratory, userId);
+            context.Laboratories.Add(laboratory);
+            await unitOfWork.SaveChangesAsync(cancellationToken);
+
+            await unitOfWork.CommitTransactionAsync(cancellationToken);
+            return Result<Guid>.Success(userId);
+        }
+        catch
+        {
+            await unitOfWork.RollbackTransactionAsync(cancellationToken);
+            throw;
+        }
+    }
+
+    public async Task<Result<Guid>> CreateImagingCenterAsync(
+        string fullName,
+        string email,
+        string password,
+        string centerName,
+        string licenseNumber,
+        CancellationToken cancellationToken = default)
+    {
+        await unitOfWork.BeginTransactionAsync(cancellationToken);
+
+        try
+        {
+            // Create Identity user
+            var createUserResult = await CreateUserAsync(email, password, UserRole.ImagingUser, cancellationToken);
+            if (createUserResult.IsFailure)
+            {
+                await unitOfWork.RollbackTransactionAsync(cancellationToken);
+                return createUserResult;
+            }
+
+            var userId = createUserResult.Value;
+
+            // Create domain entity
+            var imagingCenter = ImagingCenter.Create(fullName, email, centerName, licenseNumber);
+            SetEntityId(imagingCenter, userId);
+            context.ImagingCenters.Add(imagingCenter);
+            await unitOfWork.SaveChangesAsync(cancellationToken);
+
+            await unitOfWork.CommitTransactionAsync(cancellationToken);
+            return Result<Guid>.Success(userId);
+        }
+        catch
+        {
+            await unitOfWork.RollbackTransactionAsync(cancellationToken);
+            throw;
+        }
+    }
+
+    private static void SetEntityId(User entity, Guid id)
+    {
+        var idProperty = typeof(Core.Common.BaseEntity).GetProperty(nameof(Core.Common.BaseEntity.Id));
+        idProperty?.SetValue(entity, id);
+    }
+
     public async Task<User?> GetUserByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
         var identityUser = await userManager.FindByIdAsync(id.ToString());

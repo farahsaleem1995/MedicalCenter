@@ -112,5 +112,33 @@ public class UserTests
         // Assert
         user.Role.Should().Be(role);
     }
+
+    [Fact]
+    public void UpdateFullName_UpdatesFullName_WhenValidNameProvided()
+    {
+        // Arrange
+        var user = new TestUser("John Doe", "john.doe@example.com", UserRole.Patient);
+        var newFullName = "John Smith";
+
+        // Act
+        user.UpdateFullName(newFullName);
+
+        // Assert
+        user.FullName.Should().Be(newFullName);
+    }
+
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    [InlineData("   ")]
+    public void UpdateFullName_ThrowsArgumentException_WhenNameIsNullOrWhiteSpace(string? invalidName)
+    {
+        // Arrange
+        var user = new TestUser("John Doe", "john.doe@example.com", UserRole.Patient);
+
+        // Act & Assert
+        var act = () => user.UpdateFullName(invalidName!);
+        act.Should().Throw<ArgumentException>();
+    }
 }
 

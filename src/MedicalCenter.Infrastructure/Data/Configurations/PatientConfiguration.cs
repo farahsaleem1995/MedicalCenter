@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using MedicalCenter.Core.Aggregates.Patient;
 using MedicalCenter.Core.ValueObjects;
+using MedicalCenter.Infrastructure.Identity;
 
 namespace MedicalCenter.Infrastructure.Data.Configurations;
 
@@ -85,6 +86,15 @@ public class PatientConfiguration : IEntityTypeConfiguration<Patient>
 
         builder.HasIndex(p => p.NationalId)
             .IsUnique();
+
+        // Explicit one-to-one relationship: Patient.Id is both PK and FK to ApplicationUser.Id
+        builder.HasOne<ApplicationUser>()
+            .WithOne()
+            .HasForeignKey<Patient>(p => p.Id)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        // Global query filter: Only return active patients (soft delete)
+        builder.HasQueryFilter(p => p.IsActive);
     }
 }
 

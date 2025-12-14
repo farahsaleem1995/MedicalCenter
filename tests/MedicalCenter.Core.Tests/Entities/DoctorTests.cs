@@ -103,5 +103,33 @@ public class DoctorTests
         // Assert
         doctor.IsActive.Should().BeTrue();
     }
+
+    [Fact]
+    public void UpdateSpecialty_UpdatesSpecialty_WhenValidSpecialtyProvided()
+    {
+        // Arrange
+        var doctor = new Doctor("Dr. John Smith", "john.smith@example.com", "MD123456", "Cardiology");
+        var newSpecialty = "Neurology";
+
+        // Act
+        doctor.UpdateSpecialty(newSpecialty);
+
+        // Assert
+        doctor.Specialty.Should().Be(newSpecialty);
+    }
+
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    [InlineData("   ")]
+    public void UpdateSpecialty_ThrowsArgumentException_WhenSpecialtyIsNullOrWhiteSpace(string? invalidSpecialty)
+    {
+        // Arrange
+        var doctor = new Doctor("Dr. John Smith", "john.smith@example.com", "MD123456", "Cardiology");
+
+        // Act & Assert
+        var act = () => doctor.UpdateSpecialty(invalidSpecialty!);
+        act.Should().Throw<ArgumentException>();
+    }
 }
 

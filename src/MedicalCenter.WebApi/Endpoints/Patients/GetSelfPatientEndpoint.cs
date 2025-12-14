@@ -2,6 +2,7 @@ using FastEndpoints;
 using MedicalCenter.Core.Aggregates.Patient;
 using MedicalCenter.Core.Aggregates.Patient.Specifications;
 using MedicalCenter.Core.Repositories;
+using MedicalCenter.Infrastructure.Authorization;
 
 namespace MedicalCenter.WebApi.Endpoints.Patients;
 
@@ -15,6 +16,7 @@ public class GetSelfPatientEndpoint(IRepository<Patient> patientRepository)
     {
         Get("/patients/self");
         Group<PatientsGroup>();
+        Policies(AuthorizationPolicies.RequirePatient);
         Summary(s =>
         {
             s.Summary = "Get current patient's own data";

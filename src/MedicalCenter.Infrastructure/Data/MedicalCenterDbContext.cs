@@ -28,6 +28,10 @@ public class MedicalCenterDbContext : IdentityDbContext<ApplicationUser, Identit
 
     public DbSet<RefreshToken> RefreshTokens { get; set; } = null!;
     public DbSet<Patient> Patients { get; set; } = null!;
+    public DbSet<Doctor> Doctors { get; set; } = null!;
+    public DbSet<HealthcareEntity> HealthcareEntities { get; set; } = null!;
+    public DbSet<Laboratory> Laboratories { get; set; } = null!;
+    public DbSet<ImagingCenter> ImagingCenters { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

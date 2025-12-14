@@ -9,7 +9,7 @@ public class MedicationsGroup : Group
 {
     public MedicationsGroup()
     {
-        Configure("", ep =>
+        Configure("medications", ep =>
         {
             ep.Description(d => d
                 .WithTags("Medications")

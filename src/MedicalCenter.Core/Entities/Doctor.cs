@@ -28,5 +28,11 @@ public class Doctor : User
         
         return new Doctor(fullName, email, licenseNumber, specialty);
     }
+
+    public void UpdateSpecialty(string specialty)
+    {
+        Guard.Against.NullOrWhiteSpace(specialty, nameof(specialty));
+        Specialty = specialty;
+    }
 }
 

@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
+using System.Security.Claims;
 using System.Text;
 using MedicalCenter.Core.Repositories;
 using MedicalCenter.Core.Services;
@@ -75,7 +76,9 @@ public static class DependencyInjection
                 ValidIssuer = jwtSettings["Issuer"],
                 ValidAudience = jwtSettings["Audience"],
                 IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey)),
-                ClockSkew = TimeSpan.Zero
+                ClockSkew = TimeSpan.Zero,
+                RoleClaimType = ClaimTypes.Role,
+                NameClaimType = ClaimTypes.Name
             };
         });
 
@@ -88,6 +91,7 @@ public static class DependencyInjection
         // Register Identity Services
         services.AddScoped<IIdentityService, IdentityService>();
         services.AddScoped<ITokenProvider, TokenProvider>();
+        services.AddScoped<IUserQueryService, UserQueryService>();
 
         // Configure JWT Settings
         services.Configure<JwtSettings>(jwtSettings);

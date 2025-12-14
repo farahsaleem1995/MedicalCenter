@@ -103,5 +103,33 @@ public class LaboratoryTests
         // Assert
         laboratory.IsActive.Should().BeTrue();
     }
+
+    [Fact]
+    public void UpdateLabName_UpdatesLabName_WhenValidLabNameProvided()
+    {
+        // Arrange
+        var laboratory = new Laboratory("Lab Technician Bob", "bob@lab.com", "City Lab Services", "LAB123456");
+        var newLabName = "Advanced Diagnostic Lab";
+
+        // Act
+        laboratory.UpdateLabName(newLabName);
+
+        // Assert
+        laboratory.LabName.Should().Be(newLabName);
+    }
+
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    [InlineData("   ")]
+    public void UpdateLabName_ThrowsArgumentException_WhenLabNameIsNullOrWhiteSpace(string? invalidLabName)
+    {
+        // Arrange
+        var laboratory = new Laboratory("Lab Technician Bob", "bob@lab.com", "City Lab Services", "LAB123456");
+
+        // Act & Assert
+        var act = () => laboratory.UpdateLabName(invalidLabName!);
+        act.Should().Throw<ArgumentException>();
+    }
 }
 

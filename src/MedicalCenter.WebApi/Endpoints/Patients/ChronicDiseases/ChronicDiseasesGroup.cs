@@ -9,10 +9,10 @@ public class ChronicDiseasesGroup : Group
 {
     public ChronicDiseasesGroup()
     {
-        Configure("", ep =>
+        Configure("chronic-diseases", ep =>
         {
             ep.Description(d => d
-                .WithTags("Chronic Diseases")
+                .WithTags("Chronic-Diseases")
                 .Produces(401)
                 .Produces(403)
                 .Produces(404));

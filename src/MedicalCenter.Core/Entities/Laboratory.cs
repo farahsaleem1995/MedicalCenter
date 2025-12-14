@@ -28,5 +28,11 @@ public class Laboratory : User
         
         return new Laboratory(fullName, email, labName, licenseNumber);
     }
+
+    public void UpdateLabName(string labName)
+    {
+        Guard.Against.NullOrWhiteSpace(labName, nameof(labName));
+        LabName = labName;
+    }
 }
 

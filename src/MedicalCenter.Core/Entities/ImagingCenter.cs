@@ -28,5 +28,11 @@ public class ImagingCenter : User
         
         return new ImagingCenter(fullName, email, centerName, licenseNumber);
     }
+
+    public void UpdateCenterName(string centerName)
+    {
+        Guard.Against.NullOrWhiteSpace(centerName, nameof(centerName));
+        CenterName = centerName;
+    }
 }
 

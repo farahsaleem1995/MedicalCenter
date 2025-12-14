@@ -40,5 +40,11 @@ public abstract class User : BaseEntity, IAuditableEntity
     {
         IsActive = true;
     }
+
+    public void UpdateFullName(string fullName)
+    {
+        Guard.Against.NullOrWhiteSpace(fullName, nameof(fullName));
+        FullName = fullName;
+    }
 }
 
