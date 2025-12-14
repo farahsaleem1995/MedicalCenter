@@ -2,8 +2,10 @@ using MedicalCenter.Infrastructure;
 using MedicalCenter.WebApi.Middleware;
 using FastEndpoints;
 using FastEndpoints.Swagger;
+using MedicalCenter.Infrastructure.Data;
+using Microsoft.EntityFrameworkCore;
 
-var builder = WebApplication.CreateBuilder(args);
+WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container
 builder.Services.AddInfrastructure(builder.Configuration);
@@ -22,7 +24,22 @@ builder.Services
         };
     });
 
-var app = builder.Build();
+WebApplication app = builder.Build();
+
+// Apply database migrations automatically (for Docker/containerized environments)
+try
+{
+    using IServiceScope scope = app.Services.CreateScope();
+    MedicalCenterDbContext dbContext = scope.ServiceProvider.GetRequiredService<MedicalCenterDbContext>();
+    dbContext.Database.Migrate();
+}
+catch (Exception ex)
+{
+    // Log migration errors but don't fail startup
+    // In production, migrations should be handled separately
+    ILogger<Program> logger = app.Services.GetRequiredService<ILogger<Program>>();
+    logger.LogError(ex, "An error occurred while applying database migrations");
+}
 
 // Configure the HTTP request pipeline
 app.UseHttpsRedirection();

@@ -8,6 +8,105 @@ The Medical Center Automation System provides a complete solution for managing m
 
 ## Quick Start
 
+### Option 1: Docker (Recommended - No Installation Required)
+
+The easiest way to get started is using Docker. You only need Docker Desktop installed.
+
+#### Prerequisites
+
+- **Docker Desktop** - [Download](https://www.docker.com/products/docker-desktop)
+- **Git** - For version control
+
+#### Step 1: Clone the Repository
+
+```bash
+git clone <repository-url>
+cd MedicalCenter
+```
+
+#### Step 2: Configure Environment (Optional)
+
+Copy the example environment file and customize if needed:
+
+```bash
+# Windows (PowerShell)
+Copy-Item env.example .env
+
+# Linux/Mac
+cp env.example .env
+```
+
+Edit `.env` file to customize:
+- SQL Server password (`SA_PASSWORD`)
+- API ports (`API_HTTP_PORT`, `API_HTTPS_PORT`)
+- JWT secret key (`JWT_SECRET_KEY`)
+
+#### Step 3: Start with Docker Compose
+
+```bash
+docker-compose up
+```
+
+This will:
+- Build the .NET application Docker image
+- Start SQL Server container
+- Start the Web API container
+- Automatically run database migrations
+- Seed initial data (roles, system admin)
+
+The API will be available at:
+- **HTTP**: `http://localhost:5000`
+- **Swagger**: `http://localhost:5000/swagger`
+
+**Note**: The database and all tables are created automatically on first startup. Migrations run automatically when the container starts.
+
+#### Step 4: Access the Application
+
+Open your browser and navigate to:
+```
+http://localhost:5000/swagger
+```
+
+#### Default System Admin Credentials
+
+A system administrator account is automatically seeded when the database is created. You can use these credentials to log in:
+
+- **Email**: `sys.admin@medicalcenter.com`
+- **Password**: `Admin@123!ChangeMe`
+
+**⚠️ Important**: Change the default password in production environments.
+
+#### Stop the Application
+
+```bash
+# Stop containers (keeps data)
+docker-compose stop
+
+# Stop and remove containers (keeps data)
+docker-compose down
+
+# Stop and remove containers and volumes (⚠️ deletes data)
+docker-compose down -v
+```
+
+#### View Logs
+
+```bash
+# View all logs
+docker-compose logs
+
+# Follow logs
+docker-compose logs -f
+
+# View specific service logs
+docker-compose logs webapi
+docker-compose logs sqlserver
+```
+
+---
+
+### Option 2: Manual Setup (Requires .NET SDK and SQL Server)
+
 ### Prerequisites
 
 - **.NET 10 SDK** - [Download](https://dotnet.microsoft.com/download)
@@ -73,6 +172,15 @@ Open your browser and navigate to:
 ```
 https://localhost:5001/swagger
 ```
+
+### Default System Admin Credentials
+
+A system administrator account is automatically seeded when the database is created. You can use these credentials to log in:
+
+- **Email**: `sys.admin@medicalcenter.com`
+- **Password**: `Admin@123!ChangeMe`
+
+**⚠️ Important**: Change the default password in production environments.
 
 ### Step 6: Test the API
 
@@ -263,7 +371,89 @@ See [ImplementationPlan.md](docs/ImplementationPlan.md) for detailed progress.
 
 ## Troubleshooting
 
-### Database Connection Issues
+### Docker Issues
+
+#### Containers Won't Start
+
+1. **Check Docker is running**:
+   ```bash
+   docker ps
+   ```
+
+2. **View container logs**:
+   ```bash
+   docker-compose logs
+   ```
+
+3. **Rebuild containers**:
+   ```bash
+   docker-compose up --build
+   ```
+
+#### Database Connection Issues in Docker
+
+1. **Check SQL Server container is healthy**:
+   ```bash
+   docker-compose ps
+   ```
+
+2. **Verify connection string** uses service name `sqlserver` (not `localhost`)
+
+3. **Check SQL Server logs**:
+   ```bash
+   docker-compose logs sqlserver
+   ```
+
+4. **Restart services**:
+   ```bash
+   docker-compose restart
+   ```
+
+#### Migration Errors in Docker
+
+1. **Check application logs** for migration errors:
+   ```bash
+   docker-compose logs webapi
+   ```
+
+2. **Manually run migrations** (if needed):
+   ```bash
+   docker-compose exec webapi dotnet ef database update --project /src/src/MedicalCenter.Infrastructure --startup-project /src/src/MedicalCenter.WebApi
+   ```
+
+#### Port Conflicts
+
+If ports 5000, 5001, or 1433 are already in use:
+
+1. **Update `.env` file** with different ports:
+   ```env
+   API_HTTP_PORT=5002
+   API_HTTPS_PORT=5003
+   SQL_SERVER_PORT=1434
+   ```
+
+2. **Restart containers**:
+   ```bash
+   docker-compose down
+   docker-compose up
+   ```
+
+#### Clean Up Docker Resources
+
+```bash
+# Stop and remove containers (keeps volumes)
+docker-compose down
+
+# Stop and remove containers and volumes (⚠️ deletes all data)
+docker-compose down -v
+
+# Remove all Docker resources (⚠️ removes all containers, images, volumes)
+docker system prune -a --volumes
+```
+
+### Manual Setup Issues
+
+#### Database Connection Issues
 
 1. **Verify SQL Server is running**
 2. **Check connection string** in `appsettings.json`
@@ -272,11 +462,11 @@ See [ImplementationPlan.md](docs/ImplementationPlan.md) for detailed progress.
    CREATE DATABASE MedicalCenter;
    ```
 
-### Port Already in Use
+#### Port Already in Use
 
 The application will automatically use another port. Check the console output for the actual port number.
 
-### Migration Errors
+#### Migration Errors
 
 1. **Check database exists**
 2. **Drop and recreate** (⚠️ **WARNING**: This deletes all data):

@@ -18,6 +18,7 @@ This document outlines the high-level implementation plan for the Medical Center
 - ⏳ **Phase 9**: Complete Provider Endpoints
 - ⏳ **Phase 11**: Patient Self-Service Features
 - ⏳ **Phase 12**: Testing & Quality Assurance
+- ✅ **Phase 13**: Dockerization
 
 ### Completed Features
 
@@ -35,6 +36,7 @@ This document outlines the high-level implementation plan for the Medical Center
 - ✅ FluentValidation for all endpoints
 - ✅ Swagger/OpenAPI documentation (FastEndpoints.Swagger)
 - ✅ Security enhancements (RequirePatient policy, JWT role mapping)
+- ✅ Dockerization (Dockerfile, docker-compose.yml, automatic migrations)
 - ✅ 154 domain unit tests passing
 
 ### In Progress
@@ -1555,6 +1557,121 @@ This section provides a comprehensive, phase-by-phase implementation guide. Each
 
 ---
 
+### Phase 13: Dockerization
+
+**Goal**: Containerize the application with Docker and Docker Compose for easy setup and deployment.
+
+**Deliverable**: Fully containerized application that can be run with a single `docker-compose up` command.
+
+#### Tasks:
+
+1. **Dockerfile for Application**
+   - Create multi-stage Dockerfile for .NET 10 application
+   - Optimize for production builds
+   - Set up proper working directory and entry point
+   - Configure environment variables
+
+2. **SQL Server Docker Container**
+   - Use official Microsoft SQL Server Docker image
+   - Configure SQL Server with appropriate settings
+   - Set up initial database creation
+   - Configure persistent volume for data
+
+3. **Docker Compose Configuration**
+   - Create `docker-compose.yml` file
+   - Define services: `webapi` and `sqlserver`
+   - Configure networking between services
+   - Set up environment variables for connection strings
+   - Configure volume mounts for database persistence
+   - Add health checks for services
+
+4. **Connection String Configuration**
+   - Update connection string to use Docker service name
+   - Configure for containerized SQL Server instance
+   - Ensure connection string works in Docker environment
+   - Add connection string validation
+
+5. **Migration Strategy**
+   - Automatically run EF Core migrations on startup
+   - Or provide migration script in Docker Compose
+   - Ensure database is ready before application starts
+   - Handle migration failures gracefully
+
+6. **Environment Configuration**
+   - Create `.env` file template (`.env.example`)
+   - Document required environment variables
+   - Configure JWT settings for Docker environment
+   - Set up development vs production configurations
+
+7. **Docker Ignore File**
+   - Create `.dockerignore` file
+   - Exclude unnecessary files from Docker build context
+   - Optimize build performance
+
+8. **Documentation Updates**
+   - Update README.md with Docker setup instructions
+   - Add Docker Compose quick start guide
+   - Document environment variables
+   - Add troubleshooting section for Docker issues
+
+9. **Testing**
+   - Verify application runs correctly in Docker
+   - Test database connectivity from container
+   - Test migrations run successfully
+   - Verify all endpoints work in containerized environment
+
+**Verification**:
+- ✅ Application runs in Docker container
+- ✅ SQL Server runs in Docker container
+- ✅ Application connects to SQL Server successfully
+- ✅ Migrations run automatically on startup
+- ✅ `docker-compose up` starts all services
+- ✅ No manual installation required (only Docker)
+- ✅ All endpoints work correctly
+- ✅ Documentation updated with Docker instructions
+
+**Docker Compose Structure**:
+```yaml
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=<secure-password>
+      - MSSQL_PID=Developer
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqlserver_data:/var/opt/mssql
+    healthcheck:
+      ...
+
+  webapi:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+    environment:
+      - ConnectionStrings__DefaultConnection=Server=sqlserver;Database=MedicalCenter;User Id=sa;Password=...
+      - ASPNETCORE_ENVIRONMENT=Development
+    ports:
+      - "5000:8080"
+      - "5001:8081"
+```
+
+**Prerequisites for Users**:
+- Docker Desktop installed (or Docker Engine + Docker Compose)
+- No other dependencies required (.NET SDK, SQL Server, etc.)
+
+**Quick Start Command**:
+```bash
+docker-compose up
+```
+
+---
+
 ## 9. Phase Deliverables Summary
 
 Each phase produces a working, testable deliverable:
@@ -1571,6 +1688,7 @@ Each phase produces a working, testable deliverable:
 - **Phase 10**: Admin management features
 - **Phase 11**: Patient self-service complete
 - **Phase 12**: Production-ready, well-tested application
+- **Phase 13**: Fully containerized application with Docker Compose
 
 ## 10. README Maintenance Strategy
 
@@ -1589,9 +1707,9 @@ This ensures the README remains a living document that accurately reflects the c
 ## 9. Technology Stack
 
 ### Core Technologies
-- **.NET 8+**: Runtime and framework
+- **.NET 10**: Runtime and framework
 - **C# 12**: Programming language
-- **Entity Framework Core 8**: ORM
+- **Entity Framework Core 10**: ORM
 - **ASP.NET Core Identity**: Authentication/Authorization
 
 ### Key Libraries
