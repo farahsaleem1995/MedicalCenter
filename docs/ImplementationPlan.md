@@ -1154,6 +1154,61 @@ This section provides a comprehensive, phase-by-phase implementation guide. Each
 
 ---
 
+### Phase 5.1: Authorization & User Management
+
+**Goal**: Fix domain rule violations - patients cannot update their own medical attributes. Implement proper authorization and system admin user management.
+
+**Deliverable**: Secure medical attribute updates with role-based authorization, system admin user seeding, and admin endpoints for user management.
+
+#### Tasks:
+
+1. **Authorization Policies**
+   - Update `CanModifyMedicalAttributes` policy to include SystemAdmin
+   - Verify policies correctly restrict access
+
+2. **System Admin Seeding**
+   - Create `SystemAdminSeeder` to seed `sys.admin@medicalcenter.com`
+   - Integrate with existing seeding mechanism
+
+3. **Endpoint Refactoring**
+   - Change `PUT /patients/self/medical-attributes` to `PUT /patients/{patientId}/medical-attributes`
+   - Remove patient self-update capability
+   - Require `CanModifyMedicalAttributes` authorization policy
+   - Accept `patientId` as route parameter
+
+4. **System Admin Endpoints**
+   - Create admin endpoints for user management (CRUD)
+   - `POST /admin/users` - Create user (all types)
+   - `GET /admin/users/{userId}` - Get user
+   - `GET /admin/users` - List users (with filtering)
+   - `PUT /admin/users/{userId}` - Update user
+   - `DELETE /admin/users/{userId}` - Delete/deactivate user
+
+5. **Identity Service Updates**
+   - Extend `CreateUserAsync` to support all user types
+   - Add role-specific properties (specialty, organizationName, etc.)
+
+6. **Tests**
+   - Test authorization policies
+   - Test system admin seeder
+   - Test user creation for all user types
+   - Test medical attribute update authorization
+
+**Verification**:
+- ✅ Authorization policy updated (CanModifyMedicalAttributes includes SystemAdmin)
+- ✅ Endpoint refactored (PUT /patients/{patientId}/medical-attributes with authorization)
+- ✅ Domain tests created and passing (131 tests total)
+- ✅ Domain rules verified (medical attribute constraints, user creation rules)
+- ⏳ System admin seeder (infrastructure - manual verification)
+- ⏳ System admin endpoints (infrastructure/presentation - manual verification)
+- ⏳ Identity service extension (infrastructure - manual verification)
+
+**Note**: Following classical school of testing, only domain tests are implemented. Infrastructure and presentation layer components are verified manually.
+
+**See**: [Phase5.1_AuthorizationAndUserManagement.md](Phase5.1_AuthorizationAndUserManagement.md) for detailed implementation plan.
+
+---
+
 ### Phase 6: Medical Records & Encounters
 
 **Goal**: Implement MedicalRecord and Encounter aggregates.

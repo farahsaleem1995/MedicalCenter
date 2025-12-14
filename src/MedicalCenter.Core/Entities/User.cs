@@ -1,3 +1,4 @@
+using Ardalis.GuardClauses;
 using MedicalCenter.Core.Common;
 using MedicalCenter.Core.Enums;
 
@@ -20,6 +21,10 @@ public abstract class User : BaseEntity, IAuditableEntity
 
     protected User(string fullName, string email, UserRole role)
     {
+        Guard.Against.NullOrWhiteSpace(fullName, nameof(fullName));
+        Guard.Against.NullOrWhiteSpace(email, nameof(email));
+        Guard.Against.OutOfRange((int)role, nameof(role), 1, Enum.GetValues<UserRole>().Length);
+        
         FullName = fullName;
         Email = email;
         Role = role;

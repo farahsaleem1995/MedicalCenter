@@ -14,24 +14,24 @@ public static class AuthorizationExtensions
         services.AddAuthorization(options =>
         {
             // Basic role policies
-            options.AddPolicy("RequirePatient", policy =>
+            options.AddPolicy(AuthorizationPolicies.RequirePatient, policy =>
                 policy.RequireRole(UserRole.Patient.ToString()));
 
-            options.AddPolicy("RequireDoctor", policy =>
+            options.AddPolicy(AuthorizationPolicies.RequireDoctor, policy =>
                 policy.RequireRole(UserRole.Doctor.ToString()));
 
-            options.AddPolicy("RequireAdmin", policy =>
+            options.AddPolicy(AuthorizationPolicies.RequireAdmin, policy =>
                 policy.RequireRole(UserRole.SystemAdmin.ToString()));
 
             // Composite role policies
-            options.AddPolicy("RequireProvider", policy =>
+            options.AddPolicy(AuthorizationPolicies.RequireProvider, policy =>
                 policy.RequireRole(
                     UserRole.Doctor.ToString(),
                     UserRole.HealthcareStaff.ToString(),
                     UserRole.LabUser.ToString(),
                     UserRole.ImagingUser.ToString()));
 
-            options.AddPolicy("RequirePatientOrProvider", policy =>
+            options.AddPolicy(AuthorizationPolicies.RequirePatientOrProvider, policy =>
                 policy.RequireRole(
                     UserRole.Patient.ToString(),
                     UserRole.Doctor.ToString(),
@@ -40,13 +40,13 @@ public static class AuthorizationExtensions
                     UserRole.ImagingUser.ToString()));
 
             // Claims-based policies
-            options.AddPolicy("CanModifyMedicalAttributes", policy =>
-                policy.RequireClaim("role", "Doctor", "HealthcareStaff"));
+            options.AddPolicy(AuthorizationPolicies.CanModifyMedicalAttributes, policy =>
+                policy.RequireClaim("role", "Doctor", "HealthcareStaff", "SystemAdmin"));
 
-            options.AddPolicy("CanCreateRecords", policy =>
+            options.AddPolicy(AuthorizationPolicies.CanCreateRecords, policy =>
                 policy.RequireClaim("role", "Doctor", "HealthcareStaff", "LabUser", "ImagingUser"));
 
-            options.AddPolicy("CanViewAllPatients", policy =>
+            options.AddPolicy(AuthorizationPolicies.CanViewAllPatients, policy =>
                 policy.RequireClaim("role", "Doctor", "HealthcareStaff", "SystemAdmin"));
         });
 

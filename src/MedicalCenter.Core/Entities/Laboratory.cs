@@ -1,3 +1,4 @@
+using Ardalis.GuardClauses;
 using MedicalCenter.Core.Enums;
 
 namespace MedicalCenter.Core.Entities;
@@ -22,6 +23,9 @@ public class Laboratory : User
 
     public static Laboratory Create(string fullName, string email, string labName, string licenseNumber)
     {
+        Guard.Against.NullOrWhiteSpace(labName, nameof(labName));
+        Guard.Against.NullOrWhiteSpace(licenseNumber, nameof(licenseNumber));
+        
         return new Laboratory(fullName, email, labName, licenseNumber);
     }
 }

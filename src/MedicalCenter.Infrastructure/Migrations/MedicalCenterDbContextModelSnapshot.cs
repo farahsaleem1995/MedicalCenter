@@ -22,7 +22,117 @@ namespace MedicalCenter.Infrastructure.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("MedicalCenter.Core.Entities.Patient", b =>
+            modelBuilder.Entity("MedicalCenter.Core.Aggregates.Patient.Allergy", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<Guid>("PatientId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Severity")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PatientId");
+
+                    b.ToTable("Allergies", (string)null);
+                });
+
+            modelBuilder.Entity("MedicalCenter.Core.Aggregates.Patient.ChronicDisease", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("DiagnosisDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<Guid>("PatientId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PatientId");
+
+                    b.ToTable("ChronicDiseases", (string)null);
+                });
+
+            modelBuilder.Entity("MedicalCenter.Core.Aggregates.Patient.Medication", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Dosage")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime?>("EndDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<Guid>("PatientId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("StartDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PatientId");
+
+                    b.ToTable("Medications", (string)null);
+                });
+
+            modelBuilder.Entity("MedicalCenter.Core.Aggregates.Patient.Patient", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -69,6 +179,44 @@ namespace MedicalCenter.Infrastructure.Migrations
                         .IsUnique();
 
                     b.ToTable("Patients", (string)null);
+                });
+
+            modelBuilder.Entity("MedicalCenter.Core.Aggregates.Patient.Surgery", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<Guid>("PatientId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Surgeon")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PatientId");
+
+                    b.ToTable("Surgeries", (string)null);
                 });
 
             modelBuilder.Entity("MedicalCenter.Infrastructure.Identity.ApplicationUser", b =>
@@ -135,6 +283,24 @@ namespace MedicalCenter.Infrastructure.Migrations
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
 
                     b.ToTable("AspNetUsers", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("802a729f-7f2e-d457-7b2f-b1954f70413f"),
+                            AccessFailedCount = 0,
+                            ConcurrencyStamp = "0985cb20-fd39-4beb-5564-114092dcc5df",
+                            Email = "sys.admin@medicalcenter.com",
+                            EmailConfirmed = true,
+                            LockoutEnabled = false,
+                            NormalizedEmail = "SYS.ADMIN@MEDICALCENTER.COM",
+                            NormalizedUserName = "SYS.ADMIN@MEDICALCENTER.COM",
+                            PasswordHash = "AQAAAAIAAYagAAAAENiQk5IFLxsI3vzGppLOS4O56DOxnsRaArsRQlh+qa2jhzyB7Qtznk23hZnlhIGsPw==",
+                            PhoneNumberConfirmed = false,
+                            SecurityStamp = "7uEf3pzBcnQoOlRcoHUrmw==",
+                            TwoFactorEnabled = false,
+                            UserName = "sys.admin@medicalcenter.com"
+                        });
                 });
 
             modelBuilder.Entity("MedicalCenter.Infrastructure.Identity.RefreshToken", b =>
@@ -307,6 +473,13 @@ namespace MedicalCenter.Infrastructure.Migrations
                     b.HasIndex("RoleId");
 
                     b.ToTable("AspNetUserRoles", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            UserId = new Guid("802a729f-7f2e-d457-7b2f-b1954f70413f"),
+                            RoleId = new Guid("8c50a02f-70e4-f3f9-9b62-812ad887a303")
+                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<System.Guid>", b =>
@@ -326,6 +499,80 @@ namespace MedicalCenter.Infrastructure.Migrations
                     b.HasKey("UserId", "LoginProvider", "Name");
 
                     b.ToTable("AspNetUserTokens", (string)null);
+                });
+
+            modelBuilder.Entity("MedicalCenter.Core.Aggregates.Patient.Allergy", b =>
+                {
+                    b.HasOne("MedicalCenter.Core.Aggregates.Patient.Patient", "Patient")
+                        .WithMany("Allergies")
+                        .HasForeignKey("PatientId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Patient");
+                });
+
+            modelBuilder.Entity("MedicalCenter.Core.Aggregates.Patient.ChronicDisease", b =>
+                {
+                    b.HasOne("MedicalCenter.Core.Aggregates.Patient.Patient", "Patient")
+                        .WithMany("ChronicDiseases")
+                        .HasForeignKey("PatientId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Patient");
+                });
+
+            modelBuilder.Entity("MedicalCenter.Core.Aggregates.Patient.Medication", b =>
+                {
+                    b.HasOne("MedicalCenter.Core.Aggregates.Patient.Patient", "Patient")
+                        .WithMany("Medications")
+                        .HasForeignKey("PatientId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Patient");
+                });
+
+            modelBuilder.Entity("MedicalCenter.Core.Aggregates.Patient.Patient", b =>
+                {
+                    b.OwnsOne("MedicalCenter.Core.ValueObjects.BloodType", "BloodType", b1 =>
+                        {
+                            b1.Property<Guid>("PatientId")
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.Property<string>("ABO")
+                                .IsRequired()
+                                .HasMaxLength(10)
+                                .HasColumnType("nvarchar(10)")
+                                .HasColumnName("BloodABO");
+
+                            b1.Property<string>("Rh")
+                                .IsRequired()
+                                .HasMaxLength(10)
+                                .HasColumnType("nvarchar(10)")
+                                .HasColumnName("BloodRh");
+
+                            b1.HasKey("PatientId");
+
+                            b1.ToTable("Patients");
+
+                            b1.WithOwner()
+                                .HasForeignKey("PatientId");
+                        });
+
+                    b.Navigation("BloodType");
+                });
+
+            modelBuilder.Entity("MedicalCenter.Core.Aggregates.Patient.Surgery", b =>
+                {
+                    b.HasOne("MedicalCenter.Core.Aggregates.Patient.Patient", "Patient")
+                        .WithMany("Surgeries")
+                        .HasForeignKey("PatientId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Patient");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>
@@ -377,6 +624,17 @@ namespace MedicalCenter.Infrastructure.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("MedicalCenter.Core.Aggregates.Patient.Patient", b =>
+                {
+                    b.Navigation("Allergies");
+
+                    b.Navigation("ChronicDiseases");
+
+                    b.Navigation("Medications");
+
+                    b.Navigation("Surgeries");
                 });
 #pragma warning restore 612, 618
         }

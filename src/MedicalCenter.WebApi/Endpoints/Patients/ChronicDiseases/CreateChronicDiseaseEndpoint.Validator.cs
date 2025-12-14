@@ -1,0 +1,34 @@
+using FluentValidation;
+
+namespace MedicalCenter.WebApi.Endpoints.Patients.ChronicDiseases;
+
+/// <summary>
+/// Validator for create chronic disease request.
+/// </summary>
+public class CreateChronicDiseaseEndpointValidator : AbstractValidator<CreateChronicDiseaseRequest>
+{
+    public CreateChronicDiseaseEndpointValidator()
+    {
+        RuleFor(x => x.PatientId)
+            .NotEmpty()
+            .WithMessage("Patient ID is required.");
+
+        RuleFor(x => x.Name)
+            .NotEmpty()
+            .WithMessage("Chronic disease name is required.")
+            .MaximumLength(200)
+            .WithMessage("Chronic disease name cannot exceed 200 characters.");
+
+        RuleFor(x => x.DiagnosisDate)
+            .NotEmpty()
+            .WithMessage("Diagnosis date is required.")
+            .LessThanOrEqualTo(DateTime.UtcNow)
+            .WithMessage("Diagnosis date cannot be in the future.");
+
+        RuleFor(x => x.Notes)
+            .MaximumLength(1000)
+            .When(x => !string.IsNullOrEmpty(x.Notes))
+            .WithMessage("Notes cannot exceed 1000 characters.");
+    }
+}
+

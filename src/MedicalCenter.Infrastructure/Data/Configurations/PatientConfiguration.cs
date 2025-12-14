@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using MedicalCenter.Core.Aggregates.Patient;
+using MedicalCenter.Core.ValueObjects;
 
 namespace MedicalCenter.Infrastructure.Data.Configurations;
 
@@ -42,6 +43,41 @@ public class PatientConfiguration : IEntityTypeConfiguration<Patient>
             .IsRequired();
 
         builder.Property(p => p.UpdatedAt);
+
+        // Configure BloodType as owned entity
+        builder.OwnsOne(p => p.BloodType, bloodType =>
+        {
+            bloodType.Property(bt => bt.ABO)
+                .HasConversion<string>()
+                .HasMaxLength(10)
+                .HasColumnName("BloodABO");
+
+            bloodType.Property(bt => bt.Rh)
+                .HasConversion<string>()
+                .HasMaxLength(10)
+                .HasColumnName("BloodRh");
+        });
+
+        // Configure collections
+        builder.HasMany(p => p.Allergies)
+            .WithOne(a => a.Patient)
+            .HasForeignKey(a => a.PatientId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.HasMany(p => p.ChronicDiseases)
+            .WithOne(cd => cd.Patient)
+            .HasForeignKey(cd => cd.PatientId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.HasMany(p => p.Medications)
+            .WithOne(m => m.Patient)
+            .HasForeignKey(m => m.PatientId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.HasMany(p => p.Surgeries)
+            .WithOne(s => s.Patient)
+            .HasForeignKey(s => s.PatientId)
+            .OnDelete(DeleteBehavior.Cascade);
 
         // Indexes
         builder.HasIndex(p => p.Email)

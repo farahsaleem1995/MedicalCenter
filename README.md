@@ -424,6 +424,72 @@ The system uses ASP.NET Core Identity for authentication and authorization:
 - **Authorization**: Role-based access control (RBAC) with policies
 - **Token Management**: Access tokens and refresh tokens
 
+## Patient Aggregate & Medical Attributes (Phase 5)
+
+The Patient aggregate includes comprehensive medical attribute management:
+
+### Features
+
+- **Blood Type Management**: Store and update patient blood type (ABO + Rh factor)
+- **Allergies**: Track patient allergies with severity and notes
+- **Chronic Diseases**: Record chronic conditions with diagnosis dates
+- **Medications**: Manage current and past medications with dosage and dates
+- **Surgeries**: Track surgical history with surgeon information
+
+### API Endpoints
+
+#### Get Patient Data
+```http
+GET /patients/self
+Authorization: Bearer {token}
+```
+
+Returns the authenticated patient's own information including blood type.
+
+#### Get Medical Attributes
+```http
+GET /patients/self/medical-attributes
+Authorization: Bearer {token}
+```
+
+Returns all medical attributes (allergies, chronic diseases, medications, surgeries).
+
+#### Update Medical Attributes
+```http
+PUT /patients/self/medical-attributes
+Authorization: Bearer {token}
+Content-Type: application/json
+
+{
+  "bloodABO": "A",
+  "bloodRh": "Positive",
+  "allergiesToAdd": [
+    {
+      "name": "Peanuts",
+      "severity": "Severe",
+      "notes": "Causes anaphylaxis"
+    }
+  ],
+  "medicationsToAdd": [
+    {
+      "name": "Aspirin",
+      "dosage": "100mg daily",
+      "startDate": "2024-01-01T00:00:00Z",
+      "notes": "For heart health"
+    }
+  ]
+}
+```
+
+### Domain Model
+
+- **`Patient`**: Aggregate root with collections for medical attributes
+- **`Allergy`**: Entity within Patient aggregate
+- **`ChronicDisease`**: Entity within Patient aggregate
+- **`Medication`**: Entity within Patient aggregate
+- **`Surgery`**: Entity within Patient aggregate
+- **`BloodType`**: Value object (ABO + Rh factor)
+
 ### User Roles
 
 - `SystemAdmin`: System administrators
@@ -432,6 +498,27 @@ The system uses ASP.NET Core Identity for authentication and authorization:
 - `HealthcareStaff`: Hospital/clinic staff
 - `LabUser`: Laboratory technicians
 - `ImagingUser`: Imaging technicians
+
+## Patient Aggregate & Medical Attributes (Phase 5)
+
+The Patient aggregate includes comprehensive medical attribute management:
+
+### Features
+
+- **Blood Type Management**: Store and update patient blood type (ABO + Rh factor)
+- **Allergies**: Track patient allergies with severity and notes
+- **Chronic Diseases**: Record chronic conditions with diagnosis dates
+- **Medications**: Manage current and past medications with dosage and dates
+- **Surgeries**: Track surgical history with surgeon information
+
+### Domain Model
+
+- **`Patient`**: Aggregate root with collections for medical attributes
+- **`Allergy`**: Entity within Patient aggregate
+- **`ChronicDisease`**: Entity within Patient aggregate
+- **`Medication`**: Entity within Patient aggregate
+- **`Surgery`**: Entity within Patient aggregate
+- **`BloodType`**: Value object (ABO + Rh factor)
 
 ### API Endpoints
 
@@ -568,8 +655,8 @@ dotnet test --collect:"XPlat Code Coverage"
 - ✅ Phase 1: Solution Scaffolding & Git Setup
 - ✅ Phase 2: Core Foundation & Base Classes
 - ✅ Phase 3: Infrastructure Foundation
-- ✅ Phase 4: Identity System Foundation (In Progress - Domain Object Testing Complete)
-- ⏳ Phase 5: Patient Aggregate & Medical Attributes
+- ✅ Phase 4: Identity System Foundation (Completed)
+- ✅ Phase 5: Patient Aggregate & Medical Attributes (Completed)
 - ⏳ Phase 6: Medical Records & Encounters
 - ⏳ Phase 7: Query Services & Provider Lookups
 - ⏳ Phase 8: Action Logging & Audit Trail
@@ -578,7 +665,7 @@ dotnet test --collect:"XPlat Code Coverage"
 - ⏳ Phase 11: Patient Self-Service Features
 - ⏳ Phase 12: Testing & Quality Assurance
 
-**Current Focus**: Phase 4 - Domain object testing and behavior validation. All domain entities (User, Patient, Doctor, HealthcareEntity, Laboratory, ImagingCenter) have comprehensive unit tests covering their core behaviors.
+**Current Focus**: Phase 5 completed - Patient aggregate with medical attributes (allergies, chronic diseases, medications, surgeries) and blood type management. All domain entities have comprehensive unit tests covering their core behaviors (114 tests passing).
 
 ## Documentation
 

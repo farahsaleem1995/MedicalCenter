@@ -14,8 +14,8 @@ public static class ModelBuilderExtensions
     public static void SeedData(this ModelBuilder modelBuilder)
     {
         RoleSeeder.SeedRoles(modelBuilder);
+        SystemAdminSeeder.SeedSystemAdmin(modelBuilder);
         // Add other seeders here as needed:
-        // UserSeeder.SeedUsers(modelBuilder);
         // ConfigurationSeeder.SeedConfiguration(modelBuilder);
     }
 }

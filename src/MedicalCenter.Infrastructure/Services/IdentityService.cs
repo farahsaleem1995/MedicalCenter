@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
-using MedicalCenter.Core.Aggregates.Patient;
 using MedicalCenter.Core.Common;
 using MedicalCenter.Core.Entities;
 using MedicalCenter.Core.Enums;
@@ -18,7 +17,6 @@ namespace MedicalCenter.Infrastructure.Services;
 public class IdentityService(
     MedicalCenterDbContext context,
     UserManager<ApplicationUser> userManager,
-    IRepository<Patient> patientRepository,
     IUnitOfWork unitOfWork,
     IOptions<JwtSettings> jwtSettings)
     : IIdentityService
@@ -85,9 +83,19 @@ public class IdentityService(
 
     public async Task<User?> GetUserByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        // For now, we'll query Patient only
-        // This will be expanded when we have SQL views for all user types
-        return await patientRepository.GetByIdAsync(id, cancellationToken);
+        var identityUser = await userManager.FindByIdAsync(id.ToString());
+        if (identityUser == null)
+        {
+            return null;
+        }
+
+        var roles = await userManager.GetRolesAsync(identityUser);
+        if (roles.Count == 0 || !Enum.TryParse<UserRole>(roles[0], out var role))
+        {
+            return null;
+        }
+
+        return new IdentityUserWrapper(identityUser, role);
     }
 
     public async Task<User?> GetUserByEmailAsync(string email, CancellationToken cancellationToken = default)
@@ -198,6 +206,19 @@ public class IdentityService(
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
         return Result.Success();
+    }
+
+    /// <summary>
+    /// Simple wrapper to convert Identity ApplicationUser to domain User.
+    /// </summary>
+    private class IdentityUserWrapper : User
+    {
+        public IdentityUserWrapper(ApplicationUser identityUser, UserRole role)
+            : base(identityUser.UserName ?? identityUser.Email ?? string.Empty, identityUser.Email ?? string.Empty, role)
+        {
+            Id = identityUser.Id;
+            IsActive = !identityUser.LockoutEnabled || identityUser.LockoutEnd == null || identityUser.LockoutEnd <= DateTimeOffset.UtcNow;
+        }
     }
 }
 

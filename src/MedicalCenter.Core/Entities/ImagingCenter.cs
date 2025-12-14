@@ -1,3 +1,4 @@
+using Ardalis.GuardClauses;
 using MedicalCenter.Core.Enums;
 
 namespace MedicalCenter.Core.Entities;
@@ -22,6 +23,9 @@ public class ImagingCenter : User
 
     public static ImagingCenter Create(string fullName, string email, string centerName, string licenseNumber)
     {
+        Guard.Against.NullOrWhiteSpace(centerName, nameof(centerName));
+        Guard.Against.NullOrWhiteSpace(licenseNumber, nameof(licenseNumber));
+        
         return new ImagingCenter(fullName, email, centerName, licenseNumber);
     }
 }

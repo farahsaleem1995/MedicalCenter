@@ -28,7 +28,7 @@ public class TokenProvider(IOptions<JwtSettings> jwtSettings) : ITokenProvider
             new(JwtRegisteredClaimNames.Name, user.FullName),
             new(ClaimTypes.Role, user.Role.ToString()),
             new("userId", user.Id.ToString()),
-            new("userRole", ((int)user.Role).ToString())
+            new("userRole", user.Role.ToString())
         };
 
         // Add role-specific claims

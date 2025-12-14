@@ -1,3 +1,4 @@
+using Ardalis.GuardClauses;
 using MedicalCenter.Core.Enums;
 
 namespace MedicalCenter.Core.Entities;
@@ -22,6 +23,9 @@ public class HealthcareEntity : User
 
     public static HealthcareEntity Create(string fullName, string email, string organizationName, string department)
     {
+        Guard.Against.NullOrWhiteSpace(organizationName, nameof(organizationName));
+        Guard.Against.NullOrWhiteSpace(department, nameof(department));
+        
         return new HealthcareEntity(fullName, email, organizationName, department);
     }
 }

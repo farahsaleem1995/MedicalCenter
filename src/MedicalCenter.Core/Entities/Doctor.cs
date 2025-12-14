@@ -1,3 +1,4 @@
+using Ardalis.GuardClauses;
 using MedicalCenter.Core.Enums;
 
 namespace MedicalCenter.Core.Entities;
@@ -22,6 +23,9 @@ public class Doctor : User
 
     public static Doctor Create(string fullName, string email, string licenseNumber, string specialty)
     {
+        Guard.Against.NullOrWhiteSpace(licenseNumber, nameof(licenseNumber));
+        Guard.Against.NullOrWhiteSpace(specialty, nameof(specialty));
+        
         return new Doctor(fullName, email, licenseNumber, specialty);
     }
 }
