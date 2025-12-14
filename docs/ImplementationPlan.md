@@ -569,20 +569,25 @@ options.AddPolicy("RequirePatientOrProvider", policy =>
         UserRole.ImagingUser.ToString()));
 ```
 
-#### 3.2 Claims-Based Policies
+#### 3.2 Role-Based Permission Policies
 
 ```csharp
-// Fine-grained permission policies
-options.AddPolicy("CanModifyMedicalAttributes", policy =>
-    policy.RequireClaim("role", "Doctor", "HealthcareStaff")
-          .RequireAssertion(context => 
-              context.User.HasClaim("permission", "modify_medical_attributes")));
+// Medical attributes policies - separated for view and modify operations
+options.AddPolicy("CanViewMedicalAttributes", policy =>
+    policy.RequireRole("Doctor", "HealthcareStaff", "SystemAdmin"));
 
-options.AddPolicy("CanCreateRecords", policy =>
-    policy.RequireClaim("role", "Doctor", "HealthcareStaff", "LabUser", "ImagingUser"));
+options.AddPolicy("CanModifyMedicalAttributes", policy =>
+    policy.RequireRole("Doctor", "HealthcareStaff", "SystemAdmin"));
+
+// Records policies - separated for view and modify operations
+options.AddPolicy("CanViewRecords", policy =>
+    policy.RequireRole("Doctor", "HealthcareStaff", "LabUser", "ImagingUser"));
+
+options.AddPolicy("CanModifyRecords", policy =>
+    policy.RequireRole("Doctor", "HealthcareStaff", "LabUser", "ImagingUser"));
 
 options.AddPolicy("CanViewAllPatients", policy =>
-    policy.RequireClaim("role", "Doctor", "HealthcareStaff", "SystemAdmin"));
+    policy.RequireRole("Doctor", "HealthcareStaff", "SystemAdmin"));
 ```
 
 #### 3.3 Resource-Based Policies

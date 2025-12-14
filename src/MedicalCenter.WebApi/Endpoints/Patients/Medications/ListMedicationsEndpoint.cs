@@ -16,7 +16,7 @@ public class ListMedicationsEndpoint(IRepository<Patient> patientRepository)
     {
         Get("/");
         Group<MedicationsGroup>();
-        Policies(AuthorizationPolicies.CanModifyMedicalAttributes);
+        Policies(AuthorizationPolicies.CanViewMedicalAttributes);
         Summary(s =>
         {
             s.Summary = "List patient medications";

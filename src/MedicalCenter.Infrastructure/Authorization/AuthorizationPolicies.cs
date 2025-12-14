@@ -15,9 +15,15 @@ public static class AuthorizationPolicies
     public const string RequireProvider = "RequireProvider";
     public const string RequirePatientOrProvider = "RequirePatientOrProvider";
 
-    // Claims-based policies
+    // Medical attributes policies
+    public const string CanViewMedicalAttributes = "CanViewMedicalAttributes";
     public const string CanModifyMedicalAttributes = "CanModifyMedicalAttributes";
-    public const string CanCreateRecords = "CanCreateRecords";
+    
+    // Records policies
+    public const string CanViewRecords = "CanViewRecords";
+    public const string CanModifyRecords = "CanModifyRecords";
+    
+    // Other policies
     public const string CanViewAllPatients = "CanViewAllPatients";
 }
 

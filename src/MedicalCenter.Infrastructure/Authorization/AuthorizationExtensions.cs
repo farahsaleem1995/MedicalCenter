@@ -39,15 +39,37 @@ public static class AuthorizationExtensions
                     UserRole.LabUser.ToString(),
                     UserRole.ImagingUser.ToString()));
 
-            // Claims-based policies
+            options.AddPolicy(AuthorizationPolicies.CanViewMedicalAttributes, policy =>
+                policy.RequireRole(
+                    UserRole.Doctor.ToString(),
+                    UserRole.HealthcareStaff.ToString(),
+                    UserRole.SystemAdmin.ToString()));
+            
             options.AddPolicy(AuthorizationPolicies.CanModifyMedicalAttributes, policy =>
-                policy.RequireClaim("role", "Doctor", "HealthcareStaff", "SystemAdmin"));
+                policy.RequireRole(
+                    UserRole.Doctor.ToString(),
+                    UserRole.HealthcareStaff.ToString(),
+                    UserRole.SystemAdmin.ToString()));
 
-            options.AddPolicy(AuthorizationPolicies.CanCreateRecords, policy =>
-                policy.RequireClaim("role", "Doctor", "HealthcareStaff", "LabUser", "ImagingUser"));
+            options.AddPolicy(AuthorizationPolicies.CanViewRecords, policy =>
+                policy.RequireRole(
+                    UserRole.Doctor.ToString(),
+                    UserRole.HealthcareStaff.ToString(),
+                    UserRole.LabUser.ToString(),
+                    UserRole.ImagingUser.ToString()));
+            
+            options.AddPolicy(AuthorizationPolicies.CanModifyRecords, policy =>
+                policy.RequireRole(
+                    UserRole.Doctor.ToString(),
+                    UserRole.HealthcareStaff.ToString(),
+                    UserRole.LabUser.ToString(),
+                    UserRole.ImagingUser.ToString()));
 
             options.AddPolicy(AuthorizationPolicies.CanViewAllPatients, policy =>
-                policy.RequireClaim("role", "Doctor", "HealthcareStaff", "SystemAdmin"));
+                policy.RequireRole(
+                    UserRole.Doctor.ToString(),
+                    UserRole.HealthcareStaff.ToString(),
+                    UserRole.SystemAdmin.ToString()));
         });
 
         return services;

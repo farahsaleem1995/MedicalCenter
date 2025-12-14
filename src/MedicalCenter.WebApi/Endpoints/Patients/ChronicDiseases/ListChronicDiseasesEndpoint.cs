@@ -16,7 +16,7 @@ public class ListChronicDiseasesEndpoint(IRepository<Patient> patientRepository)
     {
         Get("/");
         Group<ChronicDiseasesGroup>();
-        Policies(AuthorizationPolicies.CanModifyMedicalAttributes);
+        Policies(AuthorizationPolicies.CanViewMedicalAttributes);
         Summary(s =>
         {
             s.Summary = "List patient chronic diseases";

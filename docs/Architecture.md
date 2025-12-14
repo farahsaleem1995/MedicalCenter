@@ -105,7 +105,11 @@ The Web API layer handles HTTP requests, validation, authorization, and DTOs.
 - **Authorization Policies**:
   - `RequireAdmin`: System admin access
   - `RequirePatient`: Patient-only access
-  - `CanModifyMedicalAttributes`: Provider access to medical attributes
+  - `CanViewMedicalAttributes`: View medical attributes (Doctor, HealthcareStaff, SystemAdmin)
+  - `CanModifyMedicalAttributes`: Modify medical attributes (Doctor, HealthcareStaff, SystemAdmin)
+  - `CanViewRecords`: View records (Doctor, HealthcareStaff, LabUser, ImagingUser)
+  - `CanModifyRecords`: Modify records (Doctor, HealthcareStaff, LabUser, ImagingUser)
+  - `CanViewAllPatients`: View all patients (Doctor, HealthcareStaff, SystemAdmin)
 
 - **Swagger/OpenAPI**:
   - FastEndpoints.Swagger (NSwag) for API documentation

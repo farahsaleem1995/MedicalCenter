@@ -151,7 +151,11 @@ This document provides a comprehensive overview of all implemented features in t
 
 ## Medical Attributes Management
 
-All medical attributes endpoints require `CanModifyMedicalAttributes` policy (Doctor, HealthcareStaff, SystemAdmin).
+Medical attributes endpoints use separate policies for view and modify operations:
+- **View operations** (List): `CanViewMedicalAttributes` policy (Doctor, HealthcareStaff, SystemAdmin)
+- **Modify operations** (Create, Update, Delete): `CanModifyMedicalAttributes` policy (Doctor, HealthcareStaff, SystemAdmin)
+
+This separation provides flexibility for future role-based permission changes.
 
 ### Allergies
 

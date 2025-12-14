@@ -16,7 +16,7 @@ public class ListAllergiesEndpoint(IRepository<Patient> patientRepository)
     {
         Get("/");
         Group<AllergiesGroup>();
-        Policies(AuthorizationPolicies.CanModifyMedicalAttributes);
+        Policies(AuthorizationPolicies.CanViewMedicalAttributes);
         Summary(s =>
         {
             s.Summary = "List patient allergies";

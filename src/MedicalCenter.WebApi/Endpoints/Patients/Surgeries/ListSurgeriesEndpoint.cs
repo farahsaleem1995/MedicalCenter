@@ -16,7 +16,7 @@ public class ListSurgeriesEndpoint(IRepository<Patient> patientRepository)
     {
         Get("/");
         Group<SurgeriesGroup>();
-        Policies(AuthorizationPolicies.CanModifyMedicalAttributes);
+        Policies(AuthorizationPolicies.CanViewMedicalAttributes);
         Summary(s =>
         {
             s.Summary = "List patient surgeries";
