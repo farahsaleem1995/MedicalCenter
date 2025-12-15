@@ -1,3 +1,4 @@
+using FastEndpoints;
 using FluentValidation;
 
 namespace MedicalCenter.WebApi.Endpoints.Patients.ChronicDiseases;
@@ -5,7 +6,7 @@ namespace MedicalCenter.WebApi.Endpoints.Patients.ChronicDiseases;
 /// <summary>
 /// Validator for create chronic disease request.
 /// </summary>
-public class CreateChronicDiseaseEndpointValidator : AbstractValidator<CreateChronicDiseaseRequest>
+public class CreateChronicDiseaseEndpointValidator : Validator<CreateChronicDiseaseRequest>
 {
     public CreateChronicDiseaseEndpointValidator()
     {

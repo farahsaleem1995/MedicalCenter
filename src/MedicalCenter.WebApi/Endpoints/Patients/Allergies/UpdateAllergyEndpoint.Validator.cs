@@ -1,3 +1,4 @@
+using FastEndpoints;
 using FluentValidation;
 
 namespace MedicalCenter.WebApi.Endpoints.Patients.Allergies;
@@ -5,7 +6,7 @@ namespace MedicalCenter.WebApi.Endpoints.Patients.Allergies;
 /// <summary>
 /// Validator for update allergy request.
 /// </summary>
-public class UpdateAllergyEndpointValidator : AbstractValidator<UpdateAllergyRequest>
+public class UpdateAllergyEndpointValidator : Validator<UpdateAllergyRequest>
 {
     public UpdateAllergyEndpointValidator()
     {

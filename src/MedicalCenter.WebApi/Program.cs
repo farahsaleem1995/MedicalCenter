@@ -24,6 +24,10 @@ builder.Services
         };
     });
 
+// Register global exception handler
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+builder.Services.AddProblemDetails();
+
 WebApplication app = builder.Build();
 
 // Apply database migrations automatically (for Docker/containerized environments)
@@ -44,8 +48,8 @@ catch (Exception ex)
 // Configure the HTTP request pipeline
 app.UseHttpsRedirection();
 
-// Use global exception handling middleware
-app.UseMiddleware<ExceptionHandlingMiddleware>();
+// Use exception handler early to catch exceptions from all subsequent middleware
+app.UseExceptionHandler();
 
 // Use Authentication & Authorization
 app.UseAuthentication();

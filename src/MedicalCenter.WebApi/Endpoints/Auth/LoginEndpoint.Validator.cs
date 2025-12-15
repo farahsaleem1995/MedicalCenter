@@ -1,3 +1,4 @@
+using FastEndpoints;
 using FluentValidation;
 
 namespace MedicalCenter.WebApi.Endpoints.Auth;
@@ -6,7 +7,7 @@ namespace MedicalCenter.WebApi.Endpoints.Auth;
 /// Validator for login request.
 /// Ensures email and password are provided and properly formatted.
 /// </summary>
-public class LoginRequestValidator : AbstractValidator<LoginRequest>
+public class LoginRequestValidator : Validator<LoginRequest>
 {
     public LoginRequestValidator()
     {

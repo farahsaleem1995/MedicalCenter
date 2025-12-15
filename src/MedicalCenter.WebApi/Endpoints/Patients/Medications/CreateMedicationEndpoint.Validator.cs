@@ -1,3 +1,4 @@
+using FastEndpoints;
 using FluentValidation;
 
 namespace MedicalCenter.WebApi.Endpoints.Patients.Medications;
@@ -5,7 +6,7 @@ namespace MedicalCenter.WebApi.Endpoints.Patients.Medications;
 /// <summary>
 /// Validator for create medication request.
 /// </summary>
-public class CreateMedicationEndpointValidator : AbstractValidator<CreateMedicationRequest>
+public class CreateMedicationEndpointValidator : Validator<CreateMedicationRequest>
 {
     public CreateMedicationEndpointValidator()
     {

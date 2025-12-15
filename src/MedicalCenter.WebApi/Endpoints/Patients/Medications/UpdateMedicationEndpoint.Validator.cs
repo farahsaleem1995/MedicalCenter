@@ -1,3 +1,4 @@
+using FastEndpoints;
 using FluentValidation;
 using MedicalCenter.Core.Aggregates.Patient;
 using MedicalCenter.Core.Aggregates.Patient.Specifications;
@@ -8,7 +9,7 @@ namespace MedicalCenter.WebApi.Endpoints.Patients.Medications;
 /// <summary>
 /// Validator for update medication request.
 /// </summary>
-public class UpdateMedicationEndpointValidator : AbstractValidator<UpdateMedicationRequest>
+public class UpdateMedicationEndpointValidator : Validator<UpdateMedicationRequest>
 {
     public UpdateMedicationEndpointValidator(IRepository<Patient> patientRepository)
     {

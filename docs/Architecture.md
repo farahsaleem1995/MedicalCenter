@@ -255,15 +255,18 @@ The Web API layer handles HTTP requests, validation, authorization, and DTOs.
 
 ### Exception Handling
 
-- **Global Exception Middleware**: Catches unhandled exceptions
-- **Problem Details Format**: FastEndpoints configured to use RFC 7807 Problem Details for standardized error responses
+- **Global Exception Handler**: Implements `IExceptionHandler` interface for centralized exception handling
+- **Problem Details Format**: All errors (validation, business logic, and unexpected exceptions) use RFC 7807 Problem Details format
 - **Structured Error Responses**: Consistent error format across all endpoints
-- **Domain Exceptions**: Business rule violations
+- **Unexpected Exceptions**: All unhandled exceptions return 500 Internal Server Error with generic message
+- **Trace ID**: Exception responses include trace ID for correlation and debugging
+- **Domain Exceptions**: Business rule violations handled via Result pattern
 
 ### Validation Errors
 
-- **FluentValidation**: Returns 400 Bad Request with validation errors
-- **Model State**: Automatic model validation
+- **FluentValidation**: Request validation using FastEndpoints' `Validator<T>` base class
+- **Validation Error Format**: Returns 400 Bad Request with Problem Details format including field-specific errors
+- **Automatic Validation**: FastEndpoints automatically validates requests before endpoint execution
 
 ## Performance Considerations
 

@@ -1,3 +1,4 @@
+using FastEndpoints;
 using FluentValidation;
 
 namespace MedicalCenter.WebApi.Endpoints.Auth;
@@ -6,7 +7,7 @@ namespace MedicalCenter.WebApi.Endpoints.Auth;
 /// Validator for patient registration request.
 /// Enforces Identity password rules and validates all required fields.
 /// </summary>
-public class RegisterPatientRequestValidator : AbstractValidator<RegisterPatientRequest>
+public class RegisterPatientRequestValidator : Validator<RegisterPatientRequest>
 {
     public RegisterPatientRequestValidator()
     {

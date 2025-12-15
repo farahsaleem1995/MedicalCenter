@@ -1,8 +1,9 @@
+using FastEndpoints;
 using FluentValidation;
 
 namespace MedicalCenter.WebApi.Endpoints.Admin;
 
-public class CreateUserRequestValidator : AbstractValidator<CreateUserRequest>
+public class CreateUserRequestValidator : Validator<CreateUserRequest>
 {
     public CreateUserRequestValidator()
     {

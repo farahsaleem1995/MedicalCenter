@@ -1,3 +1,4 @@
+using FastEndpoints;
 using FluentValidation;
 
 namespace MedicalCenter.WebApi.Endpoints.Patients;
@@ -5,7 +6,7 @@ namespace MedicalCenter.WebApi.Endpoints.Patients;
 /// <summary>
 /// Validator for update blood type request.
 /// </summary>
-public class UpdateBloodTypeEndpointValidator : AbstractValidator<UpdateBloodTypeRequest>
+public class UpdateBloodTypeEndpointValidator : Validator<UpdateBloodTypeRequest>
 {
     public UpdateBloodTypeEndpointValidator()
     {

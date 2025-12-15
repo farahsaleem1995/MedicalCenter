@@ -417,13 +417,22 @@ Endpoints/
 ### 4.2 FastEndpoints Configuration
 
 - Endpoint classes inherit from `Endpoint<TRequest, TResponse>`
-- Request validation using FluentValidation
+- Request validation using FluentValidation with FastEndpoints' `Validator<T>` base class
 - Authorization policies for RBAC
 - Result pattern for error handling
 - Action logging middleware
 - **Route Prefix**: All endpoints prefixed with `/api` (configured via `c.Endpoints.RoutePrefix = "api"`)
 - **Error Handling**: Problem Details format for standardized error responses (configured via `c.Errors.UseProblemDetails()`)
 - **Swagger Integration**: OpenAPI documentation via `UseSwaggerGen()` extension
+
+### 4.2.1 Exception Handling Configuration
+
+- **Global Exception Handler**: `GlobalExceptionHandler` implements `IExceptionHandler` interface
+- **Service Registration**: Registered via `builder.Services.AddExceptionHandler<GlobalExceptionHandler>()`
+- **Problem Details Service**: Required for `IExceptionHandler` - registered via `builder.Services.AddProblemDetails()`
+- **Middleware Order**: `app.UseExceptionHandler()` placed early in pipeline (after HTTPS redirection, before authentication) to catch exceptions from all subsequent middleware
+- **Exception Response**: All unhandled exceptions return 500 Internal Server Error with generic message in Problem Details format
+- **Trace ID**: Exception responses include trace ID for correlation
 
 ### 4.3 Authentication & Authorization
 

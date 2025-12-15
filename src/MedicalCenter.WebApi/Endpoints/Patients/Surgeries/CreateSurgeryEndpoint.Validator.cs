@@ -1,3 +1,4 @@
+using FastEndpoints;
 using FluentValidation;
 
 namespace MedicalCenter.WebApi.Endpoints.Patients.Surgeries;
@@ -5,7 +6,7 @@ namespace MedicalCenter.WebApi.Endpoints.Patients.Surgeries;
 /// <summary>
 /// Validator for create surgery request.
 /// </summary>
-public class CreateSurgeryEndpointValidator : AbstractValidator<CreateSurgeryRequest>
+public class CreateSurgeryEndpointValidator : Validator<CreateSurgeryRequest>
 {
     public CreateSurgeryEndpointValidator()
     {

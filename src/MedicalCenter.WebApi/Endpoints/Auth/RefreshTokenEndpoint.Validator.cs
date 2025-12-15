@@ -1,3 +1,4 @@
+using FastEndpoints;
 using FluentValidation;
 
 namespace MedicalCenter.WebApi.Endpoints.Auth;
@@ -6,7 +7,7 @@ namespace MedicalCenter.WebApi.Endpoints.Auth;
 /// Validator for refresh token request.
 /// Ensures refresh token is provided.
 /// </summary>
-public class RefreshTokenRequestValidator : AbstractValidator<RefreshTokenRequest>
+public class RefreshTokenRequestValidator : Validator<RefreshTokenRequest>
 {
     public RefreshTokenRequestValidator()
     {
