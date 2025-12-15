@@ -1052,14 +1052,24 @@ All endpoints use FluentValidation for request validation:
 
 ### Validation Error Response
 
+Validation errors are returned in Problem Details format (RFC 7807):
+
 ```json
 {
+  "type": "https://tools.ietf.org/html/rfc7231#section-6.5.1",
+  "title": "One or more validation errors occurred",
+  "status": 400,
+  "detail": "The request contains validation errors",
   "errors": {
     "email": ["Email is required"],
     "password": ["Password must be at least 8 characters"]
   }
 }
 ```
+
+The `errors` object contains field-specific validation messages, where:
+- **Key**: The field name that failed validation
+- **Value**: An array of error messages for that field
 
 ## API Documentation
 
@@ -1072,25 +1082,174 @@ All endpoints use FluentValidation for request validation:
 
 ## Error Responses
 
-### Standard Error Format
+The API uses **RFC 7807 Problem Details** format for standardized error responses. All errors follow this consistent structure, making it easier for API clients to handle errors programmatically.
+
+### Problem Details Format
+
+All error responses follow the RFC 7807 Problem Details specification:
 
 ```json
 {
-  "error": "Error message",
-  "statusCode": 400
+  "type": "https://tools.ietf.org/html/rfc7231#section-6.5.1",
+  "title": "One or more validation errors occurred",
+  "status": 400,
+  "detail": "See the errors field for details",
+  "errors": {
+    "email": ["Email is required"],
+    "password": ["Password must be at least 8 characters"]
+  }
 }
 ```
+
+### Standard Problem Details Fields
+
+- **`type`**: A URI reference that identifies the problem type (typically a link to the HTTP status code specification)
+- **`title`**: A short, human-readable summary of the problem type
+- **`status`**: The HTTP status code
+- **`detail`**: A human-readable explanation specific to this occurrence of the problem
+- **`errors`**: (Optional) Additional error details, typically used for validation errors
 
 ### HTTP Status Codes
 
 - **200 OK**: Successful request
-- **201 Created**: Resource created
+- **201 Created**: Resource created successfully
 - **204 No Content**: Successful deletion or update (no response body)
-- **400 Bad Request**: Validation error
-- **401 Unauthorized**: Authentication required
+- **400 Bad Request**: Validation error or invalid request
+- **401 Unauthorized**: Authentication required or invalid token
 - **403 Forbidden**: Insufficient permissions
 - **404 Not Found**: Resource not found
+- **409 Conflict**: Resource conflict (e.g., duplicate email)
 - **500 Internal Server Error**: Server error
+
+### Error Response Examples
+
+#### Validation Error (400 Bad Request)
+
+```json
+{
+  "type": "https://tools.ietf.org/html/rfc7231#section-6.5.1",
+  "title": "One or more validation errors occurred",
+  "status": 400,
+  "detail": "The request contains validation errors",
+  "errors": {
+    "email": [
+      "Email is required",
+      "Email must be a valid email address"
+    ],
+    "password": [
+      "Password must be at least 8 characters",
+      "Password must contain at least one uppercase letter",
+      "Password must contain at least one digit"
+    ],
+    "dateOfBirth": [
+      "Date of birth cannot be in the future"
+    ]
+  }
+}
+```
+
+#### Authentication Error (401 Unauthorized)
+
+```json
+{
+  "type": "https://tools.ietf.org/html/rfc7235#section-3.1",
+  "title": "Unauthorized",
+  "status": 401,
+  "detail": "Authentication failed. Invalid email or password."
+}
+```
+
+#### Authorization Error (403 Forbidden)
+
+```json
+{
+  "type": "https://tools.ietf.org/html/rfc7231#section-6.5.3",
+  "title": "Forbidden",
+  "status": 403,
+  "detail": "You do not have permission to perform this action."
+}
+```
+
+#### Resource Not Found (404 Not Found)
+
+```json
+{
+  "type": "https://tools.ietf.org/html/rfc7231#section-6.5.4",
+  "title": "Not Found",
+  "status": 404,
+  "detail": "Patient with ID '550e8400-e29b-41d4-a716-446655440000' was not found."
+}
+```
+
+#### Conflict Error (409 Conflict)
+
+```json
+{
+  "type": "https://tools.ietf.org/html/rfc7231#section-6.5.8",
+  "title": "Conflict",
+  "status": 409,
+  "detail": "A user with email 'john.doe@example.com' already exists."
+}
+```
+
+#### Domain/Business Rule Error (400 Bad Request)
+
+```json
+{
+  "type": "https://tools.ietf.org/html/rfc7231#section-6.5.1",
+  "title": "Bad Request",
+  "status": 400,
+  "detail": "A transaction is already in progress."
+}
+```
+
+#### Server Error (500 Internal Server Error)
+
+```json
+{
+  "type": "https://tools.ietf.org/html/rfc7231#section-6.6.1",
+  "title": "Internal Server Error",
+  "status": 500,
+  "detail": "An error occurred while processing your request."
+}
+```
+
+### Error Handling Best Practices
+
+1. **Always check the `status` field** to determine the HTTP status code
+2. **Use the `detail` field** for user-facing error messages
+3. **Check the `errors` field** for validation errors (field-specific errors)
+4. **Use the `type` field** for programmatic error handling (if needed)
+5. **Handle 401 errors** by refreshing the authentication token
+6. **Handle 403 errors** by checking user permissions
+7. **Log the full error response** for debugging purposes (but don't expose sensitive details to end users)
+
+### Validation Error Details
+
+When validation fails, the `errors` object contains field-specific error messages:
+
+- **Key**: The field name that failed validation
+- **Value**: An array of error messages for that field
+
+Example:
+```json
+{
+  "errors": {
+    "email": ["Email is required", "Email must be a valid email address"],
+    "password": ["Password must be at least 8 characters"]
+  }
+}
+```
+
+### Global Exception Handling
+
+The API includes global exception handling middleware that:
+- Catches unhandled exceptions
+- Converts them to Problem Details format
+- Logs errors for debugging
+- Returns consistent error responses
+
+This ensures that even unexpected errors follow the Problem Details format.
 
 ## Security Features
 

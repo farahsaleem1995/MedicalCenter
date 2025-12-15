@@ -52,7 +52,9 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 // Use FastEndpoints (this maps the endpoints) and Swagger
-app.UseFastEndpoints()
-    .UseSwaggerGen();
+app.UseFastEndpoints(c => {
+    c.Endpoints.RoutePrefix = "api";
+    c.Errors.UseProblemDetails();
+}).UseSwaggerGen();
 
 app.Run();

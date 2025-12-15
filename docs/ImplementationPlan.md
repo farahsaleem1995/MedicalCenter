@@ -421,6 +421,9 @@ Endpoints/
 - Authorization policies for RBAC
 - Result pattern for error handling
 - Action logging middleware
+- **Route Prefix**: All endpoints prefixed with `/api` (configured via `c.Endpoints.RoutePrefix = "api"`)
+- **Error Handling**: Problem Details format for standardized error responses (configured via `c.Errors.UseProblemDetails()`)
+- **Swagger Integration**: OpenAPI documentation via `UseSwaggerGen()` extension
 
 ### 4.3 Authentication & Authorization
 

@@ -97,6 +97,8 @@ The Web API layer handles HTTP requests, validation, authorization, and DTOs.
 - **FastEndpoints**: API framework for endpoint definition
   - Endpoint classes inherit from `Endpoint<TRequest, TResponse>`
   - Built-in validation and authorization support
+  - Route prefix: All endpoints prefixed with `/api`
+  - Error handling: Problem Details format for standardized error responses
 
 - **FluentValidation**: Request validation
   - Validators for all endpoints
@@ -254,7 +256,8 @@ The Web API layer handles HTTP requests, validation, authorization, and DTOs.
 ### Exception Handling
 
 - **Global Exception Middleware**: Catches unhandled exceptions
-- **Structured Error Responses**: Consistent error format
+- **Problem Details Format**: FastEndpoints configured to use RFC 7807 Problem Details for standardized error responses
+- **Structured Error Responses**: Consistent error format across all endpoints
 - **Domain Exceptions**: Business rule violations
 
 ### Validation Errors
