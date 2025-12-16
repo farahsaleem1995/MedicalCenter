@@ -12,7 +12,7 @@ public class GetSelfEndpoint(
 {
     public override void Configure()
     {
-        Get("/auth/self");
+        Get("/self");
         Group<AuthGroup>();
         Summary(s =>
         {

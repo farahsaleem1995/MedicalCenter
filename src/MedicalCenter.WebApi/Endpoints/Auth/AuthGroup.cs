@@ -12,7 +12,7 @@ public class AuthGroup : Group
         Configure("auth", ep =>
         {
             ep.Description(d => d
-                .WithTags("Authentication")
+                .WithTags("Auth")
                 .Produces(401)
                 .Produces(403));
         });
