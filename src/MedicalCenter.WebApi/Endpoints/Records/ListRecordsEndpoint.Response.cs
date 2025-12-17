@@ -23,6 +23,32 @@ public class RecordSummaryDto
     public DateTime CreatedAt { get; set; }
     public int AttachmentCount { get; set; }
 
+    public static RecordSummaryDto FromMedicalRecord(MedicalRecord record)
+    {
+        return new RecordSummaryDto
+        {
+            Id = record.Id,
+            PatientId = record.PatientId,
+            Patient = record.Patient != null ? new PatientSummaryDto
+            {
+                Id = record.Patient.Id,
+                FullName = record.Patient.FullName,
+                Email = record.Patient.Email
+            } : null,
+            PractitionerId = record.PractitionerId,
+            Practitioner = new PractitionerDto
+            {
+                FullName = record.Practitioner.FullName,
+                Email = record.Practitioner.Email,
+                Role = record.Practitioner.Role
+            },
+            RecordType = record.RecordType,
+            Title = record.Title,
+            CreatedAt = record.CreatedAt,
+            AttachmentCount = record.Attachments.Count
+        };
+    }
+
     public class PatientSummaryDto
     {
         public Guid Id { get; set; }

@@ -938,18 +938,11 @@ All list endpoints return paginated results using the `PaginatedList<T>` pattern
 ```json
 {
   "pageNumber": 1,
-  "currentPage": 1,
   "pageSize": 10,
   "totalCount": 50,
   "totalPages": 5,
   "hasPrevious": false,
-  "hasNext": true,
-  "isFirstPage": true,
-  "isLastPage": false,
-  "firstPage": 1,
-  "lastPage": 5,
-  "fromItem": 1,
-  "toItem": 10
+  "hasNext": true
 }
 ```
 
@@ -1356,9 +1349,12 @@ Medical records allow providers to create, view, and manage medical records for 
 
 - Lists medical records created by the current authenticated provider
 - Supports filtering by patient, record type, and date range
+- Supports pagination with `pageNumber` and `pageSize` query parameters
 - Requires `CanViewRecords` policy
 
 **Query Parameters**:
+- `pageNumber` (optional, default: 1, minimum: 1)
+- `pageSize` (optional, default: 10, minimum: 1, maximum: 100)
 - `patientId` (optional): Filter by patient ID
 - `recordType` (optional): Filter by record type
 - `dateFrom` (optional): Filter records from this date
@@ -1367,16 +1363,35 @@ Medical records allow providers to create, view, and manage medical records for 
 **Response**:
 ```json
 {
-  "records": [
+  "items": [
     {
       "id": "550e8400-e29b-41d4-a716-446655440002",
       "patientId": "550e8400-e29b-41d4-a716-446655440001",
+      "patient": {
+        "id": "550e8400-e29b-41d4-a716-446655440001",
+        "fullName": "John Doe",
+        "email": "john.doe@example.com"
+      },
+      "practitionerId": "550e8400-e29b-41d4-a716-446655440003",
+      "practitioner": {
+        "fullName": "Dr. Jane Smith",
+        "email": "doctor@example.com",
+        "role": 3
+      },
       "recordType": 2,
       "title": "Blood Test Results",
       "createdAt": "2024-01-01T00:00:00Z",
       "attachmentCount": 1
     }
-  ]
+  ],
+  "metadata": {
+    "pageNumber": 1,
+    "pageSize": 10,
+    "totalCount": 50,
+    "totalPages": 5,
+    "hasPrevious": false,
+    "hasNext": true
+  }
 }
 ```
 

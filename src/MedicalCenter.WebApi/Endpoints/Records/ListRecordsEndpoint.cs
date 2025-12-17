@@ -1,5 +1,6 @@
 using FastEndpoints;
 using MedicalCenter.Core.Aggregates.MedicalRecords;
+using MedicalCenter.Core.Primitives.Pagination;
 using MedicalCenter.Core.Queries;
 using MedicalCenter.Infrastructure.Authorization;
 
@@ -35,7 +36,7 @@ public class ListRecordsEndpoint(IMedicalRecordQueryService recordQueryService)
 
     public override async Task HandleAsync(ListRecordsRequest req, CancellationToken ct)
     {
-        var userIdClaim = User.FindFirst("userId")?.Value;
+        string? userIdClaim = User.FindFirst("userId")?.Value;
         if (string.IsNullOrEmpty(userIdClaim) || !Guid.TryParse(userIdClaim, out _))
         {
             ThrowError("Invalid user authentication", 401);
@@ -44,11 +45,9 @@ public class ListRecordsEndpoint(IMedicalRecordQueryService recordQueryService)
 
         // Use query service for optimized query with includes
         // Practitioners can view all records, with optional filters
-        var pageNumber = req.PageNumber ?? 1;
-        var pageSize = req.PageSize ?? 10;
         var paginatedResult = await recordQueryService.ListRecordsAsync(
-            pageNumber,
-            pageSize,
+            req.PageNumber ?? 1,
+            req.PageSize ?? 10,
             req.PractitionerId,
             req.PatientId,
             req.RecordType,
@@ -56,33 +55,9 @@ public class ListRecordsEndpoint(IMedicalRecordQueryService recordQueryService)
             req.DateTo,
             ct);
 
-        // Map to DTOs
-        var recordDtos = paginatedResult.Items.Select(r => new RecordSummaryDto
-        {
-            Id = r.Id,
-            PatientId = r.PatientId,
-            Patient = r.Patient != null ? new RecordSummaryDto.PatientSummaryDto
-            {
-                Id = r.Patient.Id,
-                FullName = r.Patient.FullName,
-                Email = r.Patient.Email
-            } : null,
-            PractitionerId = r.PractitionerId,
-            Practitioner = new RecordSummaryDto.PractitionerDto
-            {
-                FullName = r.Practitioner.FullName,
-                Email = r.Practitioner.Email,
-                Role = r.Practitioner.Role
-            },
-            RecordType = r.RecordType,
-            Title = r.Title,
-            CreatedAt = r.CreatedAt,
-            AttachmentCount = r.Attachments.Count
-        }).ToList();
-
         await Send.OkAsync(new ListRecordsResponse
         {
-            Items = recordDtos,
+            Items = paginatedResult.Items.Select(RecordSummaryDto.FromMedicalRecord).ToList(),
             Metadata = paginatedResult.Metadata
         }, ct);
     }

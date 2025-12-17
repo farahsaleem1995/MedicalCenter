@@ -11,11 +11,6 @@ public class PaginationMetadata
     public int PageNumber { get; init; }
 
     /// <summary>
-    /// Current page number (alias for PageNumber for clarity).
-    /// </summary>
-    public int CurrentPage => PageNumber;
-
-    /// <summary>
     /// Number of items per page.
     /// </summary>
     public int PageSize { get; init; }
