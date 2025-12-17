@@ -12,8 +12,10 @@ using MedicalCenter.Infrastructure.Authorization;
 using MedicalCenter.Infrastructure.Data;
 using MedicalCenter.Infrastructure.Data.Interceptors;
 using MedicalCenter.Infrastructure.Identity;
+using MedicalCenter.Infrastructure.Options;
 using MedicalCenter.Infrastructure.Repositories;
 using MedicalCenter.Infrastructure.Services;
+using System.IO.Abstractions;
 
 namespace MedicalCenter.Infrastructure;
 
@@ -92,6 +94,15 @@ public static class DependencyInjection
         services.AddScoped<IIdentityService, IdentityService>();
         services.AddScoped<ITokenProvider, TokenProvider>();
         services.AddScoped<IUserQueryService, UserQueryService>();
+        services.AddScoped<IMedicalRecordQueryService, MedicalRecordQueryService>();
+
+        // Configure File Storage Options
+        services.Configure<FileStorageOptions>(
+            configuration.GetSection(FileStorageOptions.SectionName));
+
+        // Register File Storage Service
+        services.AddScoped<IFileStorageService, LocalFileStorageService>();
+        services.AddSingleton<IFileSystem, FileSystem>();
 
         // Configure JWT Settings
         services.Configure<JwtSettings>(jwtSettings);

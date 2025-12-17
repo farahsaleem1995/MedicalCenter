@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using MedicalCenter.Core.Aggregates.Patient;
+using MedicalCenter.Core.Aggregates.MedicalRecord;
 using MedicalCenter.Core.Entities;
 using MedicalCenter.Infrastructure.Data.Configurations;
 using MedicalCenter.Infrastructure.Data.Interceptors;
@@ -36,6 +37,7 @@ public class MedicalCenterDbContext : IdentityDbContext<
 
     public DbSet<RefreshToken> RefreshTokens { get; set; } = null!;
     public DbSet<Patient> Patients { get; set; } = null!;
+    public DbSet<MedicalRecord> MedicalRecords { get; set; } = null!;
     public DbSet<Doctor> Doctors { get; set; } = null!;
     public DbSet<HealthcareEntity> HealthcareEntities { get; set; } = null!;
     public DbSet<Laboratory> Laboratories { get; set; } = null!;

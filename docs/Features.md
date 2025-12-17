@@ -1280,16 +1280,257 @@ This ensures that even unexpected errors follow the Problem Details format.
 - Requires uppercase, lowercase, digit, and special character
 - Password hashing via ASP.NET Core Identity
 
+## Medical Records
+
+Medical records allow providers to create, view, and manage medical records for patients. Records can include file attachments.
+
+### File Upload
+
+**Endpoint**: `POST /api/records/attachments/upload`
+
+- Uploads a file attachment that can be referenced when creating medical records
+- Returns attachment metadata including fileId
+- Requires `CanModifyRecords` policy
+- Maximum file size: 10MB
+- Allowed content types: PDF, images (JPEG, PNG), documents (DOC, DOCX, XLS, XLSX)
+
+**Request**: Multipart form data
+- `file`: IFormFile (required)
+
+**Response**:
+```json
+{
+  "attachmentId": "550e8400-e29b-41d4-a716-446655440000",
+  "fileName": "lab-result.pdf",
+  "fileSize": 1024000,
+  "contentType": "application/pdf",
+  "uploadedAt": "2024-01-01T00:00:00Z"
+}
+```
+
+### Create Medical Record
+
+**Endpoint**: `POST /api/records`
+
+- Creates a new medical record for a patient
+- Practitioner is automatically set from authenticated user
+- Can optionally include attachment references from previously uploaded files
+- Requires `CanModifyRecords` policy
+
+**Request**:
+```json
+{
+  "patientId": "550e8400-e29b-41d4-a716-446655440001",
+  "recordType": 2,
+  "title": "Blood Test Results",
+  "content": "Patient shows elevated glucose levels...",
+  "attachmentIds": ["550e8400-e29b-41d4-a716-446655440000"]
+}
+```
+
+**Response**:
+```json
+{
+  "id": "550e8400-e29b-41d4-a716-446655440002",
+  "patientId": "550e8400-e29b-41d4-a716-446655440001",
+  "practitionerId": "550e8400-e29b-41d4-a716-446655440003",
+  "recordType": 2,
+  "title": "Blood Test Results",
+  "content": "Patient shows elevated glucose levels...",
+  "attachments": [
+    {
+      "fileId": "550e8400-e29b-41d4-a716-446655440000",
+      "fileName": "lab-result.pdf",
+      "fileSize": 1024000,
+      "contentType": "application/pdf",
+      "uploadedAt": "2024-01-01T00:00:00Z"
+    }
+  ],
+  "createdAt": "2024-01-01T00:00:00Z"
+}
+```
+
+### List Medical Records (Provider)
+
+**Endpoint**: `GET /api/records`
+
+- Lists medical records created by the current authenticated provider
+- Supports filtering by patient, record type, and date range
+- Requires `CanViewRecords` policy
+
+**Query Parameters**:
+- `patientId` (optional): Filter by patient ID
+- `recordType` (optional): Filter by record type
+- `dateFrom` (optional): Filter records from this date
+- `dateTo` (optional): Filter records to this date
+
+**Response**:
+```json
+{
+  "records": [
+    {
+      "id": "550e8400-e29b-41d4-a716-446655440002",
+      "patientId": "550e8400-e29b-41d4-a716-446655440001",
+      "recordType": 2,
+      "title": "Blood Test Results",
+      "createdAt": "2024-01-01T00:00:00Z",
+      "attachmentCount": 1
+    }
+  ]
+}
+```
+
+### Get Medical Record
+
+**Endpoint**: `GET /api/records/{recordId}`
+
+- Gets a specific medical record
+- Only the practitioner can view the record
+- Requires `CanViewRecords` policy
+
+**Response**:
+```json
+{
+  "id": "550e8400-e29b-41d4-a716-446655440002",
+  "patientId": "550e8400-e29b-41d4-a716-446655440001",
+  "practitionerId": "550e8400-e29b-41d4-a716-446655440003",
+  "recordType": 2,
+  "title": "Blood Test Results",
+  "content": "Patient shows elevated glucose levels...",
+  "attachments": [...],
+  "createdAt": "2024-01-01T00:00:00Z",
+  "updatedAt": "2024-01-02T00:00:00Z"
+}
+```
+
+### Update Medical Record
+
+**Endpoint**: `PUT /api/records/{recordId}`
+
+- Updates a medical record
+- Only the practitioner can modify the record
+- Attachments cannot be modified through this endpoint (use add/remove attachment endpoints)
+- Requires `CanModifyRecords` policy
+
+**Request**:
+```json
+{
+  "title": "Updated Title",
+  "content": "Updated content"
+}
+```
+
+**Response**: Same as Get Medical Record
+
+### Delete Medical Record
+
+**Endpoint**: `DELETE /api/records/{recordId}`
+
+- Soft deletes a medical record
+- Only the creator can delete the record
+- Requires `CanModifyRecords` policy
+- Returns 204 No Content on success
+
+### Add Attachment to Record
+
+**Endpoint**: `POST /api/records/{recordId}/attachments`
+
+- Uploads a file attachment and adds it to an existing medical record
+- Only the practitioner of the record can add attachments
+- Requires `CanModifyRecords` policy
+- Maximum file size: 10MB (configurable)
+- Allowed content types: PDF, images (JPEG, PNG), documents (DOC, DOCX, XLS, XLSX)
+- Maximum attachments per record: 10 (configurable)
+
+**Request**: Multipart form data
+- `file`: IFormFile (required)
+
+**Response**:
+```json
+{
+  "attachmentId": "550e8400-e29b-41d4-a716-446655440000",
+  "fileName": "additional-report.pdf",
+  "fileSize": 2048000,
+  "contentType": "application/pdf",
+  "uploadedAt": "2024-01-02T00:00:00Z"
+}
+```
+
+### Remove Attachment from Record
+
+**Endpoint**: `DELETE /api/records/{recordId}/attachments/{attachmentId}`
+
+- Removes an attachment from an existing medical record
+- Only the creator of the record can remove attachments
+- The file itself is not deleted from storage (only the reference is removed)
+- Requires `CanModifyRecords` policy
+- Returns 204 No Content on success
+
+### Download Attachment
+
+**Endpoint**: `GET /api/records/{recordId}/attachments/{attachmentId}/download`
+
+- Downloads a file attachment from a medical record
+- Providers can download attachments from records they created
+- Patients can download attachments from their own records
+- Requires `CanViewRecords` or `RequirePatient` policy
+
+**Response**: File stream with appropriate Content-Type header
+
+### Patient View Records
+
+**Endpoint**: `GET /api/patients/self/records`
+
+- Lists all medical records for the authenticated patient
+- Supports filtering by record type and date range
+- Requires `RequirePatient` policy
+
+**Query Parameters**:
+- `recordType` (optional): Filter by record type
+- `dateFrom` (optional): Filter records from this date
+- `dateTo` (optional): Filter records to this date
+
+**Response**:
+```json
+{
+  "records": [
+    {
+      "id": "550e8400-e29b-41d4-a716-446655440002",
+      "recordType": 2,
+      "title": "Blood Test Results",
+      "createdAt": "2024-01-01T00:00:00Z",
+      "attachmentCount": 1
+    }
+  ]
+}
+```
+
+**Endpoint**: `GET /api/patients/self/records/{recordId}`
+
+- Gets a specific medical record for the authenticated patient
+- Requires `RequirePatient` policy
+- Returns 403 if record does not belong to patient
+
+**Response**: Same as Get Medical Record
+
+### Business Rules
+
+- **Only Practitioner Can Modify**: Only the provider who created a record can modify or delete it
+- **Only Practitioner Can Manage Attachments**: Only the practitioner can add or remove attachments from a record
+- **Attachments Can Be Removed**: Attachments can be removed from records by the practitioner, but the file itself remains in storage for audit purposes
+- **Soft Delete**: Records are soft-deleted (IsActive = false), attachment metadata is deleted, but files are kept
+- **Multiple Attachments**: Records can have multiple attachments (up to 10 per record, configurable)
+- **File Storage**: Files are stored separately from database records; removing an attachment from a record does not delete the file
+
 ## Future Features
 
 ### Planned Features
 
-- **Medical Records**: Create and manage medical records
-- **Encounters**: Track patient-provider interactions
+- **Encounters**: Track patient-provider interactions (requires domain events infrastructure)
 - **Action Logging**: Comprehensive audit trail
 - **Patient Reports**: Generate patient health reports
-- **Provider Endpoints**: Complete provider-specific endpoints
-- **Lab Results**: Manage laboratory test results
-- **Imaging Studies**: Manage imaging study records
+- **Provider Endpoints**: Additional provider-specific endpoints
+- **Lab Results**: Enhanced laboratory test result management
+- **Imaging Studies**: Enhanced imaging study record management
 
 See [ImplementationPlan.md](ImplementationPlan.md) for detailed roadmap.

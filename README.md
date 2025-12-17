@@ -272,6 +272,15 @@ MedicalCenter/
 - ✅ Provider-based authorization
 - ✅ Comprehensive validation
 
+### Medical Records
+
+- ✅ Medical record creation and management
+- ✅ File attachment support (upload, download, add/remove)
+- ✅ Local filesystem file storage (configurable)
+- ✅ Multiple attachments per record (up to 10, configurable)
+- ✅ Provider and patient views
+- ✅ Creator-based authorization
+
 ### Admin Features
 
 - ✅ User management (CRUD)
@@ -285,7 +294,8 @@ MedicalCenter/
 - ✅ Swagger/OpenAPI documentation
 - ✅ Pagination for list endpoints
 - ✅ Comprehensive validation
-- ✅ Error handling
+- ✅ Error handling (Problem Details format)
+- ✅ File upload/download support
 
 ## Documentation
 
@@ -310,7 +320,7 @@ dotnet test --collect:"XPlat Code Coverage"
 
 ### Test Coverage
 
-- **154 domain unit tests** passing
+- **210 domain unit tests** passing
 - Tests follow classical school approach (behavior-focused)
 - AAA pattern (Arrange, Act, Assert)
 
@@ -333,6 +343,32 @@ Configure in `src/MedicalCenter.WebApi/appsettings.json`:
 ```
 
 **⚠️ Important**: Change the `SecretKey` in production to a secure, randomly generated key.
+
+### File Storage Settings
+
+Configure in `src/MedicalCenter.WebApi/appsettings.json`:
+
+```json
+{
+  "FileStorage": {
+    "Path": "./attachments",
+    "MaxFileSizeBytes": 10485760,
+    "MaxAttachmentsPerRecord": 10,
+    "AllowedContentTypes": [
+      "application/pdf",
+      "image/jpeg",
+      "image/png",
+      "image/jpg",
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "application/msword",
+      "application/vnd.ms-excel"
+    ]
+  }
+}
+```
+
+**Note**: The `Path` is relative to the application's working directory. In Docker, this will be inside the container. For production, consider using absolute paths or cloud storage.
 
 ### Password Requirements
 
@@ -364,13 +400,14 @@ This project follows patterns from the [Ardalis Clean Architecture template](htt
 - ✅ **Phase 3**: Infrastructure Foundation
 - ✅ **Phase 4**: Identity System Foundation
 - ✅ **Phase 5**: Patient Aggregate & Medical Attributes
-- 🔄 **Phase 7**: Query Services & Provider Lookups (Partially Complete)
-- 🔄 **Phase 10**: Admin Features (Partially Complete)
-- ⏳ **Phase 6**: Medical Records & Encounters
+- 🔄 **Phase 6**: Medical Records (Medical Records complete, Encounters postponed - requires domain events)
+- 🔄 **Phase 7**: Query Services & Provider Lookups (Partially Complete - UserQueryService implemented)
+- 🔄 **Phase 10**: Admin Features (Partially Complete - User management endpoints implemented)
 - ⏳ **Phase 8**: Action Logging & Audit Trail
 - ⏳ **Phase 9**: Complete Provider Endpoints
 - ⏳ **Phase 11**: Patient Self-Service Features
 - ⏳ **Phase 12**: Testing & Quality Assurance
+- ✅ **Phase 13**: Dockerization
 
 See [ImplementationPlan.md](docs/ImplementationPlan.md) for detailed progress.
 

@@ -11,9 +11,9 @@ This document outlines the high-level implementation plan for the Medical Center
 - ✅ **Phase 3**: Infrastructure Foundation
 - ✅ **Phase 4**: Identity System Foundation
 - ✅ **Phase 5**: Patient Aggregate & Medical Attributes
+- 🔄 **Phase 6**: Medical Records (Medical Records complete, Encounters postponed - requires domain events)
 - 🔄 **Phase 7**: Query Services & Provider Lookups (Partially Complete - UserQueryService implemented)
 - 🔄 **Phase 10**: Admin Features (Partially Complete - User management endpoints implemented)
-- ⏳ **Phase 6**: Medical Records & Encounters
 - ⏳ **Phase 8**: Action Logging & Audit Trail
 - ⏳ **Phase 9**: Complete Provider Endpoints
 - ⏳ **Phase 11**: Patient Self-Service Features
@@ -38,7 +38,10 @@ This document outlines the high-level implementation plan for the Medical Center
 - ✅ Swagger/OpenAPI documentation (FastEndpoints.Swagger)
 - ✅ Security enhancements (RequirePatient policy, JWT role mapping)
 - ✅ Dockerization (Dockerfile, docker-compose.yml, automatic migrations)
-- ✅ 154 domain unit tests passing
+- ✅ Medical records with file attachments support
+- ✅ File storage service (local filesystem)
+- ✅ Unified medical records endpoints for all provider types
+- ✅ 210 domain unit tests passing
 
 ### In Progress
 
@@ -47,7 +50,7 @@ This document outlines the high-level implementation plan for the Medical Center
 
 ### Test Coverage
 
-- **154 tests passing** (domain unit tests)
+- **210 tests passing** (domain unit tests)
 - Tests follow classical school approach (behavior-focused)
 - AAA pattern (Arrange, Act, Assert)
 
@@ -123,10 +126,10 @@ The domain is organized around the following aggregates:
 
 #### **MedicalRecord Aggregate**
 - Root entity: `MedicalRecord`
-- Contains medical content, attachments, creator information
+- Contains medical content, attachments, practitioner information (snapshot)
 - Business rules:
-  - Only creator can modify
-  - Attachments are immutable
+  - Only practitioner can modify
+  - Only practitioner can add or remove attachments
 - Automatically creates `Encounter` when created
 - **Why it's an aggregate**: Has its own consistency boundary, enforces modification rules
 
@@ -1273,61 +1276,93 @@ This section provides a comprehensive, phase-by-phase implementation guide. Each
 
 ---
 
-### Phase 6: Medical Records & Encounters
+### Phase 6: Medical Records (Encounters Postponed)
 
-**Goal**: Implement MedicalRecord and Encounter aggregates.
+**Goal**: Implement MedicalRecord aggregate with file attachments support.
 
-**Deliverable**: Working medical records system with automatic encounter creation.
+**Deliverable**: Working medical records system with file upload capabilities.
+
+**Note**: Encounters implementation is postponed until domain events infrastructure is in place.
 
 #### Tasks:
 
 1. **MedicalRecord Aggregate**
-   - Create `MedicalRecord` class
-   - Implement business rules (only creator can modify, attachments immutable)
-   - Create `RecordType` enum
+   - Create `MedicalRecord` class (aggregate root)
+   - Implement business rules:
+     - Only practitioner can modify
+     - Only practitioner can add or remove attachments
+     - Soft delete support (IsActive flag)
+   - Create `Attachment` value object (immutable)
+   - Use existing `RecordType` enum
 
-2. **Encounter Aggregate**
-   - Create `Encounter` class
-   - Create `EncounterType` enum
-   - Implement encounter creation logic
+2. **File Storage Infrastructure**
+   - Create `IFileStorageService` interface (Core)
+   - Implement `LocalFileStorageService` (Infrastructure)
+   - File storage: Local filesystem (configurable path)
+   - File metadata stored as owned entity in MedicalRecord aggregate
 
-3. **Domain Services**
-   - Create `EncounterCreationService` (handles automatic encounter creation)
-   - Integrate with MedicalRecord creation
-
-4. **Specifications**
+3. **Specifications**
    - `MedicalRecordByIdSpecification`
    - `MedicalRecordsByPatientSpecification`
-   - `MedicalRecordsByProviderSpecification`
-   - `EncountersByPatientSpecification`
-   - `EncountersByProviderSpecification`
+   - (Removed - replaced by query service)
+   - `ActiveMedicalRecordsSpecification`
 
-5. **EF Core Mappings**
-   - Configure MedicalRecord mappings
-   - Configure Encounter mappings
-   - Set up relationships
+4. **EF Core Mappings**
+   - Configure MedicalRecord as aggregate root
+   - Configure Attachment as owned entity collection
+   - Set up relationships (Patient navigation property, Practitioner as owned entity snapshot)
+   - Soft delete query filter
 
-6. **Provider Endpoints (Basic)**
-   - POST /doctors/records (create medical record as doctor)
-   - GET /doctors/records (list doctor's records with filters)
-   - GET /doctors/encounters (list doctor's encounters)
+5. **API Endpoints (Unified for All Providers)**
+   - `POST /api/records/attachments/upload` - Upload file attachment
+   - `POST /api/records` - Create medical record (with optional attachment references)
+   - `GET /api/records` - List records created by current provider (with filters)
+   - `GET /api/records/{recordId}` - Get specific record (practitioners can view all)
+   - `GET /api/records` - List all records with pagination and filtering (practitioners can view all)
+   - `PUT /api/records/{recordId}` - Update record (only practitioner)
+   - `DELETE /api/records/{recordId}` - Soft delete record (only practitioner)
+   - `POST /api/records/{recordId}/attachments` - Add attachment to existing record (only practitioner)
+   - `DELETE /api/records/{recordId}/attachments/{attachmentId}` - Remove attachment from record (only practitioner)
+   - `GET /api/records/{recordId}/attachments/{attachmentId}/download` - Download attachment
+   - `GET /api/patients/self/records` - List patient's own records
+   - `GET /api/patients/self/records/{recordId}` - Get patient's specific record
+
+6. **Authorization**
+   - Create: `CanModifyRecords` policy (Doctor, HealthcareStaff, LabUser, ImagingUser)
+   - View: `CanViewRecords` policy + resource-based checks
+   - Update/Delete: `CanModifyRecords` + practitioner verification (domain + endpoint)
+   - Patient view: `RequirePatient` + ownership verification
 
 7. **Tests**
-   - Test MedicalRecord business rules
-   - Test automatic encounter creation
-   - Test provider endpoints
+   - Domain unit tests for MedicalRecord business rules
+   - Domain unit tests for Attachment value object
+   - Domain unit tests for creator modification enforcement
+   - Domain unit tests for attachment add/remove operations
 
-8. **Update README.md**
+8. **Update Documentation**
    - Medical records API documentation
-   - Encounter creation flow
-   - Provider endpoints documentation
+   - File upload flow documentation
+   - Authorization rules documentation
 
 **Verification**:
-- ✅ Medical records can be created
-- ✅ Encounters are created automatically
-- ✅ Business rules are enforced
-- ✅ Provider endpoints work
+- ✅ Medical records can be created with attachments
+- ✅ Business rules are enforced (only practitioner can modify)
+- ✅ Attachment add/remove operations work correctly
+- ✅ File upload/download works
+- ✅ Authorization policies work correctly
 - ✅ All tests pass
+
+**Design Decisions**:
+- **Unified Endpoints**: Single set of endpoints for all provider types (not split by provider)
+- **Two-Phase Upload**: Upload file first, then reference in record creation, OR upload directly when adding to existing record
+- **Attachment as Value Object**: Immutable, part of MedicalRecord aggregate
+- **File Storage**: Local filesystem (can be replaced with cloud storage later)
+- **Soft Delete**: Records are soft-deleted, attachment metadata deleted, files kept
+- **Multiple Files**: Support multiple attachments per record (up to 10, configurable)
+- **Attachment Management**: Practitioner can add or remove attachments; files remain in storage when removed for audit purposes
+- **Practitioner Snapshot**: Practitioner information (FullName, Email, Role) stored as owned entity value object for historical accuracy
+- **Query Service Pattern**: `IMedicalRecordQueryService` for optimized queries with includes, following same pattern as `IUserQueryService`
+- **Nested DTOs**: Each endpoint response has its own nested DTOs (PractitionerDto, PatientSummaryDto) to avoid sharing DTOs across endpoints
 
 ---
 

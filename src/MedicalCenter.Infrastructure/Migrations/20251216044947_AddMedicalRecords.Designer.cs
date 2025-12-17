@@ -4,6 +4,7 @@ using MedicalCenter.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace MedicalCenter.Infrastructure.Migrations
 {
     [DbContext(typeof(MedicalCenterDbContext))]
-    partial class MedicalCenterDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251216044947_AddMedicalRecords")]
+    partial class AddMedicalRecords
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -129,15 +132,15 @@ namespace MedicalCenter.Infrastructure.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<Guid>("CreatorId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<bool>("IsActive")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bit")
                         .HasDefaultValue(true);
 
                     b.Property<Guid>("PatientId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("PractitionerId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("RecordType")
@@ -153,13 +156,13 @@ namespace MedicalCenter.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("CreatorId");
+
                     b.HasIndex("PatientId");
 
-                    b.HasIndex("PractitionerId");
+                    b.HasIndex("CreatorId", "IsActive");
 
                     b.HasIndex("PatientId", "IsActive");
-
-                    b.HasIndex("PractitionerId", "IsActive");
 
                     b.HasIndex("RecordType", "IsActive");
 
@@ -752,41 +755,6 @@ namespace MedicalCenter.Infrastructure.Migrations
 
             modelBuilder.Entity("MedicalCenter.Core.Aggregates.MedicalRecord.MedicalRecord", b =>
                 {
-                    b.HasOne("MedicalCenter.Core.Aggregates.Patient.Patient", "Patient")
-                        .WithMany()
-                        .HasForeignKey("PatientId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.OwnsOne("MedicalCenter.Core.Aggregates.MedicalRecord.Practitioner", "Practitioner", b1 =>
-                        {
-                            b1.Property<Guid>("MedicalRecordId")
-                                .HasColumnType("uniqueidentifier");
-
-                            b1.Property<string>("Email")
-                                .IsRequired()
-                                .HasMaxLength(256)
-                                .HasColumnType("nvarchar(256)")
-                                .HasColumnName("PractitionerEmail");
-
-                            b1.Property<string>("FullName")
-                                .IsRequired()
-                                .HasMaxLength(200)
-                                .HasColumnType("nvarchar(200)")
-                                .HasColumnName("PractitionerFullName");
-
-                            b1.Property<int>("Role")
-                                .HasColumnType("int")
-                                .HasColumnName("PractitionerRole");
-
-                            b1.HasKey("MedicalRecordId");
-
-                            b1.ToTable("MedicalRecords", (string)null);
-
-                            b1.WithOwner()
-                                .HasForeignKey("MedicalRecordId");
-                        });
-
                     b.OwnsMany("MedicalCenter.Core.ValueObjects.Attachment", "Attachments", b1 =>
                         {
                             b1.Property<Guid>("MedicalRecordId")
@@ -833,11 +801,6 @@ namespace MedicalCenter.Infrastructure.Migrations
                         });
 
                     b.Navigation("Attachments");
-
-                    b.Navigation("Patient");
-
-                    b.Navigation("Practitioner")
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("MedicalCenter.Core.Aggregates.Patient.Allergy", b =>

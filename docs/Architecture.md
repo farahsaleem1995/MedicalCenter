@@ -20,12 +20,14 @@ The Core layer contains the domain model and business logic. It has no dependenc
 
 - **Aggregates**: Consistency boundaries
   - `Patient`: Root aggregate containing medical attributes (Allergies, ChronicDiseases, Medications, Surgeries)
-  - `MedicalRecord`: (Planned) Medical record aggregate
-  - `Encounter`: (Planned) Encounter aggregate
+  - `MedicalRecord`: Medical record aggregate with file attachments
+  - `Encounter`: (Planned) Encounter aggregate (requires domain events)
   - `ActionLog`: (Planned) Audit log aggregate
 
 - **Value Objects**: Immutable objects defined by their attributes
   - `BloodType`: ABO type and Rh factor combination
+  - `Attachment`: File attachment metadata (immutable)
+  - `Practitioner`: Healthcare provider snapshot (FullName, Email, Role) stored with medical records
   - `Result<T>`: Operation outcome pattern
 
 - **Specifications**: Encapsulate complex business queries
@@ -37,6 +39,7 @@ The Core layer contains the domain model and business logic. It has no dependenc
 
 - **Domain Services**: Operations that don't fit within a single entity
   - `IIdentityService`: User identity management interface
+  - `IFileStorageService`: File storage abstraction interface
 
 #### Design Principles
 
@@ -72,6 +75,12 @@ The Infrastructure layer implements data access and external service integration
   - Supports pagination via `PaginatedList<T>`
   - Handles role-based filtering and query filters
 
+- **File Storage Service**:
+  - `LocalFileStorageService`: Local filesystem implementation of `IFileStorageService`
+  - Stores files in configurable directory
+  - Supports file upload, download, and deletion
+  - Can be replaced with cloud storage implementation (Azure Blob, S3, etc.)
+
 - **Audit Interceptors**:
   - `AuditableEntityInterceptor`: Automatically sets `CreatedAt` and `UpdatedAt`
   - Only affects entities implementing `IAuditableEntity`
@@ -85,8 +94,11 @@ The Infrastructure layer implements data access and external service integration
 - **Identity Tables**: ASP.NET Core Identity tables (AspNetUsers, AspNetRoles, AspNetUserRoles, etc.)
   - `ApplicationUserRole`: Custom user-role join entity with navigation properties
   - Configured directly in `IdentityDbContext` generics to avoid inheritance mapping
-- **Domain Tables**: Patient, Doctor, HealthcareEntity, Laboratory, ImagingCenter
-- **Relationships**: Provider entities use shared primary key with ApplicationUser
+- **Domain Tables**: Patient, MedicalRecord, MedicalRecordAttachments, Doctor, HealthcareEntity, Laboratory, ImagingCenter
+- **Relationships**: 
+  - Provider entities use shared primary key with ApplicationUser
+  - MedicalRecord references Patient and Practitioner (provider snapshot as value object)
+  - MedicalRecordAttachments is owned entity collection (part of MedicalRecord aggregate)
 
 ### 3. Web API Layer (Presentation)
 
@@ -125,7 +137,8 @@ The Web API layer handles HTTP requests, validation, authorization, and DTOs.
 
 - **Auth Group**: Authentication endpoints (register, login, refresh token)
 - **Admin Group**: User management endpoints (CRUD operations)
-- **Patients Group**: Patient self-service endpoints
+- **Patients Group**: Patient self-service endpoints (including medical records)
+- **Records Group**: Medical records endpoints (create, view, update, delete, file upload/download)
 - **Medical Attributes Groups**: Allergies, ChronicDiseases, Medications, Surgeries
 
 ## Design Patterns
@@ -153,6 +166,15 @@ The Web API layer handles HTTP requests, validation, authorization, and DTOs.
 - **Purpose**: Query non-aggregate entities
 - **Implementation**: `IUserQueryService` for provider entities
 - **Benefits**: Separation of read operations from aggregate boundaries
+
+### File Storage Pattern
+
+- **Purpose**: Abstract file storage operations
+- **Implementation**: `IFileStorageService` interface in Core, `LocalFileStorageService` in Infrastructure
+- **Benefits**: 
+  - Domain layer remains pure (no file system dependencies)
+  - Easy to swap implementations (local filesystem, cloud storage)
+  - Testable via interface
 
 ### Pagination Pattern
 
