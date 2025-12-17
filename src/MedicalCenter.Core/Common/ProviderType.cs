@@ -1,4 +1,4 @@
-namespace MedicalCenter.Core.Enums;
+namespace MedicalCenter.Core.Common;
 
 /// <summary>
 /// Types of healthcare providers in the system.
@@ -10,4 +10,3 @@ public enum ProviderType
     Laboratory = 3,
     ImagingCenter = 4
 }
-

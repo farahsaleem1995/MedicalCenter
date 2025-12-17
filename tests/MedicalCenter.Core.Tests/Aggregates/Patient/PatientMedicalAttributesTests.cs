@@ -1,7 +1,5 @@
 using FluentAssertions;
 using MedicalCenter.Core.Aggregates.Patient;
-using MedicalCenter.Core.Enums;
-using MedicalCenter.Core.ValueObjects;
 using Xunit;
 using PatientEntity = MedicalCenter.Core.Aggregates.Patient.Patient;
 

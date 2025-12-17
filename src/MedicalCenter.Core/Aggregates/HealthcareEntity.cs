@@ -1,13 +1,13 @@
 using Ardalis.GuardClauses;
-using MedicalCenter.Core.Enums;
+using MedicalCenter.Core.Common;
 
-namespace MedicalCenter.Core.Entities;
+namespace MedicalCenter.Core.Aggregates;
 
 /// <summary>
-/// Healthcare entity (hospital/clinic staff) - not an aggregate.
+/// Healthcare entity aggregate root (hospital/clinic staff).
 /// Healthcare staff can create medical records and view patient data.
 /// </summary>
-public class HealthcareEntity : User
+public class HealthcareEntity : User, IAggregateRoot
 {
     public string OrganizationName { get; private set; } = string.Empty;
     public string Department { get; private set; } = string.Empty;
@@ -37,4 +37,3 @@ public class HealthcareEntity : User
         Department = department;
     }
 }
-

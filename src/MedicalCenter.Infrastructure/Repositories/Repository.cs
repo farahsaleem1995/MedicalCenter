@@ -1,7 +1,6 @@
 using Ardalis.Specification;
 using Ardalis.Specification.EntityFrameworkCore;
 using MedicalCenter.Core.Common;
-using MedicalCenter.Core.Repositories;
 using MedicalCenter.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 

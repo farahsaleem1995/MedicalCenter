@@ -1,5 +1,4 @@
 using MedicalCenter.Core.Common;
-using MedicalCenter.Core.Enums;
 using MedicalCenter.Infrastructure.Identity;
 using Microsoft.EntityFrameworkCore;
 

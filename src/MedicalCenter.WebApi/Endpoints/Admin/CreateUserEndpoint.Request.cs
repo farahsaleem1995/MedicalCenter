@@ -1,4 +1,4 @@
-using MedicalCenter.Core.Enums;
+using MedicalCenter.Core.Common;
 
 namespace MedicalCenter.WebApi.Endpoints.Admin;
 

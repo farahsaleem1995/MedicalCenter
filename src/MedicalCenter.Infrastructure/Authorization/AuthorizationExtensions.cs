@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.DependencyInjection;
-using MedicalCenter.Core.Enums;
+using MedicalCenter.Core.Common;
 
 namespace MedicalCenter.Infrastructure.Authorization;
 
@@ -24,14 +24,14 @@ public static class AuthorizationExtensions
                 policy.RequireRole(UserRole.SystemAdmin.ToString()));
 
             // Composite role policies
-            options.AddPolicy(AuthorizationPolicies.RequireProvider, policy =>
+            options.AddPolicy(AuthorizationPolicies.RequirePractitioner, policy =>
                 policy.RequireRole(
                     UserRole.Doctor.ToString(),
                     UserRole.HealthcareStaff.ToString(),
                     UserRole.LabUser.ToString(),
                     UserRole.ImagingUser.ToString()));
 
-            options.AddPolicy(AuthorizationPolicies.RequirePatientOrProvider, policy =>
+            options.AddPolicy(AuthorizationPolicies.RequirePatientOrPractitioner, policy =>
                 policy.RequireRole(
                     UserRole.Patient.ToString(),
                     UserRole.Doctor.ToString(),

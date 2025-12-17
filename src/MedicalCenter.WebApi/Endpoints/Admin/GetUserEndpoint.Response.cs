@@ -1,7 +1,6 @@
+using MedicalCenter.Core.Aggregates;
 using MedicalCenter.Core.Aggregates.Patient;
-using MedicalCenter.Core.Entities;
-using MedicalCenter.Core.Enums;
-using MedicalCenter.Core.ValueObjects;
+using MedicalCenter.Core.Common;
 
 namespace MedicalCenter.WebApi.Endpoints.Admin;
 

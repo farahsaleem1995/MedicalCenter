@@ -1,7 +1,8 @@
-namespace MedicalCenter.Core.Enums;
+namespace MedicalCenter.Core.Aggregates.Patient;
 
 /// <summary>
 /// ABO blood group types.
+/// Belongs to the Patient aggregate.
 /// </summary>
 public enum BloodABO
 {
@@ -10,4 +11,3 @@ public enum BloodABO
     AB = 3,
     O = 4
 }
-

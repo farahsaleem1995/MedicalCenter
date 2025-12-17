@@ -1,4 +1,4 @@
-namespace MedicalCenter.Core.Enums;
+namespace MedicalCenter.Core.Common;
 
 /// <summary>
 /// User roles in the medical center system.
@@ -12,4 +12,3 @@ public enum UserRole
     LabUser = 5,
     ImagingUser = 6
 }
-

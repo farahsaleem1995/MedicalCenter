@@ -1,7 +1,7 @@
 using Ardalis.Specification;
 using MedicalCenter.Core.Common;
 
-namespace MedicalCenter.Core.Repositories;
+namespace MedicalCenter.Core.Common;
 
 /// <summary>
 /// Generic repository interface for aggregate roots.
@@ -19,4 +19,3 @@ public interface IRepository<T> where T : class, IAggregateRoot
     Task UpdateAsync(T entity, CancellationToken cancellationToken = default);
     Task DeleteAsync(T entity, CancellationToken cancellationToken = default);
 }
-

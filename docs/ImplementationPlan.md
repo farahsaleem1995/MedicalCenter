@@ -12,7 +12,7 @@ This document outlines the high-level implementation plan for the Medical Center
 - ✅ **Phase 4**: Identity System Foundation
 - ✅ **Phase 5**: Patient Aggregate & Medical Attributes
 - 🔄 **Phase 6**: Medical Records (Medical Records complete, Encounters postponed - requires domain events)
-- 🔄 **Phase 7**: Query Services & Provider Lookups (Partially Complete - UserQueryService implemented)
+- 🔄 **Phase 7**: Query Services & Practitioner Lookups (Partially Complete - UserQueryService implemented)
 - 🔄 **Phase 10**: Admin Features (Partially Complete - User management endpoints implemented)
 - ⏳ **Phase 8**: Action Logging & Audit Trail
 - ⏳ **Phase 9**: Complete Provider Endpoints
@@ -30,7 +30,7 @@ This document outlines the high-level implementation plan for the Medical Center
 - ✅ Medical attributes CRUD endpoints
 - ✅ Pagination infrastructure (`PaginatedList<T>`, `PaginationMetadata`)
 - ✅ User query service with pagination support
-- ✅ Provider entities (Doctor, HealthcareEntity, Laboratory, ImagingCenter) with shared primary key
+- ✅ Practitioner aggregates (Doctor, HealthcareEntity, Laboratory, ImagingCenter) with shared primary key
 - ✅ Identity service for user management
 - ✅ Admin user management endpoints (CRUD, change password)
 - ✅ Get current user endpoint (`GET /auth/self`)
@@ -40,7 +40,7 @@ This document outlines the high-level implementation plan for the Medical Center
 - ✅ Dockerization (Dockerfile, docker-compose.yml, automatic migrations)
 - ✅ Medical records with file attachments support
 - ✅ File storage service (local filesystem)
-- ✅ Unified medical records endpoints for all provider types
+- ✅ Unified medical records endpoints for all practitioner types
 - ✅ 210 domain unit tests passing
 
 ### In Progress
@@ -106,7 +106,11 @@ MedicalCenter/
 └── docs/                                 # Documentation
 ```
 
-**Note on Shared Projects**: Initially considered a `MedicalCenter.Shared` project, but decided against it to maintain clean architecture principles. DTOs belong in the WebApi layer (they're presentation concerns), domain constants/enums belong in Core, and API-specific constants belong in WebApi. This avoids unnecessary coupling between layers.
+**Note on Shared Projects**: Initially considered a `MedicalCenter.Shared` project, but decided against it to maintain clean architecture principles. DTOs belong in the WebApi layer (they're presentation concerns), domain constants/enums belong in Core (organized by domain concepts), and API-specific constants belong in WebApi. This avoids unnecessary coupling between layers.
+
+**Domain Organization**: The domain model is organized around domain concepts, not technical classifications:
+- Aggregate-specific types (enums, value objects) live within their aggregates (e.g., `BloodType`, `BloodABO`, `BloodRh` in Patient aggregate)
+- Common abstractions and shared concepts live in Common folder (e.g., `IRepository`, `IUnitOfWork`, `ValueObject`, `Attachment`, `UserRole`, `ProviderType`)
 
 ---
 
@@ -135,9 +139,9 @@ The domain is organized around the following aggregates:
 
 #### **Encounter Aggregate**
 - Root entity: `Encounter`
-- Represents real-world interactions between Patient and Provider
+- Represents real-world interactions between Patient and Practitioner
 - Created automatically when medical records are added
-- Contains: PatientId, ProviderId, ProviderType, EncounterType, Timestamp
+- Contains: PatientId, PractitionerId, ProviderType, EncounterType, Timestamp
 - **Why it's an aggregate**: Represents a distinct business concept with its own lifecycle
 
 #### **ActionLog Aggregate**
@@ -147,17 +151,17 @@ The domain is organized around the following aggregates:
 - Audit trail for compliance
 - **Why it's an aggregate**: Has its own consistency boundary for audit purposes
 
-### 2.1.1 User Entities (Not Aggregates)
+### 2.1.1 Practitioner Aggregates
 
-The other user types (`Doctor`, `HealthcareEntity`, `Laboratory`, `ImagingCenter`) are **domain entities**, not aggregates:
+The practitioner user types (`Doctor`, `HealthcareEntity`, `Laboratory`, `ImagingCenter`) are **aggregate roots**:
 
 - They inherit from `User` for identity and authentication purposes
 - They are **referenced** by other aggregates (Encounters, MedicalRecords) but don't own them
-- They don't have their own consistency boundaries or enforce complex business rules
-- They are primarily **reference data** - their role is to identify providers in encounters and records
-- They can be queried and displayed, but the core business logic revolves around Patients, Records, and Encounters
+- Each represents a core domain concept (a healthcare practitioner)
+- They are aggregate roots even though they don't have related data - they represent distinct business concepts
+- They can be queried and displayed, and the core business logic revolves around Patients, Records, Encounters, and Practitioners
 
-**Repository consideration**: Since provider entities (`Doctor`, `HealthcareEntity`, etc.) are not aggregates, they are not accessed through the repository pattern. When provider data is needed, it's queried through query service interfaces (e.g., `IProviderQueryService`) defined in Core, with implementations in Infrastructure. Provider data can also be included in specifications that query aggregates (e.g., a specification that loads Encounters with their associated Provider information).
+**Repository consideration**: Since practitioner aggregates (`Doctor`, `HealthcareEntity`, etc.) are aggregate roots, they can be accessed through the repository pattern. However, for read operations, query service interfaces (e.g., `IUserQueryService`) are used for optimized queries. Practitioner data can also be included in specifications that query aggregates (e.g., a specification that loads Encounters with their associated Practitioner information).
 
 ### 2.2 Domain Services
 
@@ -210,7 +214,7 @@ public interface IRepository<T> where T : IAggregateRoot
 - **Type Safety**: Generic constraint ensures only aggregate roots can be used
 - **Framework Integration**: Ardalis.Specification provides EF Core implementation out of the box
 
-**Provider Entities**: Since `Doctor`, `HealthcareEntity`, `Laboratory`, and `ImagingCenter` are not aggregates, they are not accessed through the repository. They are queried through query service interfaces (defined in Core) with implementations in Infrastructure.
+**Practitioner Aggregates**: `Doctor`, `HealthcareEntity`, `Laboratory`, and `ImagingCenter` are aggregate roots. They can be accessed through the repository pattern, but for read operations, query service interfaces (defined in Core) with implementations in Infrastructure are used for optimized queries.
 
 ### 2.6 Query Service Interfaces
 
@@ -318,11 +322,11 @@ var activePatients = await _repository.ListAsync(activePatientsSpec);
 **Implementation Pattern**:
 ```csharp
 // In Infrastructure layer
-public class ProviderQueryService : IProviderQueryService
+public class PractitionerQueryService : IPractitionerQueryService
 {
     private readonly MedicalCenterDbContext _context;
     
-    public ProviderQueryService(MedicalCenterDbContext context)
+    public PractitionerQueryService(MedicalCenterDbContext context)
     {
         _context = context;
     }
@@ -568,14 +572,14 @@ options.AddPolicy("RequireAdmin", policy =>
     policy.RequireRole(UserRole.SystemAdmin.ToString()));
 
 // Composite role policies
-options.AddPolicy("RequireProvider", policy => 
+options.AddPolicy("RequirePractitioner", policy => 
     policy.RequireRole(
         UserRole.Doctor.ToString(),
         UserRole.HealthcareStaff.ToString(),
         UserRole.LabUser.ToString(),
         UserRole.ImagingUser.ToString()));
 
-options.AddPolicy("RequirePatientOrProvider", policy => 
+options.AddPolicy("RequirePatientOrPractitioner", policy => 
     policy.RequireRole(
         UserRole.Patient.ToString(),
         UserRole.Doctor.ToString(),
@@ -632,9 +636,9 @@ public override async Task HandleAsync(GetPatientRecordsRequest req, Cancellatio
 | `PUT /patients/self/medical-attributes` | `RequirePatient` | Verify ownership + business rules |
 | `POST /doctors/records` | `RequireDoctor` | N/A |
 | `GET /doctors/records` | `RequireDoctor` | Optional: filter by own records |
-| `POST /healthcare/records` | `RequireProvider` | Verify role is HealthcareStaff |
-| `POST /labs/records` | `RequireProvider` | Verify role is LabUser |
-| `POST /imaging/records` | `RequireProvider` | Verify role is ImagingUser |
+| `POST /healthcare/records` | `RequirePractitioner` | Verify role is HealthcareStaff |
+| `POST /labs/records` | `RequirePractitioner` | Verify role is LabUser |
+| `POST /imaging/records` | `RequirePractitioner` | Verify role is ImagingUser |
 | `GET /admin/users` | `RequireAdmin` | N/A |
 | `POST /admin/users` | `RequireAdmin` | N/A |
 
@@ -684,7 +688,7 @@ Policies are registered in `DependencyInjection.AddInfrastructure()` or a dedica
 
 Resource-based authorization patterns:
 - **Patient Resources**: Verify `userId` claim matches resource owner
-- **Provider Resources**: Verify role has access + optional organization/entity checks
+- **Practitioner Resources**: Verify role has access + optional organization/entity checks
 - **Admin Resources**: Verify `SystemAdmin` role
 
 ### 7. Security Considerations
@@ -720,7 +724,7 @@ Medical attributes are part of the `Patient` aggregate:
 
 ### 6.2 Domain Rules
 
-- Only authorized providers can modify medical attributes
+- Only authorized practitioners can modify medical attributes
 - Patients cannot modify blood type or chronic conditions
 - All updates must have audit metadata (RecordedBy, DiagnosedBy, etc.)
 - No automatic inference from uploaded records
@@ -738,34 +742,37 @@ Medical attributes are part of the `Patient` aggregate:
 
 **Rationale**:
 - **DTOs belong in WebApi**: Request/Response DTOs are presentation concerns and should live in the WebApi layer. They're not shared across layers - Core doesn't need to know about DTOs.
-- **Domain constants in Core**: If constants represent domain concepts (e.g., `UserRole` enum, `EncounterType` enum), they belong in the Core layer as part of the domain model.
+- **Domain organization**: Domain model organized around concepts, not technical terms
+  - Aggregate-specific enums (e.g., `BloodABO`, `BloodRh`, `RecordType`) live within their aggregates
+  - Common enums (e.g., `UserRole`, `ProviderType`) live in Common folder
+  - Common abstractions (`IRepository`, `IUnitOfWork`, `ValueObject`, `Attachment`) live in Common folder
 - **API constants in WebApi**: API-specific constants (e.g., route names, policy names) belong in the WebApi layer.
 - **Avoid coupling**: Shared projects create coupling between layers, violating clean architecture principles. Each layer should only depend on layers below it.
 - **YAGNI principle**: We don't need a shared project until we have a concrete need that can't be satisfied by placing items in the appropriate layer.
 
 **Alternative considered**: If we later need truly shared utilities (e.g., extension methods used by both Infrastructure and WebApi), we can introduce a shared project, but it should be minimal and well-justified.
 
-#### 7.0.2 User Roles: Aggregates vs Entities
+#### 7.0.2 User Roles: All User Types as Aggregates
 
-**Decision**: Only `Patient` is a true aggregate. Other user types (`Doctor`, `HealthcareEntity`, `Laboratory`, `ImagingCenter`) are domain entities, not aggregates.
+**Decision**: All user types (`Patient`, `Doctor`, `HealthcareEntity`, `Laboratory`, `ImagingCenter`) are aggregate roots.
 
 **Rationale**:
 - **Patient is an aggregate** because:
   - It owns medical attributes (Allergies, ChronicDiseases, etc.) with complex business rules
-  - It enforces invariants (e.g., only providers can modify certain attributes)
+  - It enforces invariants (e.g., only practitioners can modify certain attributes)
   - It has a consistency boundary (medical attributes must be consistent with each other)
   - It's referenced by Encounters but also has its own domain logic
 
-- **Other user types are entities** because:
-  - They are primarily **reference data** - they identify who created a record or participated in an encounter
-  - They don't own collections of domain objects that require consistency boundaries
-  - They don't enforce complex business rules beyond basic validation (license numbers, organization names)
-  - They're referenced by aggregates but don't have their own aggregate boundaries
-  - They're more like "lookup entities" - you query them to find a provider, but the business logic lives in the aggregates that reference them
+- **Practitioner types are aggregates** because:
+  - Each represents a core domain concept (a healthcare practitioner)
+  - Even though they don't have related data, they are distinct business concepts
+  - They identify who created a record or participated in an encounter
+  - They can be queried and referenced by other aggregates
+  - Making them aggregates maintains consistency in the domain model
 
-**DDD Principle**: Not every entity needs to be an aggregate. Aggregates are consistency boundaries. If an entity doesn't need to maintain consistency of related objects or enforce complex invariants, it's just a regular entity.
+**DDD Principle**: Aggregates represent consistency boundaries and core domain concepts. Even if an aggregate doesn't have related data, if it represents a distinct business concept, it should be an aggregate root.
 
-**Repository Pattern**: Provider entities are not accessed through the repository pattern since they're not aggregates. When provider data is needed, it's accessed directly through DbContext in the Infrastructure layer, or included in specifications that query aggregates (e.g., loading Encounters with their Provider information).
+**Repository Pattern**: Practitioner aggregates can be accessed through the repository pattern since they are aggregate roots. However, for read operations, query service interfaces are used for optimized queries. Practitioner data can also be included in specifications that query aggregates (e.g., loading Encounters with their Practitioner information).
 
 #### 7.0.3 Generic Repository with Specification Pattern
 
@@ -818,7 +825,7 @@ Medical attributes are part of the `Patient` aggregate:
 - **DDD Principle**: Repository pattern should be reserved for aggregates where it provides value
 
 **Pattern**:
-- **Core Layer**: Define `IProviderQueryService`, `IUserQueryService`, etc. interfaces
+- **Core Layer**: Define `IUserQueryService`, `IMedicalRecordQueryService`, etc. interfaces
 - **Infrastructure Layer**: Implement query services using `MedicalCenterDbContext`
 - **WebApi Layer**: Inject query service interfaces, use them in endpoints
 - **Returns**: DTOs (can be in Core if domain concepts, or WebApi if presentation-specific) or domain entities
@@ -1020,7 +1027,9 @@ This section provides a comprehensive, phase-by-phase implementation guide. Each
 
 2. **Create Common Abstractions**
    - `IRepository<T>` interface (generic repository)
-   - Common enums: `UserRole`, `ProviderType`, `EncounterType`, `RecordType`
+   - `IUnitOfWork` interface (transaction management)
+   - Common enums: `UserRole`, `ProviderType` (in Common folder)
+   - Aggregate-specific enums: `BloodABO`, `BloodRh` (in Patient aggregate), `RecordType` (in MedicalRecord aggregate)
 
 3. **Create Result Pattern**
    - `Result<T>` class for operation outcomes
@@ -1126,7 +1135,7 @@ This section provides a comprehensive, phase-by-phase implementation guide. Each
 
 5. **Authorization Policies Setup**
    - Register authorization policies in Infrastructure layer
-   - Define role-based policies (RequirePatient, RequireDoctor, RequireProvider, etc.)
+   - Define role-based policies (RequirePatient, RequireDoctor, RequirePractitioner, etc.)
    - Define claims-based policies for fine-grained control
    - Create policy registration extension method
 
@@ -1184,7 +1193,7 @@ This section provides a comprehensive, phase-by-phase implementation guide. Each
    - Add domain methods for managing medical attributes
 
 2. **Domain Rules Implementation**
-   - Implement business rules (only providers can modify certain attributes)
+   - Implement business rules (only practitioners can modify certain attributes)
    - Add guard clauses and validation
    - Create domain exceptions if needed
 
@@ -1313,10 +1322,10 @@ This section provides a comprehensive, phase-by-phase implementation guide. Each
    - Set up relationships (Patient navigation property, Practitioner as owned entity snapshot)
    - Soft delete query filter
 
-5. **API Endpoints (Unified for All Providers)**
+5. **API Endpoints (Unified for All Practitioners)**
    - `POST /api/records/attachments/upload` - Upload file attachment
    - `POST /api/records` - Create medical record (with optional attachment references)
-   - `GET /api/records` - List records created by current provider (with filters)
+   - `GET /api/records` - List records created by current practitioner (with filters)
    - `GET /api/records/{recordId}` - Get specific record (practitioners can view all)
    - `GET /api/records` - List all records with pagination and filtering (practitioners can view all)
    - `PUT /api/records/{recordId}` - Update record (only practitioner)
@@ -1366,40 +1375,38 @@ This section provides a comprehensive, phase-by-phase implementation guide. Each
 
 ---
 
-### Phase 7: Query Services & Provider Lookups
+### Phase 7: Query Services & Practitioner Lookups
 
-**Goal**: Implement query services for non-aggregate entities (providers).
+**Goal**: Implement query services for practitioner aggregates.
 
-**Deliverable**: Working query services for provider entities.
+**Deliverable**: Working query services for practitioner aggregates.
 
 #### Tasks:
 
 1. **Query Service Interfaces (Core)**
-   - Create `IProviderQueryService` interface
-   - Create `IUserQueryService` interface
-   - Define DTOs for provider data
+   - Create `IUserQueryService` interface (already implemented)
+   - Define DTOs for practitioner data
 
 2. **Query Service Implementations (Infrastructure)**
-   - Implement `ProviderQueryService` using DbContext
-   - Implement `UserQueryService`
-   - Create specifications for provider queries (optional)
+   - Implement `UserQueryService` (already implemented)
+   - Create specifications for practitioner queries (optional)
 
-3. **Provider Endpoints Enhancement**
+3. **Practitioner Endpoints Enhancement**
    - GET /doctors (list all doctors with filters)
    - GET /doctors/{id} (get doctor details)
-   - Similar endpoints for other provider types
+   - Similar endpoints for other practitioner types
 
 4. **Tests**
    - Test query services
-   - Test provider lookup endpoints
+   - Test practitioner lookup endpoints
 
 5. **Update README.md**
    - Query services documentation
-   - Provider lookup API documentation
+   - Practitioner lookup API documentation
 
 **Verification**:
-- ✅ Can query providers through query services
-- ✅ Provider endpoints return correct data
+- ✅ Can query practitioners through query services
+- ✅ Practitioner endpoints return correct data
 - ✅ All tests pass
 
 ---
@@ -1447,11 +1454,11 @@ This section provides a comprehensive, phase-by-phase implementation guide. Each
 
 ---
 
-### Phase 9: Complete Provider Endpoints
+### Phase 9: Complete Practitioner Endpoints
 
-**Goal**: Implement all provider-specific endpoints (Healthcare, Labs, Imaging).
+**Goal**: Implement all practitioner-specific endpoints (Healthcare, Labs, Imaging).
 
-**Deliverable**: Complete provider endpoint implementation.
+**Deliverable**: Complete practitioner endpoint implementation.
 
 #### Tasks:
 
@@ -1735,9 +1742,9 @@ Each phase produces a working, testable deliverable:
 - **Phase 4**: Identity system with authentication
 - **Phase 5**: Patient aggregate with medical attributes
 - **Phase 6**: Medical records and encounters
-- **Phase 7**: Provider query services
+- **Phase 7**: Practitioner query services
 - **Phase 8**: Action logging and audit trail
-- **Phase 9**: Complete provider endpoints
+- **Phase 9**: Complete practitioner endpoints
 - **Phase 10**: Admin management features
 - **Phase 11**: Patient self-service complete
 - **Phase 12**: Production-ready, well-tested application

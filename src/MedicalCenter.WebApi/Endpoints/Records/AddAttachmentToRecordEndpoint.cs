@@ -1,9 +1,8 @@
 using FastEndpoints;
 using MedicalCenter.Core.Aggregates.MedicalRecord;
 using MedicalCenter.Core.Aggregates.MedicalRecord.Specifications;
-using MedicalCenter.Core.Repositories;
+using MedicalCenter.Core.Common;
 using MedicalCenter.Core.Services;
-using MedicalCenter.Core.ValueObjects;
 using MedicalCenter.Infrastructure.Authorization;
 using MedicalCenter.Infrastructure.Options;
 using Microsoft.Extensions.Options;

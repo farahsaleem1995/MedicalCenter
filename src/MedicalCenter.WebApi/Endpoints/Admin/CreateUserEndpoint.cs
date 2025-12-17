@@ -1,6 +1,5 @@
 using FastEndpoints;
 using MedicalCenter.Core.Common;
-using MedicalCenter.Core.Enums;
 using MedicalCenter.Core.Services;
 using MedicalCenter.Infrastructure;
 using MedicalCenter.Infrastructure.Authorization;
@@ -23,7 +22,7 @@ public class CreateUserEndpoint(
         Summary(s =>
         {
             s.Summary = "Create a new user (non-patient)";
-            s.Description = "Allows system admin to create users of provider types (Doctor, HealthcareStaff, LabUser, ImagingUser)";
+            s.Description = "Allows system admin to create users of practitioner types (Doctor, HealthcareStaff, LabUser, ImagingUser)";
             s.Responses[200] = "User created successfully";
             s.Responses[400] = "Validation error";
             s.Responses[401] = "Unauthorized";
@@ -64,7 +63,7 @@ public class CreateUserEndpoint(
                 req.CenterName!,
                 req.LicenseNumber!,
                 ct),
-            _ => Result<Guid>.Failure(Error.Validation("Invalid role. Only provider roles are allowed."))
+            _ => Result<Guid>.Failure(Error.Validation("Invalid role. Only practitioner roles are allowed."))
         };
 
         if (result.IsFailure)

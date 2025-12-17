@@ -1,11 +1,9 @@
 using MedicalCenter.Core.Common;
-using MedicalCenter.Core.Entities;
-using MedicalCenter.Core.Enums;
 
 namespace MedicalCenter.Core.Services;
 
 /// <summary>
-/// Query service for retrieving all users entities (including providers and patients).
+/// Query service for retrieving all users entities (including practitioners and patients).
 /// All users are retrieved, including deactivated users.
 /// </summary>
 public interface IUserQueryService

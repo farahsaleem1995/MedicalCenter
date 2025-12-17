@@ -1,7 +1,6 @@
 using FluentAssertions;
 using MedicalCenter.Core.Aggregates.MedicalRecord;
-using MedicalCenter.Core.Enums;
-using MedicalCenter.Core.ValueObjects;
+using MedicalCenter.Core.Common;
 using Xunit;
 using MedicalRecord = MedicalCenter.Core.Aggregates.MedicalRecord.MedicalRecord;
 

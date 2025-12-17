@@ -1,15 +1,13 @@
 using Ardalis.GuardClauses;
 using MedicalCenter.Core.Aggregates.Patient;
 using MedicalCenter.Core.Common;
-using MedicalCenter.Core.Enums;
-using MedicalCenter.Core.ValueObjects;
 using Patient = MedicalCenter.Core.Aggregates.Patient.Patient;
 
 namespace MedicalCenter.Core.Aggregates.MedicalRecord;
 
 /// <summary>
 /// Medical record aggregate root.
-/// Represents a medical record created by a provider for a patient.
+/// Represents a medical record created by a practitioner for a patient.
 /// Business rules:
 /// - Only the practitioner can modify the record
 /// - Only the practitioner can add or remove attachments

@@ -6,7 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
 using System.Text;
-using MedicalCenter.Core.Repositories;
+using MedicalCenter.Core.Common;
 using MedicalCenter.Core.Services;
 using MedicalCenter.Infrastructure.Authorization;
 using MedicalCenter.Infrastructure.Data;

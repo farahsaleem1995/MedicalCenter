@@ -2,8 +2,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using MedicalCenter.Infrastructure.Identity;
+using MedicalCenter.Core.Aggregates;
 using MedicalCenter.Core.Aggregates.Patient;
-using MedicalCenter.Core.Entities;
 
 namespace MedicalCenter.Infrastructure.Data.Configurations;
 

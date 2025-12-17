@@ -1,10 +1,11 @@
 using Ardalis.GuardClauses;
-using MedicalCenter.Core.Enums;
+using MedicalCenter.Core.Common;
 
-namespace MedicalCenter.Core.ValueObjects;
+namespace MedicalCenter.Core.Aggregates.Patient;
 
 /// <summary>
 /// Blood type value object representing ABO and Rh factor.
+/// Belongs to the Patient aggregate.
 /// </summary>
 public class BloodType : ValueObject
 {
@@ -38,4 +39,3 @@ public class BloodType : ValueObject
         yield return Rh;
     }
 }
-

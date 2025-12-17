@@ -1,12 +1,9 @@
 using Ardalis.GuardClauses;
-using MedicalCenter.Core.Common;
-using MedicalCenter.Core.Enums;
 
-namespace MedicalCenter.Core.Entities;
+namespace MedicalCenter.Core.Common;
 
 /// <summary>
 /// Abstract base class for all users in the medical center system.
-/// Users are domain entities (not aggregates) except for Patient which is an aggregate.
 /// </summary>
 public abstract class User : BaseEntity, IAuditableEntity
 {
@@ -47,4 +44,3 @@ public abstract class User : BaseEntity, IAuditableEntity
         FullName = fullName;
     }
 }
-

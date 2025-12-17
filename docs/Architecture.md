@@ -12,30 +12,33 @@ The Core layer contains the domain model and business logic. It has no dependenc
 
 #### Key Components
 
-- **Entities**: Domain entities representing business concepts
+The Core layer is organized around domain concepts, not technical classifications:
+
+- **Common**: Shared abstractions, base classes, and common concepts
   - `BaseEntity`: Base class for all entities with `Id` (Guid)
   - `User`: Abstract base class for all users
-  - `Patient`: Aggregate root for patients
-  - `Doctor`, `HealthcareEntity`, `Laboratory`, `ImagingCenter`: Provider entities
+  - `ValueObject`: Base class for value objects
+  - `IRepository<T>`: Generic repository interface for aggregate roots
+  - `IUnitOfWork`: Unit of Work interface for transaction management
+  - `Attachment`: File attachment value object (common concept)
+  - `UserRole`: User role enumeration (common concept)
+  - `ProviderType`: Healthcare provider type enumeration (common concept)
+  - `Result<T>`, `Error`: Operation outcome pattern
 
-- **Aggregates**: Consistency boundaries
-  - `Patient`: Root aggregate containing medical attributes (Allergies, ChronicDiseases, Medications, Surgeries)
+- **Aggregates**: Consistency boundaries organized by domain concepts
+  - `Patient`: Root aggregate containing medical attributes
+    - Contains: `BloodType` value object, `BloodABO` enum, `BloodRh` enum
+    - Medical attributes: Allergies, ChronicDiseases, Medications, Surgeries
   - `MedicalRecord`: Medical record aggregate with file attachments
+    - Contains: `RecordType` enum
+    - Contains: `Practitioner` value object (snapshot)
+  - `Doctor`, `HealthcareEntity`, `Laboratory`, `ImagingCenter`: Practitioner aggregate roots
   - `Encounter`: (Planned) Encounter aggregate (requires domain events)
   - `ActionLog`: (Planned) Audit log aggregate
-
-- **Value Objects**: Immutable objects defined by their attributes
-  - `BloodType`: ABO type and Rh factor combination
-  - `Attachment`: File attachment metadata (immutable)
-  - `Practitioner`: Healthcare provider snapshot (FullName, Email, Role) stored with medical records
-  - `Result<T>`: Operation outcome pattern
 
 - **Specifications**: Encapsulate complex business queries
   - Uses `Ardalis.Specification` pattern
   - Example: `PatientByIdSpecification`
-
-- **Repository Interfaces**: Abstractions for data access
-  - `IRepository<T>`: Generic repository for aggregate roots only
 
 - **Domain Services**: Operations that don't fit within a single entity
   - `IIdentityService`: User identity management interface
@@ -47,6 +50,9 @@ The Core layer contains the domain model and business logic. It has no dependenc
 - **Aggregate Boundaries**: Only aggregate roots are accessible via repositories
 - **Value Objects**: Immutable, equality-based objects
 - **Specification Pattern**: Complex queries encapsulated in specifications
+- **Domain Organization**: Code organized around domain concepts, not technical classifications
+  - Aggregate-specific types (enums, value objects) live within their aggregates
+  - Common abstractions and shared concepts live in Common folder
 
 ### 2. Infrastructure Layer
 
@@ -68,7 +74,7 @@ The Infrastructure layer implements data access and external service integration
 - **Identity Service**:
   - `IdentityService`: Implements `IIdentityService`
   - Handles user creation, password management
-  - Supports provider user creation (Doctor, HealthcareEntity, Laboratory, ImagingCenter)
+  - Supports practitioner user creation (Doctor, HealthcareEntity, Laboratory, ImagingCenter)
 
 - **Query Services**:
   - `UserQueryService`: Query service for non-aggregate user entities
@@ -96,8 +102,8 @@ The Infrastructure layer implements data access and external service integration
   - Configured directly in `IdentityDbContext` generics to avoid inheritance mapping
 - **Domain Tables**: Patient, MedicalRecord, MedicalRecordAttachments, Doctor, HealthcareEntity, Laboratory, ImagingCenter
 - **Relationships**: 
-  - Provider entities use shared primary key with ApplicationUser
-  - MedicalRecord references Patient and Practitioner (provider snapshot as value object)
+  - Practitioner aggregates use shared primary key with ApplicationUser
+  - MedicalRecord references Patient and Practitioner (practitioner snapshot as value object)
   - MedicalRecordAttachments is owned entity collection (part of MedicalRecord aggregate)
 
 ### 3. Web API Layer (Presentation)
@@ -164,7 +170,7 @@ The Web API layer handles HTTP requests, validation, authorization, and DTOs.
 ### Query Service Pattern
 
 - **Purpose**: Query non-aggregate entities
-- **Implementation**: `IUserQueryService` for provider entities
+- **Implementation**: `IUserQueryService` for practitioner aggregate roots
 - **Benefits**: Separation of read operations from aggregate boundaries
 
 ### File Storage Pattern
@@ -255,7 +261,7 @@ The Web API layer handles HTTP requests, validation, authorization, and DTOs.
 
 ### Entity Relationships
 
-- **Provider Entities**: Share primary key with `ApplicationUser` (one-to-one)
+- **Practitioner Aggregates**: Share primary key with `ApplicationUser` (one-to-one)
 - **Patient**: Aggregate root with collections for medical attributes
 - **Medical Attributes**: Owned by Patient aggregate (Allergy, ChronicDisease, Medication, Surgery)
 

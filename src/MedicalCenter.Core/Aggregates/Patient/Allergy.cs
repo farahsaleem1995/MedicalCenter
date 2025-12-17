@@ -1,6 +1,5 @@
 using Ardalis.GuardClauses;
 using MedicalCenter.Core.Common;
-using MedicalCenter.Core.Entities;
 
 namespace MedicalCenter.Core.Aggregates.Patient;
 

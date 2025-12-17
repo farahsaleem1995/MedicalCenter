@@ -1,5 +1,5 @@
+using MedicalCenter.Core.Aggregates;
 using MedicalCenter.Core.Aggregates.Patient;
-using MedicalCenter.Core.Entities;
 using Microsoft.AspNetCore.Identity;
 
 namespace MedicalCenter.Infrastructure.Identity;

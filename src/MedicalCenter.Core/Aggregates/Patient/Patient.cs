@@ -1,8 +1,5 @@
 using Ardalis.GuardClauses;
 using MedicalCenter.Core.Common;
-using MedicalCenter.Core.Entities;
-using MedicalCenter.Core.Enums;
-using MedicalCenter.Core.ValueObjects;
 
 namespace MedicalCenter.Core.Aggregates.Patient;
 

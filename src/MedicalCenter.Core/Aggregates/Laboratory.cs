@@ -1,13 +1,13 @@
 using Ardalis.GuardClauses;
-using MedicalCenter.Core.Enums;
+using MedicalCenter.Core.Common;
 
-namespace MedicalCenter.Core.Entities;
+namespace MedicalCenter.Core.Aggregates;
 
 /// <summary>
-/// Laboratory entity (not an aggregate).
+/// Laboratory aggregate root.
 /// Lab users can create lab records and view related patient data.
 /// </summary>
-public class Laboratory : User
+public class Laboratory : User, IAggregateRoot
 {
     public string LabName { get; private set; } = string.Empty;
     public string LicenseNumber { get; private set; } = string.Empty;
@@ -35,4 +35,3 @@ public class Laboratory : User
         LabName = labName;
     }
 }
-

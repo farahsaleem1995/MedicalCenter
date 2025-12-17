@@ -1,7 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using MedicalCenter.Core.Aggregates.MedicalRecord;
 using MedicalCenter.Core.Common;
-using MedicalCenter.Core.Enums;
 using MedicalCenter.Core.Services;
 using MedicalCenter.Infrastructure.Data;
 using MedicalCenter.Infrastructure.Extensions;

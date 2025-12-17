@@ -2,7 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using MedicalCenter.Core.Aggregates.MedicalRecord;
 using MedicalCenter.Core.Aggregates.Patient;
-using MedicalCenter.Core.ValueObjects;
+using MedicalCenter.Core.Common;
 using MedicalCenter.Infrastructure.Identity;
 
 namespace MedicalCenter.Infrastructure.Data.Configurations;

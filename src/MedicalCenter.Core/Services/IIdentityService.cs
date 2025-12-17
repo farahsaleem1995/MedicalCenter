@@ -1,7 +1,6 @@
+using MedicalCenter.Core.Aggregates;
 using MedicalCenter.Core.Aggregates.Patient;
 using MedicalCenter.Core.Common;
-using MedicalCenter.Core.Entities;
-using MedicalCenter.Core.Enums;
 
 namespace MedicalCenter.Core.Services;
 

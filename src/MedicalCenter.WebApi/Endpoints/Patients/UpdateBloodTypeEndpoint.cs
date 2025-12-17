@@ -1,8 +1,7 @@
 using FastEndpoints;
 using MedicalCenter.Core.Aggregates.Patient;
 using MedicalCenter.Core.Aggregates.Patient.Specifications;
-using MedicalCenter.Core.Repositories;
-using MedicalCenter.Core.ValueObjects;
+using MedicalCenter.Core.Common;
 using MedicalCenter.Infrastructure.Authorization;
 
 namespace MedicalCenter.WebApi.Endpoints.Patients;

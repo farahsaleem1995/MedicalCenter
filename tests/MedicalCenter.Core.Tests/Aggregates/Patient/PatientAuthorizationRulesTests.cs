@@ -1,7 +1,5 @@
 using FluentAssertions;
 using MedicalCenter.Core.Aggregates.Patient;
-using MedicalCenter.Core.Enums;
-using MedicalCenter.Core.ValueObjects;
 using Xunit;
 using PatientEntity = MedicalCenter.Core.Aggregates.Patient.Patient;
 
@@ -19,7 +17,7 @@ public class PatientAuthorizationRulesTests
     }
 
     [Fact]
-    public void Allows_MedicalAttributes_ToBeUpdated_ByAuthorizedProvider()
+    public void Allows_MedicalAttributes_ToBeUpdated_ByAuthorizedPractitioner()
     {
         // Arrange
         PatientEntity patient = CreateTestPatient();

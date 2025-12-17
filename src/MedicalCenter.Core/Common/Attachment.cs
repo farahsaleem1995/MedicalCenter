@@ -1,6 +1,6 @@
 using Ardalis.GuardClauses;
 
-namespace MedicalCenter.Core.ValueObjects;
+namespace MedicalCenter.Core.Common;
 
 /// <summary>
 /// Attachment value object representing a file attached to a medical record.

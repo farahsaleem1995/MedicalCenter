@@ -1,5 +1,6 @@
 using FastEndpoints;
-using MedicalCenter.Core.Entities;
+using MedicalCenter.Core.Aggregates;
+using MedicalCenter.Core.Common;
 using MedicalCenter.Core.Services;
 using MedicalCenter.Infrastructure.Authorization;
 using MedicalCenter.Infrastructure.Data;

@@ -1,6 +1,5 @@
 using FastEndpoints;
 using MedicalCenter.Core.Aggregates.MedicalRecord;
-using MedicalCenter.Core.Enums;
 using MedicalCenter.Core.Services;
 using MedicalCenter.Infrastructure.Authorization;
 

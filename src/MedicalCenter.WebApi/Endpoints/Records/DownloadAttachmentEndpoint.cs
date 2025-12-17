@@ -1,7 +1,7 @@
 using FastEndpoints;
 using MedicalCenter.Core.Aggregates.MedicalRecord;
 using MedicalCenter.Core.Aggregates.MedicalRecord.Specifications;
-using MedicalCenter.Core.Repositories;
+using MedicalCenter.Core.Common;
 using MedicalCenter.Core.Services;
 using MedicalCenter.Infrastructure.Authorization;
 
@@ -19,11 +19,11 @@ public class DownloadAttachmentEndpoint(
     {
         Get("/records/{recordId}/attachments/{attachmentId}/download");
         Group<RecordsGroup>();
-        Policies(AuthorizationPolicies.RequirePatientOrProvider);
+        Policies(AuthorizationPolicies.RequirePatientOrPractitioner);
         Summary(s =>
         {
             s.Summary = "Download attachment";
-            s.Description = "Downloads a file attachment from a medical record. Providers can download attachments from any patient's records. Patients can download attachments from their own records.";
+            s.Description = "Downloads a file attachment from a medical record. Practitioners can download attachments from any patient's records. Patients can download attachments from their own records.";
             s.Responses[200] = "File downloaded successfully";
             s.Responses[401] = "Unauthorized";
             s.Responses[403] = "Forbidden - not authorized to access this attachment";
@@ -67,8 +67,8 @@ public class DownloadAttachmentEndpoint(
             return;
         }
 
-        // Providers (with RequirePatientOrProvider policy) can access any patient's records
-        // No additional check needed - policy already ensures user is either Patient or Provider
+        // Practitioners (with RequirePatientOrPractitioner policy) can access any patient's records
+        // No additional check needed - policy already ensures user is either Patient or Practitioner
 
         // Download file
         var downloadResult = await fileStorageService.DownloadFileAsync(req.AttachmentId, ct);

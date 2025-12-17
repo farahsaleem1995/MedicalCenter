@@ -1,13 +1,13 @@
 using Ardalis.GuardClauses;
-using MedicalCenter.Core.Enums;
+using MedicalCenter.Core.Common;
 
-namespace MedicalCenter.Core.Entities;
+namespace MedicalCenter.Core.Aggregates;
 
 /// <summary>
-/// Imaging center entity (not an aggregate).
+/// Imaging center aggregate root.
 /// Imaging users can create imaging records and view related patient data.
 /// </summary>
-public class ImagingCenter : User
+public class ImagingCenter : User, IAggregateRoot
 {
     public string CenterName { get; private set; } = string.Empty;
     public string LicenseNumber { get; private set; } = string.Empty;
@@ -35,4 +35,3 @@ public class ImagingCenter : User
         CenterName = centerName;
     }
 }
-

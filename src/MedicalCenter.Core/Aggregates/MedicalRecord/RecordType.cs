@@ -1,7 +1,8 @@
-namespace MedicalCenter.Core.Enums;
+namespace MedicalCenter.Core.Aggregates.MedicalRecord;
 
 /// <summary>
 /// Types of medical records in the system.
+/// Belongs to the MedicalRecord aggregate.
 /// </summary>
 public enum RecordType
 {
@@ -13,4 +14,3 @@ public enum RecordType
     TreatmentPlan = 6,
     Other = 99
 }
-

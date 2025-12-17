@@ -12,8 +12,8 @@ public static class AuthorizationPolicies
     public const string RequireAdmin = "RequireAdmin";
 
     // Composite role policies
-    public const string RequireProvider = "RequireProvider";
-    public const string RequirePatientOrProvider = "RequirePatientOrProvider";
+    public const string RequirePractitioner = "RequirePractitioner";
+    public const string RequirePatientOrPractitioner = "RequirePatientOrPractitioner";
 
     // Medical attributes policies
     public const string CanViewMedicalAttributes = "CanViewMedicalAttributes";

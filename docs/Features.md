@@ -749,7 +749,7 @@ All admin endpoints require `RequireAdmin` policy (SystemAdmin only).
 #### Create User
 **Endpoint**: `POST /admin/users`
 
-- Creates provider users (Doctor, HealthcareStaff, LabUser, ImagingUser)
+- Creates practitioner users (Doctor, HealthcareStaff, LabUser, ImagingUser)
 - Cannot create patients (use registration endpoint)
 - Validates email uniqueness
 
@@ -1471,7 +1471,7 @@ Medical records allow providers to create, view, and manage medical records for 
 **Endpoint**: `GET /api/records/{recordId}/attachments/{attachmentId}/download`
 
 - Downloads a file attachment from a medical record
-- Providers can download attachments from records they created
+- Practitioners can download attachments from records they created
 - Patients can download attachments from their own records
 - Requires `CanViewRecords` or `RequirePatient` policy
 
@@ -1515,7 +1515,7 @@ Medical records allow providers to create, view, and manage medical records for 
 
 ### Business Rules
 
-- **Only Practitioner Can Modify**: Only the provider who created a record can modify or delete it
+- **Only Practitioner Can Modify**: Only the practitioner who created a record can modify or delete it
 - **Only Practitioner Can Manage Attachments**: Only the practitioner can add or remove attachments from a record
 - **Attachments Can Be Removed**: Attachments can be removed from records by the practitioner, but the file itself remains in storage for audit purposes
 - **Soft Delete**: Records are soft-deleted (IsActive = false), attachment metadata is deleted, but files are kept
@@ -1529,7 +1529,7 @@ Medical records allow providers to create, view, and manage medical records for 
 - **Encounters**: Track patient-provider interactions (requires domain events infrastructure)
 - **Action Logging**: Comprehensive audit trail
 - **Patient Reports**: Generate patient health reports
-- **Provider Endpoints**: Additional provider-specific endpoints
+- **Practitioner Endpoints**: Additional practitioner-specific endpoints
 - **Lab Results**: Enhanced laboratory test result management
 - **Imaging Studies**: Enhanced imaging study record management
 

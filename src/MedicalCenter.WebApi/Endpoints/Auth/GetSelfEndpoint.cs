@@ -1,4 +1,5 @@
 using FastEndpoints;
+using MedicalCenter.Core.Common;
 using MedicalCenter.Core.Services;
 
 namespace MedicalCenter.WebApi.Endpoints.Auth;
@@ -33,7 +34,7 @@ public class GetSelfEndpoint(
             return;
         }
 
-        Core.Entities.User? user = await identityService.GetUserByIdAsync(userId, ct);
+        User? user = await identityService.GetUserByIdAsync(userId, ct);
 
         if (user == null)
         {

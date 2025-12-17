@@ -1,6 +1,6 @@
 using FastEndpoints;
 using FluentValidation;
-using MedicalCenter.Core.Enums;
+using MedicalCenter.Core.Aggregates.MedicalRecord;
 using MedicalCenter.Infrastructure.Options;
 using Microsoft.Extensions.Options;
 

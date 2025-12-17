@@ -1,4 +1,4 @@
-namespace MedicalCenter.Core.ValueObjects;
+namespace MedicalCenter.Core.Common;
 
 /// <summary>
 /// Base class for value objects.
@@ -57,4 +57,3 @@ public abstract class ValueObject
         return NotEqualOperator(left, right);
     }
 }
-

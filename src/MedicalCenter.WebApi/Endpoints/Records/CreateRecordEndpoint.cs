@@ -3,10 +3,8 @@ using MedicalCenter.Core.Aggregates.MedicalRecord;
 using MedicalCenter.Core.Aggregates.MedicalRecord.Specifications;
 using MedicalCenter.Core.Aggregates.Patient;
 using MedicalCenter.Core.Aggregates.Patient.Specifications;
-using MedicalCenter.Core.Enums;
-using MedicalCenter.Core.Repositories;
+using MedicalCenter.Core.Common;
 using MedicalCenter.Core.Services;
-using MedicalCenter.Core.ValueObjects;
 using MedicalCenter.Infrastructure.Authorization;
 
 namespace MedicalCenter.WebApi.Endpoints.Records;

@@ -1,11 +1,10 @@
 using Ardalis.GuardClauses;
-using MedicalCenter.Core.Enums;
-using MedicalCenter.Core.ValueObjects;
+using MedicalCenter.Core.Common;
 
 namespace MedicalCenter.Core.Aggregates.MedicalRecord;
 
 /// <summary>
-/// Practitioner value object representing the healthcare provider who created the medical record.
+/// Practitioner value object representing the healthcare practitioner who created the medical record.
 /// Contains common user properties (FullName, Email, Role) for display purposes.
 /// </summary>
 public class Practitioner : ValueObject

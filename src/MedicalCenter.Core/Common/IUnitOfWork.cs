@@ -1,4 +1,4 @@
-namespace MedicalCenter.Core.Repositories;
+namespace MedicalCenter.Core.Common;
 
 /// <summary>
 /// Unit of Work interface for managing database transactions and persistence.
@@ -26,4 +26,3 @@ public interface IUnitOfWork
     /// </summary>
     Task RollbackTransactionAsync(CancellationToken cancellationToken = default);
 }
-

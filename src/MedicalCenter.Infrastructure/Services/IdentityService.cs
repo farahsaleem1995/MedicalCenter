@@ -1,10 +1,8 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using MedicalCenter.Core.Aggregates;
 using MedicalCenter.Core.Common;
-using MedicalCenter.Core.Entities;
-using MedicalCenter.Core.Enums;
-using MedicalCenter.Core.Repositories;
 using MedicalCenter.Core.Services;
 using MedicalCenter.Infrastructure.Data;
 using MedicalCenter.Infrastructure.Identity;

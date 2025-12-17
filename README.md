@@ -278,8 +278,8 @@ MedicalCenter/
 - ✅ File attachment support (upload, download, add/remove)
 - ✅ Local filesystem file storage (configurable)
 - ✅ Multiple attachments per record (up to 10, configurable)
-- ✅ Provider and patient views
-- ✅ Creator-based authorization
+- ✅ Practitioner and patient views
+- ✅ Practitioner-based authorization
 
 ### Admin Features
 
@@ -386,9 +386,10 @@ This project follows patterns from the [Ardalis Clean Architecture template](htt
 
 ### Key Architectural Decisions
 
-- **Generic Repository Pattern**: Single `IRepository<T>` for aggregate roots
+- **Generic Repository Pattern**: Single `IRepository<T>` for aggregate roots (in Common)
 - **Specification Pattern**: Encapsulates complex queries
-- **Query Services**: For non-aggregate entities (providers, users)
+- **Query Services**: For optimized read operations (practitioners, users)
+- **Domain Organization**: Organized around domain concepts, not technical terms (aggregates contain their enums, common abstractions in Common)
 - **IAuditableEntity Interface**: Opt-in audit tracking via EF Core interceptor
 - **Result Pattern**: For operation outcomes without exceptions
 - **Pagination Pattern**: Standardized paginated responses

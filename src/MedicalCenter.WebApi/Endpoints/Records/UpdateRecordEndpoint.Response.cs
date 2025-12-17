@@ -1,4 +1,5 @@
-using MedicalCenter.Core.Enums;
+using MedicalCenter.Core.Aggregates.MedicalRecord;
+using MedicalCenter.Core.Common;
 
 namespace MedicalCenter.WebApi.Endpoints.Records;
 

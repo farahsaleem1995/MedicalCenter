@@ -1,13 +1,13 @@
 using Ardalis.GuardClauses;
-using MedicalCenter.Core.Enums;
+using MedicalCenter.Core.Common;
 
-namespace MedicalCenter.Core.Entities;
+namespace MedicalCenter.Core.Aggregates;
 
 /// <summary>
-/// Doctor entity (not an aggregate).
+/// Doctor aggregate root.
 /// Doctors can create medical records and view patient data.
 /// </summary>
-public class Doctor : User
+public class Doctor : User, IAggregateRoot
 {
     public string LicenseNumber { get; private set; } = string.Empty;
     public string Specialty { get; private set; } = string.Empty;
@@ -35,4 +35,3 @@ public class Doctor : User
         Specialty = specialty;
     }
 }
-
