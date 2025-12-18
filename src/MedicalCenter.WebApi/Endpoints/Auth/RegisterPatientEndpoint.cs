@@ -18,7 +18,8 @@ public class RegisterPatientEndpoint(
     ITokenProvider tokenProvider,
     IRepository<Patient> patientRepository,
     IUnitOfWork unitOfWork,
-    IOptions<JwtSettings> jwtSettings)
+    IOptions<JwtSettings> jwtSettings,
+    IDateTimeProvider dateTimeProvider)
     : Endpoint<RegisterPatientRequest, RegisterPatientResponse>
 {
     public override void Configure()
@@ -69,7 +70,7 @@ public class RegisterPatientEndpoint(
             string refreshToken = tokenProvider.GenerateRefreshToken();
 
             // Step 4: Save refresh token
-            DateTime expiryDate = DateTime.UtcNow.AddDays(jwtSettings.Value.RefreshTokenExpirationInDays);
+            DateTime expiryDate = dateTimeProvider.Now.AddDays(jwtSettings.Value.RefreshTokenExpirationInDays);
             var saveResult = await identityService.SaveRefreshTokenAsync(
                 refreshToken,
                 patient.Id,

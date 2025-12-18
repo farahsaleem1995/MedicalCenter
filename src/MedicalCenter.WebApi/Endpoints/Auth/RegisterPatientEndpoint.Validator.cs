@@ -1,5 +1,6 @@
 using FastEndpoints;
 using FluentValidation;
+using MedicalCenter.Core.Services;
 
 namespace MedicalCenter.WebApi.Endpoints.Auth;
 
@@ -9,7 +10,7 @@ namespace MedicalCenter.WebApi.Endpoints.Auth;
 /// </summary>
 public class RegisterPatientRequestValidator : Validator<RegisterPatientRequest>
 {
-    public RegisterPatientRequestValidator()
+    public RegisterPatientRequestValidator(IDateTimeProvider dateTimeProvider)
     {
         RuleFor(x => x.FullName)
             .NotEmpty()
@@ -45,12 +46,13 @@ public class RegisterPatientRequestValidator : Validator<RegisterPatientRequest>
             .MaximumLength(50)
             .WithMessage("National ID must not exceed 50 characters.");
 
+        var now = dateTimeProvider.Now;
         RuleFor(x => x.DateOfBirth)
             .NotEmpty()
             .WithMessage("Date of birth is required.")
-            .LessThan(DateTime.UtcNow)
+            .LessThan(now)
             .WithMessage("Date of birth must be in the past.")
-            .Must(dob => dob.Date >= DateTime.UtcNow.Date.AddYears(-150))
+            .Must(dob => dob.Date >= now.Date.AddYears(-150))
             .WithMessage("Date of birth must be within a reasonable range.");
     }
 

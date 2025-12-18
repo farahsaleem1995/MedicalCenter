@@ -19,7 +19,8 @@ public class CreateRecordEndpoint(
     IRepository<Patient> patientRepository,
     IFileStorageService fileStorageService,
     IIdentityService identityService,
-    IUnitOfWork unitOfWork)
+    IUnitOfWork unitOfWork,
+    IDateTimeProvider dateTimeProvider)
     : Endpoint<CreateRecordRequest, CreateRecordResponse>
 {
     public override void Configure()
@@ -100,7 +101,7 @@ public class CreateRecordEndpoint(
                     fileMetadata.FileName,
                     fileMetadata.FileSize,
                     fileMetadata.ContentType,
-                    DateTime.UtcNow);
+                    dateTimeProvider.Now);
 
                 record.AddAttachment(practitionerId, attachment);
             }

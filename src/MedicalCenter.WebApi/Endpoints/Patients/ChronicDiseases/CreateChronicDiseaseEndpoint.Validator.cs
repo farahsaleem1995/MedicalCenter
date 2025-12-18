@@ -1,5 +1,6 @@
 using FastEndpoints;
 using FluentValidation;
+using MedicalCenter.Core.Services;
 
 namespace MedicalCenter.WebApi.Endpoints.Patients.ChronicDiseases;
 
@@ -8,7 +9,7 @@ namespace MedicalCenter.WebApi.Endpoints.Patients.ChronicDiseases;
 /// </summary>
 public class CreateChronicDiseaseEndpointValidator : Validator<CreateChronicDiseaseRequest>
 {
-    public CreateChronicDiseaseEndpointValidator()
+    public CreateChronicDiseaseEndpointValidator(IDateTimeProvider dateTimeProvider)
     {
         RuleFor(x => x.PatientId)
             .NotEmpty()
@@ -23,7 +24,7 @@ public class CreateChronicDiseaseEndpointValidator : Validator<CreateChronicDise
         RuleFor(x => x.DiagnosisDate)
             .NotEmpty()
             .WithMessage("Diagnosis date is required.")
-            .LessThanOrEqualTo(DateTime.UtcNow)
+            .LessThanOrEqualTo(dateTimeProvider.Now)
             .WithMessage("Diagnosis date cannot be in the future.");
 
         RuleFor(x => x.Notes)

@@ -20,10 +20,12 @@ public class IdentityService(
     MedicalCenterDbContext context,
     UserManager<ApplicationUser> userManager,
     IUnitOfWork unitOfWork,
-    IOptions<JwtSettings> jwtSettings)
+    IOptions<JwtSettings> jwtSettings,
+    IDateTimeProvider dateTimeProvider)
     : IIdentityService
 {
     private readonly JwtSettings _jwtSettings = jwtSettings.Value;
+    private readonly IDateTimeProvider _dateTimeProvider = dateTimeProvider;
 
     public async Task<Result<Guid>> CreateUserAsync(
         string email,
@@ -380,7 +382,7 @@ public class IdentityService(
             return Result<Guid>.Failure(Error.Unauthorized("Refresh token has been revoked."));
         }
 
-        if (refreshToken.ExpiryDate < DateTime.UtcNow)
+        if (refreshToken.ExpiryDate < _dateTimeProvider.Now)
         {
             // Token expired, remove it
             context.RefreshTokens.Remove(refreshToken);

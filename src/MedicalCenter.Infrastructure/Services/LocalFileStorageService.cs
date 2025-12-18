@@ -19,15 +19,18 @@ public class LocalFileStorageService : IFileStorageService
     private readonly IFileSystem _fileSystem;
     private readonly ILogger<LocalFileStorageService> _logger;
     private readonly FileStorageOptions _options;
+    private readonly IDateTimeProvider _dateTimeProvider;
 
     public LocalFileStorageService(
         IOptions<FileStorageOptions> options,
         IFileSystem fileSystem,
-        ILogger<LocalFileStorageService> logger)
+        ILogger<LocalFileStorageService> logger,
+        IDateTimeProvider dateTimeProvider)
     {
         _options = options.Value;
         _fileSystem = fileSystem;
         _logger = logger;
+        _dateTimeProvider = dateTimeProvider;
 
         // Resolve storage path (relative paths are resolved relative to current directory)
         _storageRootPath = Path.IsPathRooted(_options.Path)
@@ -93,7 +96,7 @@ public class LocalFileStorageService : IFileStorageService
                         $"File size exceeds maximum allowed size of {_options.MaxFileSizeBytes / (1024 * 1024)}MB"));
             }
 
-            var uploadedAt = DateTime.UtcNow;
+            var uploadedAt = _dateTimeProvider.Now;
 
             // Store metadata (optional, for easier debugging)
             var metadataPath = Path.Combine(fileDirectory, "metadata.json");

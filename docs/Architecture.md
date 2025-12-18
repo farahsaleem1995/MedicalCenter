@@ -71,6 +71,7 @@ The Core layer is organized following Domain-Driven Design principles with clear
   - `IIdentityService`: User identity management interface
   - `IFileStorageService`: File storage abstraction interface
   - `ITokenProvider`: Token generation and validation interface
+  - `IDateTimeProvider`: Unified time access interface
 
 #### Design Principles
 
@@ -118,8 +119,15 @@ The Infrastructure layer implements data access and external service integration
   - Supports file upload, download, and deletion
   - Can be replaced with cloud storage implementation (Azure Blob, S3, etc.)
 
+- **Time Provider Service**:
+  - `DateTimeProvider`: Implementation of `IDateTimeProvider` that returns UTC time
+  - Registered as singleton (stateless, thread-safe)
+  - Provides unified time access across the application
+  - Enables testability by allowing time to be mocked in tests
+
 - **Audit Interceptors**:
   - `AuditableEntityInterceptor`: Automatically sets `CreatedAt` and `UpdatedAt`
+  - Uses `IDateTimeProvider` for consistent time handling
   - Only affects entities implementing `IAuditableEntity`
 
 - **Dependency Injection**:
@@ -218,6 +226,20 @@ The Web API layer handles HTTP requests, validation, authorization, and DTOs.
 - **Purpose**: Standardize paginated responses
 - **Implementation**: `PaginatedList<T>` and `PaginationMetadata`
 - **Usage**: All list endpoints return paginated results
+
+### Time Handling Pattern
+
+- **Purpose**: Provide unified time access and enable testability
+- **Implementation**: `IDateTimeProvider` interface in Core, `DateTimeProvider` in Infrastructure
+- **Benefits**:
+  - Ensures consistent UTC time across the application
+  - Makes time dependencies explicit through dependency injection
+  - Enables time to be controlled/mocked in tests
+  - Follows testing best practices (avoid ambient context)
+- **Usage**: 
+  - All infrastructure services, validators, and endpoints use `IDateTimeProvider` instead of `DateTime.UtcNow` or `DateTime.Now`
+  - Domain entities receive time as parameters (don't retrieve it directly)
+  - Registered as singleton in dependency injection
 
 ## Security Architecture
 

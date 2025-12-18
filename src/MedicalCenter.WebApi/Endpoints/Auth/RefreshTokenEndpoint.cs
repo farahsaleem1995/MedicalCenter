@@ -13,7 +13,8 @@ namespace MedicalCenter.WebApi.Endpoints.Auth;
 public class RefreshTokenEndpoint(
     IIdentityService identityService,
     ITokenProvider tokenProvider,
-    IOptions<JwtSettings> jwtSettings)
+    IOptions<JwtSettings> jwtSettings,
+    IDateTimeProvider dateTimeProvider)
     : Endpoint<RefreshTokenRequest, RefreshTokenResponse>
 {
     public override void Configure()
@@ -63,7 +64,7 @@ public class RefreshTokenEndpoint(
 
         // Revoke old refresh token and save new one
         await identityService.RevokeRefreshTokenAsync(req.RefreshToken, ct);
-        var expiryDate = DateTime.UtcNow.AddDays(jwtSettings.Value.RefreshTokenExpirationInDays);
+        var expiryDate = dateTimeProvider.Now.AddDays(jwtSettings.Value.RefreshTokenExpirationInDays);
         var saveResult = await identityService.SaveRefreshTokenAsync(
             newRefreshToken,
             userId,

@@ -1,5 +1,6 @@
 using FastEndpoints;
 using FluentValidation;
+using MedicalCenter.Core.Services;
 
 namespace MedicalCenter.WebApi.Endpoints.Patients.Surgeries;
 
@@ -8,7 +9,7 @@ namespace MedicalCenter.WebApi.Endpoints.Patients.Surgeries;
 /// </summary>
 public class CreateSurgeryEndpointValidator : Validator<CreateSurgeryRequest>
 {
-    public CreateSurgeryEndpointValidator()
+    public CreateSurgeryEndpointValidator(IDateTimeProvider dateTimeProvider)
     {
         RuleFor(x => x.PatientId)
             .NotEmpty()
@@ -23,7 +24,7 @@ public class CreateSurgeryEndpointValidator : Validator<CreateSurgeryRequest>
         RuleFor(x => x.Date)
             .NotEmpty()
             .WithMessage("Surgery date is required.")
-            .LessThanOrEqualTo(DateTime.UtcNow)
+            .LessThanOrEqualTo(dateTimeProvider.Now)
             .WithMessage("Surgery date cannot be in the future.");
 
         RuleFor(x => x.Surgeon)

@@ -3,7 +3,6 @@ using MedicalCenter.Core.Aggregates.MedicalRecords;
 using MedicalCenter.Core.Aggregates.MedicalRecords.Specifications;
 using MedicalCenter.Core.Primitives;
 using MedicalCenter.Core.SharedKernel;
-using MedicalCenter.Core.SharedKernel;
 using MedicalCenter.Core.Services;
 using MedicalCenter.Infrastructure.Authorization;
 using MedicalCenter.Infrastructure.Options;
@@ -18,7 +17,8 @@ public class AddAttachmentToRecordEndpoint(
     IRepository<MedicalRecord> recordRepository,
     IFileStorageService fileStorageService,
     IUnitOfWork unitOfWork,
-    IOptions<FileStorageOptions> fileStorageOptions)
+    IOptions<FileStorageOptions> fileStorageOptions,
+    IDateTimeProvider dateTimeProvider)
     : Endpoint<AddAttachmentToRecordRequest, AddAttachmentToRecordResponse>
 {
     public override void Configure()
@@ -119,7 +119,7 @@ public class AddAttachmentToRecordEndpoint(
             uploadResult.Value.FileName,
             uploadResult.Value.FileSize,
             uploadResult.Value.ContentType,
-            DateTime.UtcNow);
+            dateTimeProvider.Now);
 
         // Add attachment to record (domain enforces business rules)
         record.AddAttachment(currentUserId, attachment);

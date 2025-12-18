@@ -13,7 +13,8 @@ namespace MedicalCenter.WebApi.Endpoints.Auth;
 public class LoginEndpoint(
     IIdentityService identityService,
     ITokenProvider tokenProvider,
-    IOptions<JwtSettings> jwtSettings)
+    IOptions<JwtSettings> jwtSettings,
+    IDateTimeProvider dateTimeProvider)
     : Endpoint<LoginRequest, LoginResponse>
 {
     public override void Configure()
@@ -46,7 +47,7 @@ public class LoginEndpoint(
         var refreshToken = tokenProvider.GenerateRefreshToken();
 
         // Save refresh token to database
-        var expiryDate = DateTime.UtcNow.AddDays(jwtSettings.Value.RefreshTokenExpirationInDays);
+        var expiryDate = dateTimeProvider.Now.AddDays(jwtSettings.Value.RefreshTokenExpirationInDays);
         var saveResult = await identityService.SaveRefreshTokenAsync(
             refreshToken,
             user.Id,

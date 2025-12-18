@@ -397,6 +397,7 @@ This project follows patterns from the [Ardalis Clean Architecture template](htt
 - **IAuditableEntity Interface**: Opt-in audit tracking via EF Core interceptor
 - **Result Pattern**: For operation outcomes without exceptions (in Primitives/)
 - **Pagination Pattern**: Standardized paginated responses (in Primitives/Pagination/)
+- **Time Handling Pattern**: `IDateTimeProvider` for unified time access and testability (in Services/)
 
 ## Implementation Status
 

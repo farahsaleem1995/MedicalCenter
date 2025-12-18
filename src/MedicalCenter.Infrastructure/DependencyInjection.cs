@@ -91,6 +91,9 @@ public static class DependencyInjection
         // Register Unit of Work
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 
+        // Register DateTimeProvider as singleton (stateless, thread-safe)
+        services.AddSingleton<IDateTimeProvider, DateTimeProvider>();
+
         // Register Identity Services
         services.AddScoped<IIdentityService, IdentityService>();
         services.AddScoped<ITokenProvider, TokenProvider>();

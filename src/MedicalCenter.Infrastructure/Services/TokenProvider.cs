@@ -16,9 +16,12 @@ namespace MedicalCenter.Infrastructure.Services;
 /// <summary>
 /// Implementation of ITokenProvider for JWT token generation and validation.
 /// </summary>
-public class TokenProvider(IOptions<JwtSettings> jwtSettings) : ITokenProvider
+public class TokenProvider(
+    IOptions<JwtSettings> jwtSettings,
+    IDateTimeProvider dateTimeProvider) : ITokenProvider
 {
     private readonly JwtSettings _jwtSettings = jwtSettings.Value;
+    private readonly IDateTimeProvider _dateTimeProvider = dateTimeProvider;
     private readonly JwtSecurityTokenHandler _tokenHandler = new();
 
     public string GenerateAccessToken(User user)
@@ -57,7 +60,7 @@ public class TokenProvider(IOptions<JwtSettings> jwtSettings) : ITokenProvider
             issuer: _jwtSettings.Issuer,
             audience: _jwtSettings.Audience,
             claims: claims,
-            expires: DateTime.UtcNow.AddMinutes(_jwtSettings.ExpirationInMinutes),
+            expires: _dateTimeProvider.Now.AddMinutes(_jwtSettings.ExpirationInMinutes),
             signingCredentials: credentials
         );
 
