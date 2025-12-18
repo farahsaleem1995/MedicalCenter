@@ -257,6 +257,7 @@ MedicalCenter/
 - ✅ JWT-based authentication
 - ✅ Refresh token mechanism
 - ✅ Role-based access control (RBAC)
+- ✅ Claims-based authorization (database-only claims for privileged operations)
 - ✅ Policy-based authorization
 
 ### Patient Management

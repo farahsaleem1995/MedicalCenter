@@ -1,7 +1,7 @@
 using FastEndpoints;
 using MedicalCenter.Core.SharedKernel;
 using MedicalCenter.Core.Queries;
-using MedicalCenter.Infrastructure.Authorization;
+using MedicalCenter.Core.Authorization;
 using MedicalCenter.WebApi.Extensions;
 
 namespace MedicalCenter.WebApi.Endpoints.Admin;
@@ -21,7 +21,7 @@ public class GetUserEndpoint(
         Summary(s =>
         {
             s.Summary = "Get user by ID";
-            s.Description = "Allows system admin to retrieve user details by ID";
+            s.Description = "Allows system admin to retrieve user details by ID. All SystemAdmin users can view SystemAdmin accounts. Only Super Admins can modify them.";
             s.Responses[200] = "User found";
             s.Responses[401] = "Unauthorized";
             s.Responses[403] = "Forbidden - Admin access required";
@@ -40,6 +40,8 @@ public class GetUserEndpoint(
             return;
         }
 
+        // All SystemAdmin users can retrieve/view SystemAdmin accounts
+        // Only Super Admins (with CanManageAdmins policy) can modify them
         await Send.OkAsync(GetUserResponse.FromUser(user), ct);
     }
 }

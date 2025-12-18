@@ -1,12 +1,14 @@
 using FastEndpoints;
+using Microsoft.AspNetCore.Authorization;
 using MedicalCenter.Core.Aggregates.Doctors;
 using MedicalCenter.Core.Aggregates.HealthcareStaff;
 using MedicalCenter.Core.Aggregates.Laboratories;
 using MedicalCenter.Core.Aggregates.ImagingCenters;
+using MedicalCenter.Core.Aggregates.SystemAdmins;
+using MedicalCenter.Core.Authorization;
 using MedicalCenter.Core.SharedKernel;
 using MedicalCenter.Core.Services;
 using MedicalCenter.Core.Queries;
-using MedicalCenter.Infrastructure.Authorization;
 using MedicalCenter.Infrastructure.Data;
 
 namespace MedicalCenter.WebApi.Endpoints.Admin;
@@ -17,6 +19,7 @@ namespace MedicalCenter.WebApi.Endpoints.Admin;
 public class UpdateUserEndpoint(
     IUserQueryService userQueryService,
     IIdentityService identityService,
+    IAuthorizationService authorizationService,
     MedicalCenterDbContext context)
     : Endpoint<UpdateUserRequest>
 {
@@ -48,6 +51,20 @@ public class UpdateUserEndpoint(
             return;
         }
 
+        // Business rule: SystemAdmin can only be updated by Super Admins
+        if (user.Role == UserRole.SystemAdmin)
+        {
+            var authorizationResult = await authorizationService.AuthorizeAsync(
+                User, 
+                AuthorizationPolicies.CanManageAdmins);
+            
+            if (!authorizationResult.Succeeded)
+            {
+                ThrowError("Only Super Administrators can update SystemAdmin accounts.", 403);
+                return;
+            }
+        }
+
         // Update common properties
         if (!string.IsNullOrWhiteSpace(req.FullName))
         {
@@ -68,6 +85,16 @@ public class UpdateUserEndpoint(
                 break;
             case ImagingCenter imaging when !string.IsNullOrWhiteSpace(req.CenterName):
                 imaging.UpdateCenterName(req.CenterName);
+                break;
+            case SystemAdmin systemAdmin:
+                if (!string.IsNullOrWhiteSpace(req.CorporateId))
+                {
+                    systemAdmin.UpdateCorporateId(req.CorporateId);
+                }
+                if (!string.IsNullOrWhiteSpace(req.Department))
+                {
+                    systemAdmin.UpdateDepartment(req.Department);
+                }
                 break;
         }
 

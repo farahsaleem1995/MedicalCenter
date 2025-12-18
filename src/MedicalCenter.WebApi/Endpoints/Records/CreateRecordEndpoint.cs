@@ -7,7 +7,7 @@ using MedicalCenter.Core.Aggregates.Patients.Specifications;
 using MedicalCenter.Core.Primitives;
 using MedicalCenter.Core.SharedKernel;
 using MedicalCenter.Core.Services;
-using MedicalCenter.Infrastructure.Authorization;
+using MedicalCenter.Core.Authorization;
 
 namespace MedicalCenter.WebApi.Endpoints.Records;
 

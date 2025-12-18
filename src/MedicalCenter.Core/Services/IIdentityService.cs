@@ -63,6 +63,18 @@ public interface IIdentityService
         CancellationToken cancellationToken = default);
 
     /// <summary>
+    /// Creates a system admin user with Identity and domain entity.
+    /// Requires CanManageAdmins policy to be called.
+    /// </summary>
+    Task<Result<Guid>> CreateSystemAdminAsync(
+        string fullName,
+        string email,
+        string password,
+        string corporateId,
+        string department,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
     /// Changes a user's password.
     /// </summary>
     Task<Result> ChangePasswordAsync(

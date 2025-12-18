@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -5,6 +6,8 @@ using MedicalCenter.Core.Aggregates.Doctors;
 using MedicalCenter.Core.Aggregates.HealthcareStaff;
 using MedicalCenter.Core.Aggregates.Laboratories;
 using MedicalCenter.Core.Aggregates.ImagingCenters;
+using MedicalCenter.Core.Aggregates.SystemAdmins;
+using MedicalCenter.Core.Authorization;
 using MedicalCenter.Core.Primitives;
 using MedicalCenter.Core.SharedKernel;
 using MedicalCenter.Core.Services;
@@ -261,6 +264,44 @@ public class IdentityService(
             var imagingCenter = ImagingCenter.Create(fullName, email, centerName, licenseNumber);
             SetEntityId(imagingCenter, userId);
             context.ImagingCenters.Add(imagingCenter);
+            await unitOfWork.SaveChangesAsync(cancellationToken);
+
+            await unitOfWork.CommitTransactionAsync(cancellationToken);
+            return Result<Guid>.Success(userId);
+        }
+        catch
+        {
+            await unitOfWork.RollbackTransactionAsync(cancellationToken);
+            throw;
+        }
+    }
+
+    public async Task<Result<Guid>> CreateSystemAdminAsync(
+        string fullName,
+        string email,
+        string password,
+        string corporateId,
+        string department,
+        CancellationToken cancellationToken = default)
+    {
+        await unitOfWork.BeginTransactionAsync(cancellationToken);
+
+        try
+        {
+            // Create Identity user
+            var createUserResult = await CreateUserAsync(email, password, UserRole.SystemAdmin, cancellationToken);
+            if (createUserResult.IsFailure)
+            {
+                await unitOfWork.RollbackTransactionAsync(cancellationToken);
+                return createUserResult;
+            }
+
+            var userId = createUserResult.Value;
+
+            // Create domain entity
+            var systemAdmin = SystemAdmin.Create(fullName, email, corporateId, department);
+            SetEntityId(systemAdmin, userId);
+            context.SystemAdmins.Add(systemAdmin);
             await unitOfWork.SaveChangesAsync(cancellationToken);
 
             await unitOfWork.CommitTransactionAsync(cancellationToken);

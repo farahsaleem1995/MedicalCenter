@@ -1,6 +1,9 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.DependencyInjection;
+using MedicalCenter.Core.Authorization;
 using MedicalCenter.Core.SharedKernel;
+using MedicalCenter.Infrastructure.Authorization.Handlers;
+using MedicalCenter.Infrastructure.Authorization.Requirements;
 
 namespace MedicalCenter.Infrastructure.Authorization;
 
@@ -11,9 +14,14 @@ public static class AuthorizationExtensions
 {
     public static IServiceCollection AddAuthorizationPolicies(this IServiceCollection services)
     {
+        // Register authorization handlers
+        services.AddScoped<IAuthorizationHandler, CanManageAdminsHandler>();
+        services.AddScoped<IAuthorizationHandler, CanViewAuditTrailHandler>();
+        services.AddScoped<IAuthorizationHandler, CanAccessPHIHandler>();
+
         services.AddAuthorization(options =>
         {
-            // Basic role policies
+            // Basic role policies (evaluated from JWT token)
             options.AddPolicy(AuthorizationPolicies.RequirePatient, policy =>
                 policy.RequireRole(UserRole.Patient.ToString()));
 
@@ -23,7 +31,7 @@ public static class AuthorizationExtensions
             options.AddPolicy(AuthorizationPolicies.RequireAdmin, policy =>
                 policy.RequireRole(UserRole.SystemAdmin.ToString()));
 
-            // Composite role policies
+            // Composite role policies (evaluated from JWT token)
             options.AddPolicy(AuthorizationPolicies.RequirePractitioner, policy =>
                 policy.RequireRole(
                     UserRole.Doctor.ToString(),
@@ -70,6 +78,16 @@ public static class AuthorizationExtensions
                     UserRole.Doctor.ToString(),
                     UserRole.HealthcareStaff.ToString(),
                     UserRole.SystemAdmin.ToString()));
+            
+            // Claims-based policies (require database lookups via authorization handlers)
+            options.AddPolicy(AuthorizationPolicies.CanManageAdmins, policy =>
+                policy.Requirements.Add(new CanManageAdminsRequirement()));
+
+            options.AddPolicy(AuthorizationPolicies.CanViewAuditTrail, policy =>
+                policy.Requirements.Add(new CanViewAuditTrailRequirement()));
+
+            options.AddPolicy(AuthorizationPolicies.CanAccessPHI, policy =>
+                policy.Requirements.Add(new CanAccessPHIRequirement()));
         });
 
         return services;

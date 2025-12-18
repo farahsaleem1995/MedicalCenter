@@ -5,6 +5,7 @@ using MedicalCenter.Core.Aggregates.Doctors;
 using MedicalCenter.Core.Aggregates.HealthcareStaff;
 using MedicalCenter.Core.Aggregates.Laboratories;
 using MedicalCenter.Core.Aggregates.ImagingCenters;
+using MedicalCenter.Core.Aggregates.SystemAdmins;
 using MedicalCenter.Core.Primitives.Pagination;
 using MedicalCenter.Core.Queries;
 using MedicalCenter.Core.SharedKernel;
@@ -66,16 +67,7 @@ public class UserQueryService(UserManager<ApplicationUser> userManager)
             ?? (User?)user.HealthcareStaff
             ?? (User?)user.Laboratory
             ?? (User?)user.ImagingCenter
-            ?? new AdminUserWrapper(user);
-    }
-
-    private class AdminUserWrapper : User
-    {
-        public AdminUserWrapper(ApplicationUser user)
-            : base(user.UserName ?? user.Email ?? string.Empty, user.Email ?? string.Empty, UserRole.SystemAdmin)
-        {
-            Id = user.Id;
-            IsActive = true;
-        }
+            ?? (User?)user.SystemAdmin
+            ?? throw new InvalidOperationException($"User {user.Id} has no associated domain entity.");
     }
 }

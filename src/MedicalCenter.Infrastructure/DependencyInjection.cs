@@ -9,6 +9,7 @@ using System.Text;
 using MedicalCenter.Core.SharedKernel;
 using MedicalCenter.Core.Services;
 using MedicalCenter.Core.Queries;
+using MedicalCenter.Core.Authorization;
 using MedicalCenter.Infrastructure.Authorization;
 using MedicalCenter.Infrastructure.Data;
 using MedicalCenter.Infrastructure.Data.Interceptors;

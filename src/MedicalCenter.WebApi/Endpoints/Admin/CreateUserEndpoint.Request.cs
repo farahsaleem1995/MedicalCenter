@@ -23,5 +23,8 @@ public class CreateUserRequest
 
     // ImagingUser-specific
     public string? CenterName { get; set; }
+
+    // SystemAdmin-specific
+    public string? CorporateId { get; set; }
 }
 

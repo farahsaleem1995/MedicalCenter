@@ -17,5 +17,8 @@ public class UpdateUserRequest
 
     // ImagingUser-specific
     public string? CenterName { get; set; }
+
+    // SystemAdmin-specific
+    public string? CorporateId { get; set; }
 }
 

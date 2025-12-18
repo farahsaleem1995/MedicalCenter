@@ -1,9 +1,10 @@
 using FastEndpoints;
+using Microsoft.AspNetCore.Authorization;
 using MedicalCenter.Core.Primitives;
 using MedicalCenter.Core.SharedKernel;
-using MedicalCenter.Core.SharedKernel;
 using MedicalCenter.Core.Services;
-using MedicalCenter.Infrastructure.Authorization;
+using MedicalCenter.Core.Queries;
+using MedicalCenter.Core.Authorization;
 using MedicalCenter.WebApi.Extensions;
 
 namespace MedicalCenter.WebApi.Endpoints.Admin;
@@ -12,7 +13,9 @@ namespace MedicalCenter.WebApi.Endpoints.Admin;
 /// Admin endpoint to change a user's password (without requiring current password).
 /// </summary>
 public class ChangePasswordEndpoint(
-    IIdentityService identityService)
+    IIdentityService identityService,
+    IUserQueryService userQueryService,
+    IAuthorizationService authorizationService)
     : Endpoint<ChangePasswordRequest>
 {
     public override void Configure()
@@ -34,6 +37,28 @@ public class ChangePasswordEndpoint(
 
     public override async Task HandleAsync(ChangePasswordRequest req, CancellationToken ct)
     {
+        // Check if the user being modified is a SystemAdmin
+        var user = await userQueryService.GetUserByIdAdminAsync(req.Id, ct);
+        if (user == null)
+        {
+            ThrowError("User not found", 404);
+            return;
+        }
+
+        // Business rule: SystemAdmin password can only be changed by Super Admins
+        if (user.Role == UserRole.SystemAdmin)
+        {
+            var authorizationResult = await authorizationService.AuthorizeAsync(
+                User, 
+                AuthorizationPolicies.CanManageAdmins);
+            
+            if (!authorizationResult.Succeeded)
+            {
+                ThrowError("Only Super Administrators can change SystemAdmin passwords.", 403);
+                return;
+            }
+        }
+
         var result = await identityService.AdminChangePasswordAsync(req.Id, req.NewPassword, ct);
 
         if (result.IsFailure)

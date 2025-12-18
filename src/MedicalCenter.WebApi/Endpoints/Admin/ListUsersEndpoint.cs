@@ -1,9 +1,9 @@
 using FastEndpoints;
+using Microsoft.AspNetCore.Authorization;
 using MedicalCenter.Core.Primitives;
 using MedicalCenter.Core.SharedKernel;
-using MedicalCenter.Core.SharedKernel;
 using MedicalCenter.Core.Queries;
-using MedicalCenter.Infrastructure.Authorization;
+using MedicalCenter.Core.Authorization;
 using MedicalCenter.WebApi.Extensions;
 
 namespace MedicalCenter.WebApi.Endpoints.Admin;
@@ -12,7 +12,8 @@ namespace MedicalCenter.WebApi.Endpoints.Admin;
 /// Admin endpoint to list users with optional filtering.
 /// </summary>
 public class ListUsersEndpoint(
-    IUserQueryService userQueryService)
+    IUserQueryService userQueryService,
+    IAuthorizationService authorizationService)
     : Endpoint<ListUsersRequest, ListUsersResponse>
 {
     public override void Configure()
@@ -23,19 +24,33 @@ public class ListUsersEndpoint(
         Summary(s =>
         {
             s.Summary = "List users";
-            s.Description = "Allows system admin to list users with optional filtering by role and active status. Supports pagination.";
+            s.Description = "Allows system admin to list users with optional filtering by role and active status. Supports pagination. All SystemAdmin users can view SystemAdmin users in the list. Filtering by SystemAdmin role requires Super Administrator privileges.";
             s.Params["pageNumber"] = "Page number (default: 1, minimum: 1)";
             s.Params["pageSize"] = "Number of items per page (default: 10, minimum: 1, maximum: 100)";
             s.Params["role"] = "Optional: Filter by user role (Doctor, HealthcareStaff, LabUser, ImagingUser, Patient, SystemAdmin)";
             s.Params["isActive"] = "Optional: Filter by active status (true, false)";
             s.Responses[200] = "Users retrieved successfully";
             s.Responses[401] = "Unauthorized";
-            s.Responses[403] = "Forbidden - Admin access required";
+            s.Responses[403] = "Forbidden - Admin access required or insufficient privileges for SystemAdmin filtering";
         });
     }
 
     public override async Task HandleAsync(ListUsersRequest req, CancellationToken ct)
     {
+        // Business rule: Filtering by SystemAdmin role requires Super Admin privileges
+        if (req.Role == UserRole.SystemAdmin)
+        {
+            var authorizationResult = await authorizationService.AuthorizeAsync(
+                User, 
+                AuthorizationPolicies.CanManageAdmins);
+            
+            if (!authorizationResult.Succeeded)
+            {
+                ThrowError("Only Super Administrators can filter by SystemAdmin role.", 403);
+                return;
+            }
+        }
+
         bool? isActive = req.IsActive;
 
         // Use admin method to ignore query filters (include deactivated users)
@@ -46,6 +61,8 @@ public class ListUsersEndpoint(
             isActive,
             ct);
 
+        // All SystemAdmin users can view SystemAdmin users in the list
+        // Only Super Admins (with CanManageAdmins policy) can modify them
         await Send.OkAsync(new ListUsersResponse
         {
             Items = paginatedResult.Items.Select(GetUserResponse.FromUser).ToList(),

@@ -3,6 +3,7 @@ using MedicalCenter.Core.Aggregates.Doctors;
 using MedicalCenter.Core.Aggregates.HealthcareStaff;
 using MedicalCenter.Core.Aggregates.Laboratories;
 using MedicalCenter.Core.Aggregates.ImagingCenters;
+using MedicalCenter.Core.Aggregates.SystemAdmins;
 using MedicalCenter.Core.Aggregates.Patients.ValueObjects;
 using MedicalCenter.Core.Primitives;
 using MedicalCenter.Core.SharedKernel;
@@ -24,6 +25,7 @@ public class GetUserResponse
     public HealthcareStaffDetails? HealthcareStaffDetails { get; set; }
     public LaboratoryDetails? LaboratoryDetails { get; set; }
     public ImagingCenterDetails? ImagingCenterDetails { get; set; }
+    public SystemAdminDetails? SystemAdminDetails { get; set; }
 
     public static GetUserResponse FromUser(User user)
     {
@@ -75,6 +77,13 @@ public class GetUserResponse
                     CenterName = imaging.CenterName
                 };
                 break;
+            case SystemAdmin systemAdmin:
+                response.SystemAdminDetails = new SystemAdminDetails
+                {
+                    CorporateId = systemAdmin.CorporateId,
+                    Department = systemAdmin.Department
+                };
+                break;
         }
 
         return response;
@@ -108,5 +117,11 @@ public class LaboratoryDetails
 public class ImagingCenterDetails
 {
     public string CenterName { get; set; } = string.Empty;
+}
+
+public class SystemAdminDetails
+{
+    public string CorporateId { get; set; } = string.Empty;
+    public string Department { get; set; } = string.Empty;
 }
 

@@ -18,33 +18,32 @@ public static class UserQueryableExtensions {
             .Include(u => u.Doctor)
             .Include(u => u.HealthcareStaff)
             .Include(u => u.Laboratory)
-            .Include(u => u.ImagingCenter);
+            .Include(u => u.ImagingCenter)
+            .Include(u => u.SystemAdmin);
     }
 
     public static IQueryable<ApplicationUser> WhereActive(this IQueryable<ApplicationUser> query)
     {
         return query.Where(u =>
-            // SystemAdmin users (no domain entity relationship) are always active
-            (u.Patient == null && u.Doctor == null && u.HealthcareStaff == null &&
-             u.Laboratory == null && u.ImagingCenter == null) ||
-            // Otherwise, check if the user's specific domain entity is active
+            // Check if the user's specific domain entity is active
             (u.Patient != null && u.Patient.IsActive) ||
             (u.Doctor != null && u.Doctor.IsActive) ||
             (u.HealthcareStaff != null && u.HealthcareStaff.IsActive) ||
             (u.Laboratory != null && u.Laboratory.IsActive) ||
-            (u.ImagingCenter != null && u.ImagingCenter.IsActive));
+            (u.ImagingCenter != null && u.ImagingCenter.IsActive) ||
+            (u.SystemAdmin != null && u.SystemAdmin.IsActive));
     }
 
     public static IQueryable<ApplicationUser> WhereInactive(this IQueryable<ApplicationUser> query)
     {
         return query.Where(u =>
-            // SystemAdmin users are always active, so exclude them from inactive filter
             // Check if the user's specific domain entity is inactive
             (u.Patient != null && !u.Patient.IsActive) ||
             (u.Doctor != null && !u.Doctor.IsActive) ||
             (u.HealthcareStaff != null && !u.HealthcareStaff.IsActive) ||
             (u.Laboratory != null && !u.Laboratory.IsActive) ||
-            (u.ImagingCenter != null && !u.ImagingCenter.IsActive));
+            (u.ImagingCenter != null && !u.ImagingCenter.IsActive) ||
+            (u.SystemAdmin != null && !u.SystemAdmin.IsActive));
     }
 
     public static IQueryable<ApplicationUser> WhereInRole(this IQueryable<ApplicationUser> query, UserRole role)

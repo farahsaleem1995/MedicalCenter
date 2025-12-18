@@ -4,7 +4,7 @@ using MedicalCenter.Core.Aggregates.MedicalRecords.Specifications;
 using MedicalCenter.Core.Primitives;
 using MedicalCenter.Core.SharedKernel;
 using MedicalCenter.Core.Services;
-using MedicalCenter.Infrastructure.Authorization;
+using MedicalCenter.Core.Authorization;
 using MedicalCenter.Infrastructure.Options;
 using Microsoft.Extensions.Options;
 

@@ -7,6 +7,7 @@ using MedicalCenter.Core.Aggregates.Doctors;
 using MedicalCenter.Core.Aggregates.HealthcareStaff;
 using MedicalCenter.Core.Aggregates.Laboratories;
 using MedicalCenter.Core.Aggregates.ImagingCenters;
+using MedicalCenter.Core.Aggregates.SystemAdmins;
 
 namespace MedicalCenter.Infrastructure.Data.Configurations;
 
@@ -56,6 +57,12 @@ public class IdentityConfiguration
             .HasOne(u => u.ImagingCenter)
             .WithOne()
             .HasForeignKey<ImagingCenter>(i => i.Id)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<ApplicationUser>()
+            .HasOne(u => u.SystemAdmin)
+            .WithOne()
+            .HasForeignKey<SystemAdmin>(sa => sa.Id)
             .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<ApplicationRole>()

@@ -1,7 +1,8 @@
 using FastEndpoints;
+using Microsoft.AspNetCore.Authorization;
+using MedicalCenter.Core.Authorization;
 using MedicalCenter.Core.SharedKernel;
 using MedicalCenter.Core.Queries;
-using MedicalCenter.Infrastructure.Authorization;
 using MedicalCenter.Infrastructure.Data;
 
 namespace MedicalCenter.WebApi.Endpoints.Admin;
@@ -11,6 +12,7 @@ namespace MedicalCenter.WebApi.Endpoints.Admin;
 /// </summary>
 public class DeleteUserEndpoint(
     IUserQueryService userQueryService,
+    IAuthorizationService authorizationService,
     MedicalCenterDbContext context)
     : Endpoint<DeleteUserRequest>
 {
@@ -38,6 +40,20 @@ public class DeleteUserEndpoint(
         {
             ThrowError("User not found", 404);
             return;
+        }
+
+        // Business rule: SystemAdmin can only be deleted by Super Admins
+        if (user.Role == UserRole.SystemAdmin)
+        {
+            var authorizationResult = await authorizationService.AuthorizeAsync(
+                User, 
+                AuthorizationPolicies.CanManageAdmins);
+            
+            if (!authorizationResult.Succeeded)
+            {
+                ThrowError("Only Super Administrators can delete SystemAdmin accounts.", 403);
+                return;
+            }
         }
 
         // Soft delete - deactivate the user

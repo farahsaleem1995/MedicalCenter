@@ -4,7 +4,7 @@ using MedicalCenter.Core.Aggregates.Patients.Specifications;
 using MedicalCenter.Core.Aggregates.Patients.ValueObjects;
 using MedicalCenter.Core.Primitives;
 using MedicalCenter.Core.SharedKernel;
-using MedicalCenter.Infrastructure.Authorization;
+using MedicalCenter.Core.Authorization;
 
 namespace MedicalCenter.WebApi.Endpoints.Patients;
 

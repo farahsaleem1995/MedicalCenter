@@ -538,6 +538,75 @@ namespace MedicalCenter.Infrastructure.Migrations
                     b.ToTable("Patients", (string)null);
                 });
 
+            modelBuilder.Entity("MedicalCenter.Core.Aggregates.SystemAdmins.SystemAdmin", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("CorporateId")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Department")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("FullName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
+
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CorporateId")
+                        .IsUnique();
+
+                    b.HasIndex("Department");
+
+                    b.HasIndex("Email")
+                        .IsUnique();
+
+                    b.HasIndex("Id", "IsActive");
+
+                    b.ToTable("SystemAdmins", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("802a729f-7f2e-d457-7b2f-b1954f70413f"),
+                            CorporateId = "SYS-ADMIN-001",
+                            CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Department = "IT",
+                            Email = "sys.admin@medicalcenter.com",
+                            FullName = "System Administrator",
+                            IsActive = true,
+                            Role = "SystemAdmin"
+                        });
+                });
+
             modelBuilder.Entity("MedicalCenter.Infrastructure.Identity.ApplicationUser", b =>
                 {
                     b.Property<Guid>("Id")
@@ -689,6 +758,15 @@ namespace MedicalCenter.Infrastructure.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("AspNetUserClaims", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            ClaimType = "MedicalCenter.AdminTier",
+                            ClaimValue = "Super",
+                            UserId = new Guid("802a729f-7f2e-d457-7b2f-b1954f70413f")
+                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<System.Guid>", b =>
@@ -956,6 +1034,15 @@ namespace MedicalCenter.Infrastructure.Migrations
                     b.Navigation("BloodType");
                 });
 
+            modelBuilder.Entity("MedicalCenter.Core.Aggregates.SystemAdmins.SystemAdmin", b =>
+                {
+                    b.HasOne("MedicalCenter.Infrastructure.Identity.ApplicationUser", null)
+                        .WithOne("SystemAdmin")
+                        .HasForeignKey("MedicalCenter.Core.Aggregates.SystemAdmins.SystemAdmin", "Id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>
                 {
                     b.HasOne("ApplicationRole", null)
@@ -1021,6 +1108,8 @@ namespace MedicalCenter.Infrastructure.Migrations
                     b.Navigation("Patient");
 
                     b.Navigation("Roles");
+
+                    b.Navigation("SystemAdmin");
                 });
 #pragma warning restore 612, 618
         }

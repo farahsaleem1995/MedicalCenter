@@ -22,8 +22,8 @@ public class CreateUserRequestValidator : Validator<CreateUserRequest>
 
         RuleFor(x => x.Role)
             .IsInEnum()
-            .Must(role => role != MedicalCenter.Core.SharedKernel.UserRole.Patient && role != MedicalCenter.Core.SharedKernel.UserRole.SystemAdmin)
-            .WithMessage("Only practitioner roles (Doctor, HealthcareStaff, LabUser, ImagingUser) are allowed.");
+            .Must(role => role != MedicalCenter.Core.SharedKernel.UserRole.Patient)
+            .WithMessage("Patient role is not allowed. Use the registration endpoint for patient accounts.");
 
         // Doctor validation
         When(x => x.Role == MedicalCenter.Core.SharedKernel.UserRole.Doctor, () =>
@@ -67,6 +67,17 @@ public class CreateUserRequestValidator : Validator<CreateUserRequest>
             RuleFor(x => x.LicenseNumber)
                 .NotEmpty()
                 .MaximumLength(100);
+        });
+
+        // SystemAdmin validation
+        When(x => x.Role == MedicalCenter.Core.SharedKernel.UserRole.SystemAdmin, () =>
+        {
+            RuleFor(x => x.CorporateId)
+                .NotEmpty()
+                .MaximumLength(100);
+            RuleFor(x => x.Department)
+                .NotEmpty()
+                .MaximumLength(200);
         });
     }
 }

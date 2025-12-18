@@ -54,6 +54,9 @@ The Core layer is organized following Domain-Driven Design principles with clear
   - **ImagingCenters/**: Imaging center aggregate
     - `ImagingCenter`: Aggregate root
     - `Events/`: (Future) ImagingCenter-specific domain events
+  - **SystemAdmins/**: System administrator aggregate
+    - `SystemAdmin`: Aggregate root with organizational properties (CorporateId, Department)
+    - `Events/`: (Future) SystemAdmin-specific domain events
   - **MedicalRecords/**: Medical record aggregate
     - `MedicalRecord`: Aggregate root
     - `ValueObjects/`: Practitioner (snapshot)
@@ -68,10 +71,15 @@ The Core layer is organized following Domain-Driven Design principles with clear
   - `IUserQueryService`: Optimized queries for user entities
 
 - **Services/**: Domain service interfaces
-  - `IIdentityService`: User identity management interface
+  - `IIdentityService`: User identity management interface (includes claims and policy verification)
   - `IFileStorageService`: File storage abstraction interface
   - `ITokenProvider`: Token generation and validation interface
   - `IDateTimeProvider`: Unified time access interface
+
+- **Authorization/**: Claims-based authorization infrastructure
+  - `IdentityClaimTypes`: Claim type constants (AdminTier, Department, Certification)
+  - `IdentityClaimValues`: Well-known claim values (AdminTier.Super, AdminTier.Standard)
+  - `ClaimBasedPolicies`: Authorization policy names (CanManageAdmins, CanViewAuditTrail, CanAccessPHI)
 
 #### Design Principles
 
@@ -107,6 +115,8 @@ The Infrastructure layer implements data access and external service integration
   - `IdentityService`: Implements `IIdentityService`
   - Handles user creation, password management
   - Supports practitioner user creation (Doctor, HealthcareStaff, Laboratory, ImagingCenter)
+  - Claims verification: Database-only claims stored in `AspNetUserClaims` table (not in JWT tokens)
+  - Policy verification: `SatisfiesPolicyAsync()` evaluates claims and roles via database lookup
 
 - **Query Services**:
   - `UserQueryService`: Query service for non-aggregate user entities
@@ -139,11 +149,12 @@ The Infrastructure layer implements data access and external service integration
 - **Identity Tables**: ASP.NET Core Identity tables (AspNetUsers, AspNetRoles, AspNetUserRoles, etc.)
   - `ApplicationUserRole`: Custom user-role join entity with navigation properties
   - Configured directly in `IdentityDbContext` generics to avoid inheritance mapping
-- **Domain Tables**: Patient, MedicalRecord, MedicalRecordAttachments, Doctor, HealthcareStaff, Laboratory, ImagingCenter
+- **Domain Tables**: Patient, MedicalRecord, MedicalRecordAttachments, Doctor, HealthcareStaff, Laboratory, ImagingCenter, SystemAdmins
 - **Relationships**: 
-  - Practitioner aggregates use shared primary key with ApplicationUser
+  - Practitioner aggregates (Doctor, HealthcareStaff, Laboratory, ImagingCenter, SystemAdmin) use shared primary key with ApplicationUser
   - MedicalRecord references Patient and Practitioner (practitioner snapshot as value object)
   - MedicalRecordAttachments is owned entity collection (part of MedicalRecord aggregate)
+  - Claims stored in `AspNetUserClaims` table (database-only, not in JWT tokens)
 
 ### 3. Web API Layer (Presentation)
 
@@ -252,6 +263,11 @@ The Web API layer handles HTTP requests, validation, authorization, and DTOs.
 ### Authorization
 
 - **Role-Based Access Control (RBAC)**: User roles (SystemAdmin, Patient, Doctor, etc.)
+- **Claims-Based Authorization**: Database-only claims for privileged operations
+  - Claims describe WHO the user is (identity attributes)
+  - Policies describe WHAT the user can do (capabilities)
+  - Claims stored in `AspNetUserClaims` table, NOT in JWT tokens (avoids token size issues)
+  - Policy verification via `IIdentityService.SatisfiesPolicyAsync()` (database lookup)
 - **Policy-Based Authorization**: Custom policies for fine-grained control
 - **Resource-Based Authorization**: Users can only access their own resources
 
@@ -323,7 +339,7 @@ The Web API layer handles HTTP requests, validation, authorization, and DTOs.
 - **Global Query Filters**: EF Core filters for soft-delete (`IsActive`)
   - `Patient`: `HasQueryFilter(p => p.IsActive)`
   - `Allergy`, `ChronicDisease`, `Medication`, `Surgery`: Matching filters `HasQueryFilter(x => x.Patient.IsActive)`
-  - `Doctor`, `HealthcareStaff`, `Laboratory`, `ImagingCenter`: `HasQueryFilter(x => x.IsActive)`
+  - `Doctor`, `HealthcareStaff`, `Laboratory`, `ImagingCenter`, `SystemAdmin`: `HasQueryFilter(x => x.IsActive)`
 - **Matching Filters**: Child entities (medical attributes) have matching query filters to prevent inconsistent states when parent is filtered out
 - **Admin Override**: `IgnoreQueryFilters()` for admin operations
 

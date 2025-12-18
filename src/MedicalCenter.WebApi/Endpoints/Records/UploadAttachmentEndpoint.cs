@@ -1,7 +1,7 @@
 using FastEndpoints;
 using MedicalCenter.Core.SharedKernel;
 using MedicalCenter.Core.Services;
-using MedicalCenter.Infrastructure.Authorization;
+using MedicalCenter.Core.Authorization;
 using MedicalCenter.Infrastructure.Options;
 using Microsoft.Extensions.Options;
 

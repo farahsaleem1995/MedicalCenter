@@ -2,6 +2,8 @@ using System.Security.Cryptography;
 using System.Text;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using MedicalCenter.Core.Aggregates.SystemAdmins;
+using MedicalCenter.Core.Authorization;
 using MedicalCenter.Core.SharedKernel;
 using MedicalCenter.Infrastructure.Identity;
 
@@ -54,6 +56,29 @@ public static class SystemAdminSeeder
         };
 
         modelBuilder.Entity<ApplicationUserRole>().HasData(userRole);
+
+        // Seed SystemAdmin domain entity with enhanced organizational properties
+        modelBuilder.Entity<SystemAdmin>().HasData(new
+        {
+            Id = adminId,
+            FullName = "System Administrator",
+            Email = AdminEmail,
+            CorporateId = "SYS-ADMIN-001",
+            Department = "IT",
+            Role = UserRole.SystemAdmin,
+            IsActive = true,
+            CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, DateTimeKind.Utc)
+        });
+
+        // Seed SuperAdmin claim (stored in database, NOT in JWT token)
+        // This claim grants the CanManageAdmins policy capability
+        modelBuilder.Entity<IdentityUserClaim<Guid>>().HasData(new IdentityUserClaim<Guid>
+        {
+            Id = 1, // Unique ID for the claim
+            UserId = adminId,
+            ClaimType = IdentityClaimTypes.AdminTier,
+            ClaimValue = IdentityClaimValues.AdminTier.Super
+        });
     }
 
     /// <summary>

@@ -585,6 +585,7 @@ All admin endpoints require `RequireAdmin` policy (SystemAdmin only).
 - Optional filtering by role and active status
 - Supports pagination with `pageNumber` and `pageSize` query parameters
 - Includes deactivated users (admin override)
+- **Note**: All SystemAdmin users can view and retrieve SystemAdmin users in the list. Filtering by SystemAdmin role requires `CanManageAdmins` policy (Super Admin only).
 
 **Query Parameters**:
 - `pageNumber` (optional, default: 1, minimum: 1)
@@ -621,6 +622,7 @@ All admin endpoints require `RequireAdmin` policy (SystemAdmin only).
 - Returns detailed user information
 - Includes role-specific details if applicable
 - **Note**: Only system admins can see `IsActive` status. This field is not exposed in non-admin endpoints.
+- **Note**: All SystemAdmin users can retrieve and view SystemAdmin user details. Only Super Admins can modify SystemAdmin accounts.
 
 **Response Examples**:
 
@@ -742,16 +744,21 @@ All admin endpoints require `RequireAdmin` policy (SystemAdmin only).
   "doctorDetails": null,
   "healthcareStaffDetails": null,
   "laboratoryDetails": null,
-  "imagingCenterDetails": null
+  "imagingCenterDetails": null,
+  "systemAdminDetails": {
+    "corporateId": "SYS-ADMIN-001",
+    "department": "IT"
+  }
 }
 ```
 
 #### Create User
 **Endpoint**: `POST /admin/users`
 
-- Creates practitioner users (Doctor, HealthcareStaff, LabUser, ImagingUser)
+- Creates practitioner users (Doctor, HealthcareStaff, LabUser, ImagingUser, SystemAdmin)
 - Cannot create patients (use registration endpoint)
 - Validates email uniqueness
+- **Note**: Creating SystemAdmin users requires `CanManageAdmins` policy (Super Admin only)
 
 **Request** (Doctor):
 ```json
@@ -799,6 +806,18 @@ All admin endpoints require `RequireAdmin` policy (SystemAdmin only).
 }
 ```
 
+**Request** (SystemAdmin):
+```json
+{
+  "email": "admin@example.com",
+  "password": "SecurePass123!",
+  "fullName": "System Administrator",
+  "role": "SystemAdmin",
+  "corporateId": "SYS-ADMIN-001",
+  "department": "IT"
+}
+```
+
 **Response**:
 ```json
 {
@@ -815,6 +834,7 @@ All admin endpoints require `RequireAdmin` policy (SystemAdmin only).
 - Updates user information
 - Cannot change email or role
 - Updates provider-specific details
+- **Note**: Updating SystemAdmin users (including CorporateId and Department) requires `CanManageAdmins` policy (Super Admin only).
 
 **Request**:
 ```json
@@ -914,6 +934,7 @@ All admin endpoints require `RequireAdmin` policy (SystemAdmin only).
 - Soft-deletes user (sets `IsActive` to false)
 - Does not permanently delete user data
 - Returns 204 No Content on success
+- **Note**: Deactivating SystemAdmin users requires `CanManageAdmins` policy (Super Admin only).
 
 #### Change Password
 **Endpoint**: `PUT /admin/users/{id}/password`
@@ -921,6 +942,7 @@ All admin endpoints require `RequireAdmin` policy (SystemAdmin only).
 - Changes user password (admin can change without current password)
 - Validates password strength
 - Returns 204 No Content on success
+- **Note**: Changing SystemAdmin passwords requires `CanManageAdmins` policy (Super Admin only).
 
 **Request**:
 ```json
@@ -1259,6 +1281,7 @@ This ensures that even unexpected errors follow the Problem Details format.
 - **Policy-Based Authorization**: Named policies for fine-grained control
   - `RequireAdmin`: SystemAdmin only
   - `RequirePatient`: Patient only
+  - `CanManageAdmins`: Super Admin only (for managing SystemAdmin accounts)
   - `CanViewMedicalAttributes`: Doctor, HealthcareStaff, SystemAdmin
   - `CanModifyMedicalAttributes`: Doctor, HealthcareStaff, SystemAdmin
   - `CanViewRecords`: Doctor, HealthcareStaff, LabUser, ImagingUser
@@ -1266,6 +1289,7 @@ This ensures that even unexpected errors follow the Problem Details format.
   - `CanViewAllPatients`: Doctor, HealthcareStaff, SystemAdmin
 - **Resource-Based Authorization**: Users can only access their own data (for patient endpoints)
 - **Sensitive Information**: `IsActive` status is only exposed to system administrators through admin endpoints
+- **SystemAdmin Management**: All SystemAdmin users can retrieve/view SystemAdmin accounts. Creating, updating, deleting, and changing passwords for SystemAdmin accounts require `CanManageAdmins` policy (Super Admin only)
 
 ### Password Security
 

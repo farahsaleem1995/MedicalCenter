@@ -3,6 +3,7 @@ using MedicalCenter.Core.Aggregates.Doctors;
 using MedicalCenter.Core.Aggregates.HealthcareStaff;
 using MedicalCenter.Core.Aggregates.Laboratories;
 using MedicalCenter.Core.Aggregates.ImagingCenters;
+using MedicalCenter.Core.Aggregates.SystemAdmins;
 using Microsoft.AspNetCore.Identity;
 
 namespace MedicalCenter.Infrastructure.Identity;
@@ -21,6 +22,7 @@ public class ApplicationUser : IdentityUser<Guid>
     public HealthcareStaff? HealthcareStaff { get; set; }
     public Laboratory? Laboratory { get; set; }
     public ImagingCenter? ImagingCenter { get; set; }
+    public SystemAdmin? SystemAdmin { get; set; }
     public ICollection<ApplicationUserRole> Roles { get; set; } = [];
 }
 

@@ -2,7 +2,7 @@ using FastEndpoints;
 using MedicalCenter.Core.Aggregates.MedicalRecords;
 using MedicalCenter.Core.Primitives.Pagination;
 using MedicalCenter.Core.Queries;
-using MedicalCenter.Infrastructure.Authorization;
+using MedicalCenter.Core.Authorization;
 
 namespace MedicalCenter.WebApi.Endpoints.Records;
 
