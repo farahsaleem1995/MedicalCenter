@@ -1,5 +1,6 @@
 using FluentAssertions;
-using MedicalCenter.Core.Aggregates.Patient;
+using MedicalCenter.Core.Aggregates.Patients.Enums;
+using MedicalCenter.Core.Aggregates.Patients.ValueObjects;
 using Xunit;
 
 namespace MedicalCenter.Core.Tests.ValueObjects;

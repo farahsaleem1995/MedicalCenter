@@ -1,5 +1,6 @@
 using FastEndpoints;
 using Microsoft.Extensions.Options;
+using MedicalCenter.Core.SharedKernel;
 using MedicalCenter.Core.Services;
 using MedicalCenter.WebApi.Extensions;
 using MedicalCenter.Infrastructure;

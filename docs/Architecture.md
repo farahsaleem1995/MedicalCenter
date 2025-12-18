@@ -12,37 +12,65 @@ The Core layer contains the domain model and business logic. It has no dependenc
 
 #### Key Components
 
-The Core layer is organized around domain concepts, not technical classifications:
+The Core layer is organized following Domain-Driven Design principles with clear separation of concerns:
 
-- **Common**: Shared abstractions, base classes, and common concepts
+- **Abstractions/**: DDD building blocks and framework contracts
   - `BaseEntity`: Base class for all entities with `Id` (Guid)
-  - `User`: Abstract base class for all users
+  - `IAggregateRoot`: Marker interface for aggregate roots
+  - `IAuditableEntity`: Interface for entities requiring audit tracking
   - `ValueObject`: Base class for value objects
-  - `IRepository<T>`: Generic repository interface for aggregate roots
-  - `IUnitOfWork`: Unit of Work interface for transaction management
-  - `Attachment`: File attachment value object (common concept)
-  - `UserRole`: User role enumeration (common concept)
-  - `ProviderType`: Healthcare provider type enumeration (common concept)
-  - `Result<T>`, `Error`: Operation outcome pattern
 
-- **Aggregates**: Consistency boundaries organized by domain concepts
-  - `Patient`: Root aggregate containing medical attributes
-    - Contains: `BloodType` value object, `BloodABO` enum, `BloodRh` enum
-    - Medical attributes: Allergies, ChronicDiseases, Medications, Surgeries
-  - `MedicalRecord`: Medical record aggregate with file attachments
-    - Contains: `RecordType` enum
-    - Contains: `Practitioner` value object (snapshot)
-  - `Doctor`, `HealthcareEntity`, `Laboratory`, `ImagingCenter`: Practitioner aggregate roots
+- **Primitives/**: Result pattern, error handling, and pagination
+  - `Result<T>`, `Error`, `ErrorCodes`: Operation outcome pattern
+  - `ResultExtensions`: Extension methods for Result operations
+  - `Pagination/`: `PaginatedList<T>`, `PaginationMetadata` for standardized pagination
+
+- **SharedKernel/**: Shared domain concepts (ubiquitous language)
+  - `User`: Abstract base class for all users
+  - `UserRole`: User role enumeration
+  - `ProviderType`: Healthcare provider type enumeration
+  - `Attachment`: File attachment value object (shared concept)
+  - `IRepository<T>`: Generic repository interface for aggregate roots (domain concept)
+  - `IUnitOfWork`: Unit of Work interface for transaction management (domain concept)
+  - `Events/`: Domain event base types (`IDomainEvent`, `DomainEventBase`, `IHasDomainEvents`, etc.)
+
+- **Aggregates/**: Core domain model organized by bounded contexts
+  - **Patients/**: Patient aggregate with medical attributes
+    - `Patient`: Aggregate root
+    - `Entities/`: Allergy, ChronicDisease, Medication, Surgery
+    - `ValueObjects/`: BloodType
+    - `Enums/`: BloodABO, BloodRh
+    - `Specifications/`: PatientByIdSpecification, ActivePatientsSpecification, etc.
+    - `Events/`: (Future) Patient-specific domain events
+  - **Doctors/**: Doctor aggregate
+    - `Doctor`: Aggregate root
+    - `Events/`: (Future) Doctor-specific domain events
+  - **HealthcareStaff/**: Healthcare staff aggregate (renamed from HealthcareEntity)
+    - `HealthcareStaff`: Aggregate root
+    - `Events/`: (Future) HealthcareStaff-specific domain events
+  - **Laboratories/**: Laboratory aggregate
+    - `Laboratory`: Aggregate root
+    - `Events/`: (Future) Laboratory-specific domain events
+  - **ImagingCenters/**: Imaging center aggregate
+    - `ImagingCenter`: Aggregate root
+    - `Events/`: (Future) ImagingCenter-specific domain events
+  - **MedicalRecords/**: Medical record aggregate
+    - `MedicalRecord`: Aggregate root
+    - `ValueObjects/`: Practitioner (snapshot)
+    - `Enums/`: RecordType
+    - `Specifications/`: MedicalRecordByIdSpecification, MedicalRecordsByPatientSpecification
+    - `Events/`: (Future) MedicalRecord-specific domain events
   - `Encounter`: (Planned) Encounter aggregate (requires domain events)
   - `ActionLog`: (Planned) Audit log aggregate
 
-- **Specifications**: Encapsulate complex business queries
-  - Uses `Ardalis.Specification` pattern
-  - Example: `PatientByIdSpecification`
+- **Queries/**: Query service interfaces for read operations
+  - `IMedicalRecordQueryService`: Optimized queries for medical records
+  - `IUserQueryService`: Optimized queries for user entities
 
-- **Domain Services**: Operations that don't fit within a single entity
+- **Services/**: Domain service interfaces
   - `IIdentityService`: User identity management interface
   - `IFileStorageService`: File storage abstraction interface
+  - `ITokenProvider`: Token generation and validation interface
 
 #### Design Principles
 
@@ -50,9 +78,12 @@ The Core layer is organized around domain concepts, not technical classification
 - **Aggregate Boundaries**: Only aggregate roots are accessible via repositories
 - **Value Objects**: Immutable, equality-based objects
 - **Specification Pattern**: Complex queries encapsulated in specifications
-- **Domain Organization**: Code organized around domain concepts, not technical classifications
-  - Aggregate-specific types (enums, value objects) live within their aggregates
-  - Common abstractions and shared concepts live in Common folder
+- **Domain Organization**: Code organized following DDD principles
+  - Aggregate-specific types (enums, value objects, entities, specifications) live within their aggregates
+  - DDD building blocks (BaseEntity, ValueObject) in Abstractions/
+  - Cross-cutting technical concerns (Result pattern, Pagination) in Primitives/
+  - Shared domain concepts (User, Repository, Domain Events) in SharedKernel/
+  - Query interfaces separated from domain services in Queries/
 
 ### 2. Infrastructure Layer
 
@@ -74,7 +105,7 @@ The Infrastructure layer implements data access and external service integration
 - **Identity Service**:
   - `IdentityService`: Implements `IIdentityService`
   - Handles user creation, password management
-  - Supports practitioner user creation (Doctor, HealthcareEntity, Laboratory, ImagingCenter)
+  - Supports practitioner user creation (Doctor, HealthcareStaff, Laboratory, ImagingCenter)
 
 - **Query Services**:
   - `UserQueryService`: Query service for non-aggregate user entities
@@ -100,7 +131,7 @@ The Infrastructure layer implements data access and external service integration
 - **Identity Tables**: ASP.NET Core Identity tables (AspNetUsers, AspNetRoles, AspNetUserRoles, etc.)
   - `ApplicationUserRole`: Custom user-role join entity with navigation properties
   - Configured directly in `IdentityDbContext` generics to avoid inheritance mapping
-- **Domain Tables**: Patient, MedicalRecord, MedicalRecordAttachments, Doctor, HealthcareEntity, Laboratory, ImagingCenter
+- **Domain Tables**: Patient, MedicalRecord, MedicalRecordAttachments, Doctor, HealthcareStaff, Laboratory, ImagingCenter
 - **Relationships**: 
   - Practitioner aggregates use shared primary key with ApplicationUser
   - MedicalRecord references Patient and Practitioner (practitioner snapshot as value object)
@@ -270,7 +301,7 @@ The Web API layer handles HTTP requests, validation, authorization, and DTOs.
 - **Global Query Filters**: EF Core filters for soft-delete (`IsActive`)
   - `Patient`: `HasQueryFilter(p => p.IsActive)`
   - `Allergy`, `ChronicDisease`, `Medication`, `Surgery`: Matching filters `HasQueryFilter(x => x.Patient.IsActive)`
-  - `Doctor`, `HealthcareEntity`, `Laboratory`, `ImagingCenter`: `HasQueryFilter(x => x.IsActive)`
+  - `Doctor`, `HealthcareStaff`, `Laboratory`, `ImagingCenter`: `HasQueryFilter(x => x.IsActive)`
 - **Matching Filters**: Child entities (medical attributes) have matching query filters to prevent inconsistent states when parent is filtered out
 - **Admin Override**: `IgnoreQueryFilters()` for admin operations
 

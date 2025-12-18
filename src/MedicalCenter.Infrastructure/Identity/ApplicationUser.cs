@@ -1,5 +1,8 @@
-using MedicalCenter.Core.Aggregates;
-using MedicalCenter.Core.Aggregates.Patient;
+using MedicalCenter.Core.Aggregates.Patients;
+using MedicalCenter.Core.Aggregates.Doctors;
+using MedicalCenter.Core.Aggregates.HealthcareStaff;
+using MedicalCenter.Core.Aggregates.Laboratories;
+using MedicalCenter.Core.Aggregates.ImagingCenters;
 using Microsoft.AspNetCore.Identity;
 
 namespace MedicalCenter.Infrastructure.Identity;
@@ -15,7 +18,7 @@ public class ApplicationUser : IdentityUser<Guid>
 
     public Patient? Patient { get; set; }
     public Doctor? Doctor { get; set; }
-    public HealthcareEntity? HealthcareEntity { get; set; }
+    public HealthcareStaff? HealthcareStaff { get; set; }
     public Laboratory? Laboratory { get; set; }
     public ImagingCenter? ImagingCenter { get; set; }
     public ICollection<ApplicationUserRole> Roles { get; set; } = [];

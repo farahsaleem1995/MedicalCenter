@@ -1,6 +1,11 @@
-using MedicalCenter.Core.Aggregates;
-using MedicalCenter.Core.Aggregates.Patient;
-using MedicalCenter.Core.Common;
+using MedicalCenter.Core.Aggregates.Patients;
+using MedicalCenter.Core.Aggregates.Doctors;
+using MedicalCenter.Core.Aggregates.HealthcareStaff;
+using MedicalCenter.Core.Aggregates.Laboratories;
+using MedicalCenter.Core.Aggregates.ImagingCenters;
+using MedicalCenter.Core.Aggregates.Patients.ValueObjects;
+using MedicalCenter.Core.Primitives;
+using MedicalCenter.Core.SharedKernel;
 
 namespace MedicalCenter.WebApi.Endpoints.Admin;
 
@@ -16,7 +21,7 @@ public class GetUserResponse
 
     public PatientDetails? PatientDetails { get; set; }
     public DoctorDetails? DoctorDetails { get; set; }
-    public HealthcareEntityDetails? HealthcareEntityDetails { get; set; }
+    public HealthcareStaffDetails? HealthcareStaffDetails { get; set; }
     public LaboratoryDetails? LaboratoryDetails { get; set; }
     public ImagingCenterDetails? ImagingCenterDetails { get; set; }
 
@@ -51,8 +56,8 @@ public class GetUserResponse
                     Specialty = doctor.Specialty
                 };
                 break;
-            case HealthcareEntity healthcare:
-                response.HealthcareEntityDetails = new HealthcareEntityDetails
+            case HealthcareStaff healthcare:
+                response.HealthcareStaffDetails = new HealthcareStaffDetails
                 {
                     OrganizationName = healthcare.OrganizationName,
                     Department = healthcare.Department
@@ -89,7 +94,7 @@ public class DoctorDetails
     public string Specialty { get; set; } = string.Empty;
 }
 
-public class HealthcareEntityDetails
+public class HealthcareStaffDetails
 {
     public string OrganizationName { get; set; } = string.Empty;
     public string Department { get; set; } = string.Empty;

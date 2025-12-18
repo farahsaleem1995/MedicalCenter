@@ -1,5 +1,7 @@
 using FastEndpoints;
-using MedicalCenter.Core.Common;
+using MedicalCenter.Core.Primitives;
+using MedicalCenter.Core.SharedKernel;
+using MedicalCenter.Core.SharedKernel;
 using MedicalCenter.Core.Services;
 
 namespace MedicalCenter.WebApi.Endpoints.Auth;

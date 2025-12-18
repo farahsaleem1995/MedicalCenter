@@ -1,8 +1,9 @@
 using FastEndpoints;
 using FluentValidation;
-using MedicalCenter.Core.Aggregates.Patient;
-using MedicalCenter.Core.Aggregates.Patient.Specifications;
-using MedicalCenter.Core.Common;
+using MedicalCenter.Core.Aggregates.Patients;
+using MedicalCenter.Core.Aggregates.Patients.Specifications;
+using MedicalCenter.Core.Primitives;
+using MedicalCenter.Core.SharedKernel;
 
 namespace MedicalCenter.WebApi.Endpoints.Patients.Medications;
 

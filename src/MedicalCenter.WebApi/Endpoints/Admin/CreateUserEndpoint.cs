@@ -1,5 +1,6 @@
 using FastEndpoints;
-using MedicalCenter.Core.Common;
+using MedicalCenter.Core.Primitives;
+using MedicalCenter.Core.SharedKernel;
 using MedicalCenter.Core.Services;
 using MedicalCenter.Infrastructure;
 using MedicalCenter.Infrastructure.Authorization;
@@ -42,7 +43,7 @@ public class CreateUserEndpoint(
                 req.LicenseNumber!,
                 req.Specialty!,
                 ct),
-            UserRole.HealthcareStaff => await identityService.CreateHealthcareEntityAsync(
+            UserRole.HealthcareStaff => await identityService.CreateHealthcareStaffAsync(
                 req.FullName,
                 req.Email,
                 req.Password,

@@ -1,8 +1,12 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
-using MedicalCenter.Core.Aggregates;
-using MedicalCenter.Core.Common;
+using MedicalCenter.Core.Aggregates.Doctors;
+using MedicalCenter.Core.Aggregates.HealthcareStaff;
+using MedicalCenter.Core.Aggregates.Laboratories;
+using MedicalCenter.Core.Aggregates.ImagingCenters;
+using MedicalCenter.Core.Primitives;
+using MedicalCenter.Core.SharedKernel;
 using MedicalCenter.Core.Services;
 using MedicalCenter.Infrastructure.Data;
 using MedicalCenter.Infrastructure.Identity;
@@ -153,7 +157,7 @@ public class IdentityService(
         }
     }
 
-    public async Task<Result<Guid>> CreateHealthcareEntityAsync(
+    public async Task<Result<Guid>> CreateHealthcareStaffAsync(
         string fullName,
         string email,
         string password,
@@ -176,9 +180,9 @@ public class IdentityService(
             var userId = createUserResult.Value;
 
             // Create domain entity
-            var healthcareEntity = HealthcareEntity.Create(fullName, email, organizationName, department);
-            SetEntityId(healthcareEntity, userId);
-            context.HealthcareEntities.Add(healthcareEntity);
+            var healthcareStaff = HealthcareStaff.Create(fullName, email, organizationName, department);
+            SetEntityId(healthcareStaff, userId);
+            context.HealthcareStaff.Add(healthcareStaff);
             await unitOfWork.SaveChangesAsync(cancellationToken);
 
             await unitOfWork.CommitTransactionAsync(cancellationToken);
@@ -269,7 +273,7 @@ public class IdentityService(
 
     private static void SetEntityId(User entity, Guid id)
     {
-        var idProperty = typeof(Core.Common.BaseEntity).GetProperty(nameof(Core.Common.BaseEntity.Id));
+        var idProperty = typeof(Core.Abstractions.BaseEntity).GetProperty(nameof(Core.Abstractions.BaseEntity.Id));
         idProperty?.SetValue(entity, id);
     }
 

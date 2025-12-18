@@ -1,22 +1,24 @@
 using FluentAssertions;
-using MedicalCenter.Core.Aggregates.Patient;
+using MedicalCenter.Core.Aggregates.Patients;
+using MedicalCenter.Core.Aggregates.Patients.Enums;
+using MedicalCenter.Core.Aggregates.Patients.ValueObjects;
 using Xunit;
-using PatientEntity = MedicalCenter.Core.Aggregates.Patient.Patient;
+using PatientAggregate = MedicalCenter.Core.Aggregates.Patients.Patient;
 
 namespace MedicalCenter.Core.Tests.Aggregates.Patient;
 
 public class PatientMedicalAttributesTests
 {
-    private PatientEntity CreateTestPatient()
+    private PatientAggregate CreateTestPatient()
     {
-        return PatientEntity.Create("John Doe", "john.doe@example.com", "123456789", new DateTime(1990, 1, 15));
+        return PatientAggregate.Create("John Doe", "john.doe@example.com", "123456789", new DateTime(1990, 1, 15));
     }
 
     [Fact]
     public void UpdateBloodType_SetsBloodType_WhenValidBloodTypeProvided()
     {
         // Arrange
-        PatientEntity patient = CreateTestPatient();
+        PatientAggregate patient = CreateTestPatient();
         var bloodType = BloodType.Create(BloodABO.A, BloodRh.Positive);
 
         // Act
@@ -32,7 +34,7 @@ public class PatientMedicalAttributesTests
     public void UpdateBloodType_ClearsBloodType_WhenNullProvided()
     {
         // Arrange
-        PatientEntity patient = CreateTestPatient();
+        PatientAggregate patient = CreateTestPatient();
         var bloodType = BloodType.Create(BloodABO.O, BloodRh.Negative);
         patient.UpdateBloodType(bloodType);
 
@@ -47,7 +49,7 @@ public class PatientMedicalAttributesTests
     public void AddAllergy_AddsAllergyToCollection_WhenValidAllergyProvided()
     {
         // Arrange
-        PatientEntity patient = CreateTestPatient();
+        PatientAggregate patient = CreateTestPatient();
 
         // Act
         var allergy = patient.AddAllergy("Peanuts", "Severe", "Causes anaphylaxis");
@@ -64,7 +66,7 @@ public class PatientMedicalAttributesTests
     public void RemoveAllergy_RemovesAllergyFromCollection_WhenAllergyExists()
     {
         // Arrange
-        PatientEntity patient = CreateTestPatient();
+        PatientAggregate patient = CreateTestPatient();
         var allergy = patient.AddAllergy("Peanuts", "Severe");
 
         // Act
@@ -78,7 +80,7 @@ public class PatientMedicalAttributesTests
     public void UpdateAllergy_UpdatesAllergyProperties_WhenAllergyExists()
     {
         // Arrange
-        PatientEntity patient = CreateTestPatient();
+        PatientAggregate patient = CreateTestPatient();
         var allergy = patient.AddAllergy("Peanuts", "Mild");
 
         // Act
@@ -94,7 +96,7 @@ public class PatientMedicalAttributesTests
     public void UpdateAllergy_ThrowsInvalidOperationException_WhenAllergyNotFound()
     {
         // Arrange
-        PatientEntity patient = CreateTestPatient();
+        PatientAggregate patient = CreateTestPatient();
         var nonExistentId = Guid.NewGuid();
 
         // Act & Assert
@@ -107,7 +109,7 @@ public class PatientMedicalAttributesTests
     public void AddChronicDisease_AddsChronicDiseaseToCollection_WhenValidChronicDiseaseProvided()
     {
         // Arrange
-        PatientEntity patient = CreateTestPatient();
+        PatientAggregate patient = CreateTestPatient();
         var diagnosisDate = new DateTime(2020, 1, 1);
 
         // Act
@@ -125,7 +127,7 @@ public class PatientMedicalAttributesTests
     public void RemoveChronicDisease_RemovesChronicDiseaseFromCollection_WhenChronicDiseaseExists()
     {
         // Arrange
-        PatientEntity patient = CreateTestPatient();
+        PatientAggregate patient = CreateTestPatient();
         var chronicDisease = patient.AddChronicDisease("Diabetes", new DateTime(2020, 1, 1));
 
         // Act
@@ -139,7 +141,7 @@ public class PatientMedicalAttributesTests
     public void UpdateChronicDisease_UpdatesChronicDiseaseNotes_WhenChronicDiseaseExists()
     {
         // Arrange
-        PatientEntity patient = CreateTestPatient();
+        PatientAggregate patient = CreateTestPatient();
         var chronicDisease = patient.AddChronicDisease("Diabetes", new DateTime(2020, 1, 1), "Initial notes");
 
         // Act
@@ -154,7 +156,7 @@ public class PatientMedicalAttributesTests
     public void AddMedication_AddsMedicationToCollection_WhenValidMedicationProvided()
     {
         // Arrange
-        PatientEntity patient = CreateTestPatient();
+        PatientAggregate patient = CreateTestPatient();
         var startDate = new DateTime(2024, 1, 1);
 
         // Act
@@ -173,7 +175,7 @@ public class PatientMedicalAttributesTests
     public void AddMedication_AddsMedicationWithEndDate_WhenEndDateProvided()
     {
         // Arrange
-        PatientEntity patient = CreateTestPatient();
+        PatientAggregate patient = CreateTestPatient();
         var startDate = new DateTime(2024, 1, 1);
         var endDate = new DateTime(2024, 6, 1);
 
@@ -188,7 +190,7 @@ public class PatientMedicalAttributesTests
     public void UpdateMedication_UpdatesMedicationProperties_WhenMedicationExists()
     {
         // Arrange
-        PatientEntity patient = CreateTestPatient();
+        PatientAggregate patient = CreateTestPatient();
         var medication = patient.AddMedication("Aspirin", "100mg", new DateTime(2024, 1, 1));
         var newEndDate = new DateTime(2024, 12, 31);
 
@@ -206,7 +208,7 @@ public class PatientMedicalAttributesTests
     public void AddSurgery_AddsSurgeryToCollection_WhenValidSurgeryProvided()
     {
         // Arrange
-        PatientEntity patient = CreateTestPatient();
+        PatientAggregate patient = CreateTestPatient();
         var surgeryDate = new DateTime(2023, 6, 15);
 
         // Act
@@ -225,7 +227,7 @@ public class PatientMedicalAttributesTests
     public void RemoveSurgery_RemovesSurgeryFromCollection_WhenSurgeryExists()
     {
         // Arrange
-        PatientEntity patient = CreateTestPatient();
+        PatientAggregate patient = CreateTestPatient();
         var surgery = patient.AddSurgery("Appendectomy", new DateTime(2023, 6, 15));
 
         // Act
@@ -239,7 +241,7 @@ public class PatientMedicalAttributesTests
     public void UpdateSurgery_UpdatesSurgeryProperties_WhenSurgeryExists()
     {
         // Arrange
-        PatientEntity patient = CreateTestPatient();
+        PatientAggregate patient = CreateTestPatient();
         var surgery = patient.AddSurgery("Appendectomy", new DateTime(2023, 6, 15), "Dr. Smith");
 
         // Act
@@ -255,7 +257,7 @@ public class PatientMedicalAttributesTests
     public void AddMultipleMedicalAttributes_AddsAllAttributes_WhenMultipleAttributesProvided()
     {
         // Arrange
-        PatientEntity patient = CreateTestPatient();
+        PatientAggregate patient = CreateTestPatient();
 
         // Act
         patient.AddAllergy("Peanuts", "Severe");

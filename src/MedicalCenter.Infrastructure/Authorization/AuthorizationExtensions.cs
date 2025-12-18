@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.DependencyInjection;
-using MedicalCenter.Core.Common;
+using MedicalCenter.Core.SharedKernel;
 
 namespace MedicalCenter.Infrastructure.Authorization;
 

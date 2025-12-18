@@ -1,7 +1,10 @@
 using FluentAssertions;
-using MedicalCenter.Core.Aggregates;
-using MedicalCenter.Core.Aggregates.Patient;
-using MedicalCenter.Core.Common;
+using MedicalCenter.Core.Aggregates.Doctors;
+using MedicalCenter.Core.Aggregates.HealthcareStaff;
+using MedicalCenter.Core.Aggregates.ImagingCenters;
+using MedicalCenter.Core.Aggregates.Laboratories;
+using MedicalCenter.Core.Aggregates.Patients;
+using MedicalCenter.Core.SharedKernel;
 using Xunit;
 
 namespace MedicalCenter.Core.Tests.Entities;
@@ -37,12 +40,12 @@ public class UserCreationRulesTests
     }
 
     [Fact]
-    public void Creates_HealthcareEntity_WithCorrectRole()
+    public void Creates_HealthcareStaff_WithCorrectRole()
     {
         // Arrange & Act
-        var healthcare = HealthcareEntity.Create("Jane Nurse", "jane@hospital.com", "City Hospital", "Emergency");
+        var healthcare = HealthcareStaff.Create("Jane Nurse", "jane@hospital.com", "City Hospital", "Emergency");
 
-        // Assert - Domain rule: HealthcareEntity has HealthcareStaff role
+        // Assert - Domain rule: HealthcareStaff has HealthcareStaff role
         healthcare.Role.Should().Be(UserRole.HealthcareStaff);
         healthcare.OrganizationName.Should().Be("City Hospital");
         healthcare.Department.Should().Be("Emergency");

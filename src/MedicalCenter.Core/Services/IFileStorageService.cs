@@ -1,4 +1,4 @@
-using MedicalCenter.Core.Common;
+using MedicalCenter.Core.Primitives;
 
 namespace MedicalCenter.Core.Services;
 

@@ -1,7 +1,9 @@
 using FastEndpoints;
 using Microsoft.Extensions.Options;
-using MedicalCenter.Core.Aggregates.Patient;
-using MedicalCenter.Core.Common;
+using MedicalCenter.Core.Aggregates.Patients;
+using MedicalCenter.Core.Abstractions;
+using MedicalCenter.Core.Primitives;
+using MedicalCenter.Core.SharedKernel;
 using MedicalCenter.Core.Services;
 using MedicalCenter.Infrastructure;
 using MedicalCenter.WebApi.Extensions;

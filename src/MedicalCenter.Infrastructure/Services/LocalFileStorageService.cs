@@ -1,7 +1,7 @@
 using System.IO.Abstractions;
 using System.Text.Json;
 using Ardalis.GuardClauses;
-using MedicalCenter.Core.Common;
+using MedicalCenter.Core.Primitives;
 using MedicalCenter.Core.Services;
 using MedicalCenter.Infrastructure.Options;
 using Microsoft.Extensions.Logging;

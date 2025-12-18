@@ -2,7 +2,7 @@ using System.Security.Cryptography;
 using System.Text;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using MedicalCenter.Core.Common;
+using MedicalCenter.Core.SharedKernel;
 using MedicalCenter.Infrastructure.Identity;
 
 namespace MedicalCenter.Infrastructure.Data.Seeders;

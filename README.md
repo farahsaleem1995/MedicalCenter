@@ -386,18 +386,23 @@ This project follows patterns from the [Ardalis Clean Architecture template](htt
 
 ### Key Architectural Decisions
 
-- **Generic Repository Pattern**: Single `IRepository<T>` for aggregate roots (in Common)
+- **Generic Repository Pattern**: Single `IRepository<T>` for aggregate roots (in SharedKernel/)
 - **Specification Pattern**: Encapsulates complex queries
-- **Query Services**: For optimized read operations (practitioners, users)
-- **Domain Organization**: Organized around domain concepts, not technical terms (aggregates contain their enums, common abstractions in Common)
+- **Query Services**: For optimized read operations (practitioners, users) - interfaces in Queries/
+- **Domain Organization**: Organized following DDD principles
+  - DDD building blocks (BaseEntity, ValueObject, IAggregateRoot) in `Abstractions/`
+  - Cross-cutting technical concerns (Result pattern, Pagination) in `Primitives/`
+  - Shared domain concepts (User, Repository, Domain Events) in `SharedKernel/`
+  - Aggregate-specific types (enums, value objects, entities, specifications) within their aggregates
 - **IAuditableEntity Interface**: Opt-in audit tracking via EF Core interceptor
-- **Result Pattern**: For operation outcomes without exceptions
-- **Pagination Pattern**: Standardized paginated responses
+- **Result Pattern**: For operation outcomes without exceptions (in Primitives/)
+- **Pagination Pattern**: Standardized paginated responses (in Primitives/Pagination/)
 
 ## Implementation Status
 
 - ✅ **Phase 1**: Solution Scaffolding & Git Setup
 - ✅ **Phase 2**: Core Foundation & Base Classes
+- ✅ **Phase 2.1**: Core Layer Reorganization (DDD-aligned structure: Abstractions/, Primitives/, SharedKernel/, Queries/, organized Aggregates/)
 - ✅ **Phase 3**: Infrastructure Foundation
 - ✅ **Phase 4**: Identity System Foundation
 - ✅ **Phase 5**: Patient Aggregate & Medical Attributes

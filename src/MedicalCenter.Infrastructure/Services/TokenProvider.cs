@@ -4,8 +4,11 @@ using System.Security.Cryptography;
 using System.Text;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using MedicalCenter.Core.Aggregates;
-using MedicalCenter.Core.Common;
+using MedicalCenter.Core.Aggregates.Doctors;
+using MedicalCenter.Core.Aggregates.HealthcareStaff;
+using MedicalCenter.Core.Aggregates.Laboratories;
+using MedicalCenter.Core.Aggregates.ImagingCenters;
+using MedicalCenter.Core.SharedKernel;
 using MedicalCenter.Core.Services;
 
 namespace MedicalCenter.Infrastructure.Services;
@@ -36,7 +39,7 @@ public class TokenProvider(IOptions<JwtSettings> jwtSettings) : ITokenProvider
             case Doctor doctor:
                 claims.Add(new Claim("specialty", doctor.Specialty));
                 break;
-            case HealthcareEntity healthcare:
+            case HealthcareStaff healthcare:
                 claims.Add(new Claim("organizationName", healthcare.OrganizationName));
                 break;
             case Laboratory lab:

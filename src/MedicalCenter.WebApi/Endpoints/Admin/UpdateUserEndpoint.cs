@@ -1,7 +1,11 @@
 using FastEndpoints;
-using MedicalCenter.Core.Aggregates;
-using MedicalCenter.Core.Common;
+using MedicalCenter.Core.Aggregates.Doctors;
+using MedicalCenter.Core.Aggregates.HealthcareStaff;
+using MedicalCenter.Core.Aggregates.Laboratories;
+using MedicalCenter.Core.Aggregates.ImagingCenters;
+using MedicalCenter.Core.SharedKernel;
 using MedicalCenter.Core.Services;
+using MedicalCenter.Core.Queries;
 using MedicalCenter.Infrastructure.Authorization;
 using MedicalCenter.Infrastructure.Data;
 
@@ -56,7 +60,7 @@ public class UpdateUserEndpoint(
             case Doctor doctor when !string.IsNullOrWhiteSpace(req.Specialty):
                 doctor.UpdateSpecialty(req.Specialty);
                 break;
-            case HealthcareEntity healthcare when !string.IsNullOrWhiteSpace(req.OrganizationName) && !string.IsNullOrWhiteSpace(req.Department):
+            case HealthcareStaff healthcare when !string.IsNullOrWhiteSpace(req.OrganizationName) && !string.IsNullOrWhiteSpace(req.Department):
                 healthcare.UpdateOrganization(req.OrganizationName, req.Department);
                 break;
             case Laboratory lab when !string.IsNullOrWhiteSpace(req.LabName):

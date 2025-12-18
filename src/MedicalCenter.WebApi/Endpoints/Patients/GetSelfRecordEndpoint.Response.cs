@@ -1,5 +1,7 @@
-using MedicalCenter.Core.Aggregates.MedicalRecord;
-using MedicalCenter.Core.Common;
+using MedicalCenter.Core.Aggregates.MedicalRecords;
+using MedicalCenter.Core.Aggregates.MedicalRecords.Enums;
+using MedicalCenter.Core.Primitives;
+using MedicalCenter.Core.SharedKernel;
 using MedicalCenter.WebApi.Endpoints.Records;
 
 namespace MedicalCenter.WebApi.Endpoints.Patients;

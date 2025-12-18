@@ -1,12 +1,10 @@
 using FluentAssertions;
-using MedicalCenter.Core.Aggregates.MedicalRecord;
-using MedicalCenter.Core.Common;
+using MedicalCenter.Core.Aggregates.MedicalRecords;
+using MedicalCenter.Core.Aggregates.MedicalRecords.Enums;
+using MedicalCenter.Core.Aggregates.MedicalRecords.ValueObjects;
+using MedicalCenter.Core.SharedKernel;
 using Xunit;
-using MedicalRecord = MedicalCenter.Core.Aggregates.MedicalRecord.MedicalRecord;
-
-namespace MedicalCenter.Core.Tests.Aggregates.MedicalRecord;
-
-using MedicalRecord = MedicalCenter.Core.Aggregates.MedicalRecord.MedicalRecord;
+using MedicalRecordAggregate = MedicalCenter.Core.Aggregates.MedicalRecords.MedicalRecord;
 
 public class MedicalRecordTests
 {
@@ -30,7 +28,7 @@ public class MedicalRecordTests
         var content = "Test content";
 
         // Act
-        var record = MedicalCenter.Core.Aggregates.MedicalRecord.MedicalRecord.Create(patientId, practitionerId, practitioner, recordType, title, content);
+        var record = MedicalRecordAggregate.Create(patientId, practitionerId, practitioner, recordType, title, content);
 
         // Assert
         record.Should().NotBeNull();
@@ -50,7 +48,7 @@ public class MedicalRecordTests
         // Arrange
         var practitionerId = Guid.NewGuid();
         var practitioner = CreateTestPractitioner();
-        var record = MedicalRecord.Create(
+        var record = MedicalRecordAggregate.Create(
             Guid.NewGuid(),
             practitionerId,
             practitioner,
@@ -73,7 +71,7 @@ public class MedicalRecordTests
         var practitionerId = Guid.NewGuid();
         var otherUserId = Guid.NewGuid();
         var practitioner = CreateTestPractitioner();
-        var record = MedicalRecord.Create(
+        var record = MedicalRecordAggregate.Create(
             Guid.NewGuid(),
             practitionerId,
             practitioner,
@@ -93,7 +91,7 @@ public class MedicalRecordTests
         // Arrange
         var practitionerId = Guid.NewGuid();
         var practitioner = CreateTestPractitioner();
-        var record = MedicalRecord.Create(
+        var record = MedicalRecordAggregate.Create(
             Guid.NewGuid(),
             practitionerId,
             practitioner,
@@ -115,7 +113,7 @@ public class MedicalRecordTests
         // Arrange
         var practitionerId = Guid.NewGuid();
         var practitioner = CreateTestPractitioner();
-        var record = MedicalRecord.Create(
+        var record = MedicalRecordAggregate.Create(
             Guid.NewGuid(),
             practitionerId,
             practitioner,
@@ -137,7 +135,7 @@ public class MedicalRecordTests
         // Arrange
         var practitionerId = Guid.NewGuid();
         var practitioner = CreateTestPractitioner();
-        var record = MedicalRecord.Create(
+        var record = MedicalRecordAggregate.Create(
             Guid.NewGuid(),
             practitionerId,
             practitioner,
@@ -158,7 +156,7 @@ public class MedicalRecordTests
         // Arrange
         var practitionerId = Guid.NewGuid();
         var practitioner = CreateTestPractitioner();
-        var record = MedicalRecord.Create(
+        var record = MedicalRecordAggregate.Create(
             Guid.NewGuid(),
             practitionerId,
             practitioner,
@@ -187,7 +185,7 @@ public class MedicalRecordTests
         var practitionerId = Guid.NewGuid();
         var otherUserId = Guid.NewGuid();
         var practitioner = CreateTestPractitioner();
-        var record = MedicalRecord.Create(
+        var record = MedicalRecordAggregate.Create(
             Guid.NewGuid(),
             practitionerId,
             practitioner,
@@ -213,7 +211,7 @@ public class MedicalRecordTests
         // Arrange
         var practitionerId = Guid.NewGuid();
         var practitioner = CreateTestPractitioner();
-        var record = MedicalRecord.Create(
+        var record = MedicalRecordAggregate.Create(
             Guid.NewGuid(),
             practitionerId,
             practitioner,
@@ -240,7 +238,7 @@ public class MedicalRecordTests
         // Arrange
         var practitionerId = Guid.NewGuid();
         var practitioner = CreateTestPractitioner();
-        var record = MedicalRecord.Create(
+        var record = MedicalRecordAggregate.Create(
             Guid.NewGuid(),
             practitionerId,
             practitioner,
@@ -270,7 +268,7 @@ public class MedicalRecordTests
         var practitionerId = Guid.NewGuid();
         var otherUserId = Guid.NewGuid();
         var practitioner = CreateTestPractitioner();
-        var record = MedicalRecord.Create(
+        var record = MedicalRecordAggregate.Create(
             Guid.NewGuid(),
             practitionerId,
             practitioner,
@@ -298,7 +296,7 @@ public class MedicalRecordTests
         // Arrange
         var practitionerId = Guid.NewGuid();
         var practitioner = CreateTestPractitioner();
-        var record = MedicalRecord.Create(
+        var record = MedicalRecordAggregate.Create(
             Guid.NewGuid(),
             practitionerId,
             practitioner,
@@ -327,7 +325,7 @@ public class MedicalRecordTests
         // Arrange
         var practitionerId = Guid.NewGuid();
         var practitioner = CreateTestPractitioner();
-        var record = MedicalRecord.Create(
+        var record = MedicalRecordAggregate.Create(
             Guid.NewGuid(),
             practitionerId,
             practitioner,
@@ -348,7 +346,7 @@ public class MedicalRecordTests
         // Arrange
         var practitionerId = Guid.NewGuid();
         var practitioner = CreateTestPractitioner();
-        var record = MedicalRecord.Create(
+        var record = MedicalRecordAggregate.Create(
             Guid.NewGuid(),
             practitionerId,
             practitioner,
@@ -376,7 +374,7 @@ public class MedicalRecordTests
         // Arrange
         var practitionerId = Guid.NewGuid();
         var practitioner = CreateTestPractitioner();
-        var record = MedicalRecord.Create(
+        var record = MedicalRecordAggregate.Create(
             Guid.NewGuid(),
             practitionerId,
             practitioner,
@@ -398,7 +396,7 @@ public class MedicalRecordTests
         var practitionerId = Guid.NewGuid();
         var otherUserId = Guid.NewGuid();
         var practitioner = CreateTestPractitioner();
-        var record = MedicalRecord.Create(
+        var record = MedicalRecordAggregate.Create(
             Guid.NewGuid(),
             practitionerId,
             practitioner,
@@ -418,7 +416,7 @@ public class MedicalRecordTests
         // Arrange
         var practitionerId = Guid.NewGuid();
         var practitioner = CreateTestPractitioner();
-        var record = MedicalRecord.Create(
+        var record = MedicalRecordAggregate.Create(
             Guid.NewGuid(),
             practitionerId,
             practitioner,
@@ -555,7 +553,7 @@ public class MedicalRecordTests
         // Arrange
         var practitionerId = Guid.NewGuid();
         var practitioner = CreateTestPractitioner();
-        var record = MedicalRecord.Create(
+        var record = MedicalRecordAggregate.Create(
             Guid.NewGuid(),
             practitionerId,
             practitioner,
@@ -577,7 +575,7 @@ public class MedicalRecordTests
         // Arrange
         var practitionerId = Guid.NewGuid();
         var practitioner = CreateTestPractitioner();
-        var record = MedicalRecord.Create(
+        var record = MedicalRecordAggregate.Create(
             Guid.NewGuid(),
             practitionerId,
             practitioner,
@@ -599,7 +597,7 @@ public class MedicalRecordTests
         // Arrange
         var practitionerId = Guid.NewGuid();
         var practitioner = CreateTestPractitioner();
-        var record = MedicalRecord.Create(
+        var record = MedicalRecordAggregate.Create(
             Guid.NewGuid(),
             practitionerId,
             practitioner,
@@ -621,7 +619,7 @@ public class MedicalRecordTests
         // Arrange
         var practitionerId = Guid.NewGuid();
         var practitioner = CreateTestPractitioner();
-        var record = MedicalRecord.Create(
+        var record = MedicalRecordAggregate.Create(
             Guid.NewGuid(),
             practitionerId,
             practitioner,
@@ -640,7 +638,7 @@ public class MedicalRecordTests
         // Arrange
         var practitionerId = Guid.NewGuid();
         var practitioner = CreateTestPractitioner();
-        var record = MedicalRecord.Create(
+        var record = MedicalRecordAggregate.Create(
             Guid.NewGuid(),
             practitionerId,
             practitioner,
@@ -676,7 +674,7 @@ public class MedicalRecordTests
         // Arrange
         var practitionerId = Guid.NewGuid();
         var practitioner = CreateTestPractitioner();
-        var record = MedicalRecord.Create(
+        var record = MedicalRecordAggregate.Create(
             Guid.NewGuid(),
             practitionerId,
             practitioner,
@@ -695,7 +693,7 @@ public class MedicalRecordTests
         // Arrange
         var practitionerId = Guid.NewGuid();
         var practitioner = CreateTestPractitioner();
-        var record = MedicalRecord.Create(
+        var record = MedicalRecordAggregate.Create(
             Guid.NewGuid(),
             practitionerId,
             practitioner,
@@ -726,7 +724,7 @@ public class MedicalRecordTests
         var content = "Test content";
 
         // Act
-        var record = MedicalRecord.Create(patientId, practitionerId, practitioner, recordType, title, content);
+        var record = MedicalRecordAggregate.Create(patientId, practitionerId, practitioner, recordType, title, content);
 
         // Assert
         record.Should().NotBeNull();

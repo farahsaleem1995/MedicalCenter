@@ -1,6 +1,7 @@
 using FluentAssertions;
 using MedicalCenter.Core.Aggregates;
-using MedicalCenter.Core.Common;
+using MedicalCenter.Core.Aggregates.Laboratories;
+using MedicalCenter.Core.SharedKernel;
 using Xunit;
 
 namespace MedicalCenter.Core.Tests.Entities;

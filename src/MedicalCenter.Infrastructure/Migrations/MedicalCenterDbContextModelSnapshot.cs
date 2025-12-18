@@ -116,7 +116,183 @@ namespace MedicalCenter.Infrastructure.Migrations
                         });
                 });
 
-            modelBuilder.Entity("MedicalCenter.Core.Aggregates.MedicalRecord.MedicalRecord", b =>
+            modelBuilder.Entity("MedicalCenter.Core.Aggregates.Doctors.Doctor", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("FullName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("LicenseNumber")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("Specialty")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Doctors", (string)null);
+                });
+
+            modelBuilder.Entity("MedicalCenter.Core.Aggregates.HealthcareStaff.HealthcareStaff", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Department")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("FullName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("OrganizationName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("HealthcareStaff", (string)null);
+                });
+
+            modelBuilder.Entity("MedicalCenter.Core.Aggregates.ImagingCenters.ImagingCenter", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("CenterName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("FullName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("LicenseNumber")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ImagingCenters", (string)null);
+                });
+
+            modelBuilder.Entity("MedicalCenter.Core.Aggregates.Laboratories.Laboratory", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("FullName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("LabName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("LicenseNumber")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Laboratories", (string)null);
+                });
+
+            modelBuilder.Entity("MedicalCenter.Core.Aggregates.MedicalRecords.MedicalRecord", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -166,7 +342,7 @@ namespace MedicalCenter.Infrastructure.Migrations
                     b.ToTable("MedicalRecords", (string)null);
                 });
 
-            modelBuilder.Entity("MedicalCenter.Core.Aggregates.Patient.Allergy", b =>
+            modelBuilder.Entity("MedicalCenter.Core.Aggregates.Patients.Entities.Allergy", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -201,7 +377,7 @@ namespace MedicalCenter.Infrastructure.Migrations
                     b.ToTable("Allergies", (string)null);
                 });
 
-            modelBuilder.Entity("MedicalCenter.Core.Aggregates.Patient.ChronicDisease", b =>
+            modelBuilder.Entity("MedicalCenter.Core.Aggregates.Patients.Entities.ChronicDisease", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -235,7 +411,7 @@ namespace MedicalCenter.Infrastructure.Migrations
                     b.ToTable("ChronicDiseases", (string)null);
                 });
 
-            modelBuilder.Entity("MedicalCenter.Core.Aggregates.Patient.Medication", b =>
+            modelBuilder.Entity("MedicalCenter.Core.Aggregates.Patients.Entities.Medication", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -276,7 +452,45 @@ namespace MedicalCenter.Infrastructure.Migrations
                     b.ToTable("Medications", (string)null);
                 });
 
-            modelBuilder.Entity("MedicalCenter.Core.Aggregates.Patient.Patient", b =>
+            modelBuilder.Entity("MedicalCenter.Core.Aggregates.Patients.Entities.Surgery", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<Guid>("PatientId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Surgeon")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PatientId");
+
+                    b.ToTable("Surgeries", (string)null);
+                });
+
+            modelBuilder.Entity("MedicalCenter.Core.Aggregates.Patients.Patient", b =>
                 {
                     b.Property<Guid>("Id")
                         .HasColumnType("uniqueidentifier");
@@ -322,220 +536,6 @@ namespace MedicalCenter.Infrastructure.Migrations
                         .IsUnique();
 
                     b.ToTable("Patients", (string)null);
-                });
-
-            modelBuilder.Entity("MedicalCenter.Core.Aggregates.Patient.Surgery", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("Date")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<string>("Notes")
-                        .HasMaxLength(1000)
-                        .HasColumnType("nvarchar(1000)");
-
-                    b.Property<Guid>("PatientId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Surgeon")
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("PatientId");
-
-                    b.ToTable("Surgeries", (string)null);
-                });
-
-            modelBuilder.Entity("MedicalCenter.Core.Entities.Doctor", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Email")
-                        .IsRequired()
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
-
-                    b.Property<string>("FullName")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("LicenseNumber")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<string>("Role")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<string>("Specialty")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Doctors", (string)null);
-                });
-
-            modelBuilder.Entity("MedicalCenter.Core.Entities.HealthcareEntity", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Department")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<string>("Email")
-                        .IsRequired()
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
-
-                    b.Property<string>("FullName")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("OrganizationName")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<string>("Role")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("HealthcareEntities", (string)null);
-                });
-
-            modelBuilder.Entity("MedicalCenter.Core.Entities.ImagingCenter", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("CenterName")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Email")
-                        .IsRequired()
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
-
-                    b.Property<string>("FullName")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("LicenseNumber")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<string>("Role")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("ImagingCenters", (string)null);
-                });
-
-            modelBuilder.Entity("MedicalCenter.Core.Entities.Laboratory", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Email")
-                        .IsRequired()
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
-
-                    b.Property<string>("FullName")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("LabName")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<string>("LicenseNumber")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<string>("Role")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Laboratories", (string)null);
                 });
 
             modelBuilder.Entity("MedicalCenter.Infrastructure.Identity.ApplicationUser", b =>
@@ -750,15 +750,51 @@ namespace MedicalCenter.Infrastructure.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("MedicalCenter.Core.Aggregates.MedicalRecord.MedicalRecord", b =>
+            modelBuilder.Entity("MedicalCenter.Core.Aggregates.Doctors.Doctor", b =>
                 {
-                    b.HasOne("MedicalCenter.Core.Aggregates.Patient.Patient", "Patient")
+                    b.HasOne("MedicalCenter.Infrastructure.Identity.ApplicationUser", null)
+                        .WithOne("Doctor")
+                        .HasForeignKey("MedicalCenter.Core.Aggregates.Doctors.Doctor", "Id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("MedicalCenter.Core.Aggregates.HealthcareStaff.HealthcareStaff", b =>
+                {
+                    b.HasOne("MedicalCenter.Infrastructure.Identity.ApplicationUser", null)
+                        .WithOne("HealthcareStaff")
+                        .HasForeignKey("MedicalCenter.Core.Aggregates.HealthcareStaff.HealthcareStaff", "Id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("MedicalCenter.Core.Aggregates.ImagingCenters.ImagingCenter", b =>
+                {
+                    b.HasOne("MedicalCenter.Infrastructure.Identity.ApplicationUser", null)
+                        .WithOne("ImagingCenter")
+                        .HasForeignKey("MedicalCenter.Core.Aggregates.ImagingCenters.ImagingCenter", "Id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("MedicalCenter.Core.Aggregates.Laboratories.Laboratory", b =>
+                {
+                    b.HasOne("MedicalCenter.Infrastructure.Identity.ApplicationUser", null)
+                        .WithOne("Laboratory")
+                        .HasForeignKey("MedicalCenter.Core.Aggregates.Laboratories.Laboratory", "Id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("MedicalCenter.Core.Aggregates.MedicalRecords.MedicalRecord", b =>
+                {
+                    b.HasOne("MedicalCenter.Core.Aggregates.Patients.Patient", "Patient")
                         .WithMany()
                         .HasForeignKey("PatientId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.OwnsOne("MedicalCenter.Core.Aggregates.MedicalRecord.Practitioner", "Practitioner", b1 =>
+                    b.OwnsOne("MedicalCenter.Core.Aggregates.MedicalRecords.ValueObjects.Practitioner", "Practitioner", b1 =>
                         {
                             b1.Property<Guid>("MedicalRecordId")
                                 .HasColumnType("uniqueidentifier");
@@ -787,7 +823,7 @@ namespace MedicalCenter.Infrastructure.Migrations
                                 .HasForeignKey("MedicalRecordId");
                         });
 
-                    b.OwnsMany("MedicalCenter.Core.ValueObjects.Attachment", "Attachments", b1 =>
+                    b.OwnsMany("MedicalCenter.Core.SharedKernel.Attachment", "Attachments", b1 =>
                         {
                             b1.Property<Guid>("MedicalRecordId")
                                 .HasColumnType("uniqueidentifier");
@@ -840,9 +876,9 @@ namespace MedicalCenter.Infrastructure.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("MedicalCenter.Core.Aggregates.Patient.Allergy", b =>
+            modelBuilder.Entity("MedicalCenter.Core.Aggregates.Patients.Entities.Allergy", b =>
                 {
-                    b.HasOne("MedicalCenter.Core.Aggregates.Patient.Patient", "Patient")
+                    b.HasOne("MedicalCenter.Core.Aggregates.Patients.Patient", "Patient")
                         .WithMany("Allergies")
                         .HasForeignKey("PatientId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -851,9 +887,9 @@ namespace MedicalCenter.Infrastructure.Migrations
                     b.Navigation("Patient");
                 });
 
-            modelBuilder.Entity("MedicalCenter.Core.Aggregates.Patient.ChronicDisease", b =>
+            modelBuilder.Entity("MedicalCenter.Core.Aggregates.Patients.Entities.ChronicDisease", b =>
                 {
-                    b.HasOne("MedicalCenter.Core.Aggregates.Patient.Patient", "Patient")
+                    b.HasOne("MedicalCenter.Core.Aggregates.Patients.Patient", "Patient")
                         .WithMany("ChronicDiseases")
                         .HasForeignKey("PatientId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -862,9 +898,9 @@ namespace MedicalCenter.Infrastructure.Migrations
                     b.Navigation("Patient");
                 });
 
-            modelBuilder.Entity("MedicalCenter.Core.Aggregates.Patient.Medication", b =>
+            modelBuilder.Entity("MedicalCenter.Core.Aggregates.Patients.Entities.Medication", b =>
                 {
-                    b.HasOne("MedicalCenter.Core.Aggregates.Patient.Patient", "Patient")
+                    b.HasOne("MedicalCenter.Core.Aggregates.Patients.Patient", "Patient")
                         .WithMany("Medications")
                         .HasForeignKey("PatientId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -873,15 +909,26 @@ namespace MedicalCenter.Infrastructure.Migrations
                     b.Navigation("Patient");
                 });
 
-            modelBuilder.Entity("MedicalCenter.Core.Aggregates.Patient.Patient", b =>
+            modelBuilder.Entity("MedicalCenter.Core.Aggregates.Patients.Entities.Surgery", b =>
                 {
-                    b.HasOne("MedicalCenter.Infrastructure.Identity.ApplicationUser", null)
-                        .WithOne("Patient")
-                        .HasForeignKey("MedicalCenter.Core.Aggregates.Patient.Patient", "Id")
+                    b.HasOne("MedicalCenter.Core.Aggregates.Patients.Patient", "Patient")
+                        .WithMany("Surgeries")
+                        .HasForeignKey("PatientId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.OwnsOne("MedicalCenter.Core.ValueObjects.BloodType", "BloodType", b1 =>
+                    b.Navigation("Patient");
+                });
+
+            modelBuilder.Entity("MedicalCenter.Core.Aggregates.Patients.Patient", b =>
+                {
+                    b.HasOne("MedicalCenter.Infrastructure.Identity.ApplicationUser", null)
+                        .WithOne("Patient")
+                        .HasForeignKey("MedicalCenter.Core.Aggregates.Patients.Patient", "Id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.OwnsOne("MedicalCenter.Core.Aggregates.Patients.ValueObjects.BloodType", "BloodType", b1 =>
                         {
                             b1.Property<Guid>("PatientId")
                                 .HasColumnType("uniqueidentifier");
@@ -907,53 +954,6 @@ namespace MedicalCenter.Infrastructure.Migrations
                         });
 
                     b.Navigation("BloodType");
-                });
-
-            modelBuilder.Entity("MedicalCenter.Core.Aggregates.Patient.Surgery", b =>
-                {
-                    b.HasOne("MedicalCenter.Core.Aggregates.Patient.Patient", "Patient")
-                        .WithMany("Surgeries")
-                        .HasForeignKey("PatientId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Patient");
-                });
-
-            modelBuilder.Entity("MedicalCenter.Core.Entities.Doctor", b =>
-                {
-                    b.HasOne("MedicalCenter.Infrastructure.Identity.ApplicationUser", null)
-                        .WithOne("Doctor")
-                        .HasForeignKey("MedicalCenter.Core.Entities.Doctor", "Id")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("MedicalCenter.Core.Entities.HealthcareEntity", b =>
-                {
-                    b.HasOne("MedicalCenter.Infrastructure.Identity.ApplicationUser", null)
-                        .WithOne("HealthcareEntity")
-                        .HasForeignKey("MedicalCenter.Core.Entities.HealthcareEntity", "Id")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("MedicalCenter.Core.Entities.ImagingCenter", b =>
-                {
-                    b.HasOne("MedicalCenter.Infrastructure.Identity.ApplicationUser", null)
-                        .WithOne("ImagingCenter")
-                        .HasForeignKey("MedicalCenter.Core.Entities.ImagingCenter", "Id")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("MedicalCenter.Core.Entities.Laboratory", b =>
-                {
-                    b.HasOne("MedicalCenter.Infrastructure.Identity.ApplicationUser", null)
-                        .WithOne("Laboratory")
-                        .HasForeignKey("MedicalCenter.Core.Entities.Laboratory", "Id")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>
@@ -997,7 +997,7 @@ namespace MedicalCenter.Infrastructure.Migrations
                     b.Navigation("Users");
                 });
 
-            modelBuilder.Entity("MedicalCenter.Core.Aggregates.Patient.Patient", b =>
+            modelBuilder.Entity("MedicalCenter.Core.Aggregates.Patients.Patient", b =>
                 {
                     b.Navigation("Allergies");
 
@@ -1012,7 +1012,7 @@ namespace MedicalCenter.Infrastructure.Migrations
                 {
                     b.Navigation("Doctor");
 
-                    b.Navigation("HealthcareEntity");
+                    b.Navigation("HealthcareStaff");
 
                     b.Navigation("ImagingCenter");
 

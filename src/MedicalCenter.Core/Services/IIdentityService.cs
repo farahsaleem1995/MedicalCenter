@@ -1,6 +1,5 @@
-using MedicalCenter.Core.Aggregates;
-using MedicalCenter.Core.Aggregates.Patient;
-using MedicalCenter.Core.Common;
+using MedicalCenter.Core.Primitives;
+using MedicalCenter.Core.SharedKernel;
 
 namespace MedicalCenter.Core.Services;
 
@@ -31,9 +30,9 @@ public interface IIdentityService
         CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Creates a healthcare entity user with Identity and domain entity.
+    /// Creates a healthcare staff user with Identity and domain entity.
     /// </summary>
-    Task<Result<Guid>> CreateHealthcareEntityAsync(
+    Task<Result<Guid>> CreateHealthcareStaffAsync(
         string fullName,
         string email,
         string password,

@@ -1,7 +1,8 @@
 using FastEndpoints;
-using MedicalCenter.Core.Aggregates.Patient;
-using MedicalCenter.Core.Aggregates.Patient.Specifications;
-using MedicalCenter.Core.Common;
+using MedicalCenter.Core.Aggregates.Patients;
+using MedicalCenter.Core.Aggregates.Patients.Specifications;
+using MedicalCenter.Core.Primitives;
+using MedicalCenter.Core.SharedKernel;
 using MedicalCenter.Infrastructure.Authorization;
 
 namespace MedicalCenter.WebApi.Endpoints.Patients.ChronicDiseases;

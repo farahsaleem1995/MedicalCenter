@@ -1,7 +1,9 @@
 using FluentAssertions;
-using MedicalCenter.Core.Aggregates.Patient;
+using MedicalCenter.Core.Aggregates.Patients;
+using MedicalCenter.Core.Aggregates.Patients.Enums;
+using MedicalCenter.Core.Aggregates.Patients.ValueObjects;
 using Xunit;
-using PatientEntity = MedicalCenter.Core.Aggregates.Patient.Patient;
+using PatientAggregate = MedicalCenter.Core.Aggregates.Patients.Patient;
 
 namespace MedicalCenter.Core.Tests.Aggregates.Patient;
 
@@ -11,16 +13,16 @@ namespace MedicalCenter.Core.Tests.Aggregates.Patient;
 /// </summary>
 public class PatientAuthorizationRulesTests
 {
-    private PatientEntity CreateTestPatient()
+    private PatientAggregate CreateTestPatient()
     {
-        return PatientEntity.Create("John Doe", "john.doe@example.com", "123456789", new DateTime(1990, 1, 15));
+        return PatientAggregate.Create("John Doe", "john.doe@example.com", "123456789", new DateTime(1990, 1, 15));
     }
 
     [Fact]
     public void Allows_MedicalAttributes_ToBeUpdated_ByAuthorizedPractitioner()
     {
         // Arrange
-        PatientEntity patient = CreateTestPatient();
+        PatientAggregate patient = CreateTestPatient();
         var bloodType = BloodType.Create(BloodABO.A, BloodRh.Positive);
 
         // Act - Domain allows the update (authorization is infrastructure concern)
@@ -37,7 +39,7 @@ public class PatientAuthorizationRulesTests
     public void Enforces_MedicalAttribute_Consistency_WhenUpdating()
     {
         // Arrange
-        PatientEntity patient = CreateTestPatient();
+        PatientAggregate patient = CreateTestPatient();
         var allergy = patient.AddAllergy("Peanuts", "Severe");
         var allergyId = allergy.Id;
 
@@ -54,7 +56,7 @@ public class PatientAuthorizationRulesTests
     public void Prevents_Updating_NonExistent_MedicalAttribute()
     {
         // Arrange
-        PatientEntity patient = CreateTestPatient();
+        PatientAggregate patient = CreateTestPatient();
         var nonExistentId = Guid.NewGuid();
 
         // Act & Assert - Domain rule: Cannot update non-existent attribute
@@ -67,7 +69,7 @@ public class PatientAuthorizationRulesTests
     public void Enforces_Medication_DateConstraints_WhenAdding()
     {
         // Arrange
-        PatientEntity patient = CreateTestPatient();
+        PatientAggregate patient = CreateTestPatient();
         var startDate = new DateTime(2024, 1, 1);
         var endDate = new DateTime(2023, 12, 31); // Before start date
 
@@ -80,7 +82,7 @@ public class PatientAuthorizationRulesTests
     public void Enforces_ChronicDisease_DiagnosisDate_NotInFuture()
     {
         // Arrange
-        PatientEntity patient = CreateTestPatient();
+        PatientAggregate patient = CreateTestPatient();
         var futureDate = DateTime.UtcNow.AddDays(1);
 
         // Act & Assert - Domain rule: Diagnosis date cannot be in the future
@@ -92,7 +94,7 @@ public class PatientAuthorizationRulesTests
     public void Enforces_Surgery_Date_NotInFuture()
     {
         // Arrange
-        PatientEntity patient = CreateTestPatient();
+        PatientAggregate patient = CreateTestPatient();
         var futureDate = DateTime.UtcNow.AddDays(1);
 
         // Act & Assert - Domain rule: Surgery date cannot be in the future
@@ -104,7 +106,7 @@ public class PatientAuthorizationRulesTests
     public void Maintains_Aggregate_Consistency_WhenRemoving_MedicalAttributes()
     {
         // Arrange
-        PatientEntity patient = CreateTestPatient();
+        PatientAggregate patient = CreateTestPatient();
         var allergy1 = patient.AddAllergy("Peanuts", "Severe");
         var allergy2 = patient.AddAllergy("Shellfish", "Moderate");
 
@@ -120,7 +122,7 @@ public class PatientAuthorizationRulesTests
     public void Allows_Multiple_MedicalAttributes_OfSameType()
     {
         // Arrange
-        PatientEntity patient = CreateTestPatient();
+        PatientAggregate patient = CreateTestPatient();
 
         // Act
         patient.AddAllergy("Peanuts", "Severe");
@@ -135,7 +137,7 @@ public class PatientAuthorizationRulesTests
     public void Enforces_BloodType_ValueObject_Immutability()
     {
         // Arrange
-        PatientEntity patient = CreateTestPatient();
+        PatientAggregate patient = CreateTestPatient();
         var bloodType1 = BloodType.Create(BloodABO.A, BloodRh.Positive);
         var bloodType2 = BloodType.Create(BloodABO.A, BloodRh.Positive);
 

@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using MedicalCenter.Core.Aggregates;
+using MedicalCenter.Core.Aggregates.ImagingCenters;
 using MedicalCenter.Infrastructure.Identity;
 
 namespace MedicalCenter.Infrastructure.Data.Configurations;

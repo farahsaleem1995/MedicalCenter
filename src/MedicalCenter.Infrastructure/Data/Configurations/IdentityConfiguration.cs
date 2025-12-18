@@ -2,8 +2,11 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using MedicalCenter.Infrastructure.Identity;
-using MedicalCenter.Core.Aggregates;
-using MedicalCenter.Core.Aggregates.Patient;
+using MedicalCenter.Core.Aggregates.Patients;
+using MedicalCenter.Core.Aggregates.Doctors;
+using MedicalCenter.Core.Aggregates.HealthcareStaff;
+using MedicalCenter.Core.Aggregates.Laboratories;
+using MedicalCenter.Core.Aggregates.ImagingCenters;
 
 namespace MedicalCenter.Infrastructure.Data.Configurations;
 
@@ -38,9 +41,9 @@ public class IdentityConfiguration
             .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<ApplicationUser>()
-            .HasOne(u => u.HealthcareEntity)
+            .HasOne(u => u.HealthcareStaff)
             .WithOne()
-            .HasForeignKey<HealthcareEntity>(h => h.Id)
+            .HasForeignKey<HealthcareStaff>(h => h.Id)
             .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<ApplicationUser>()

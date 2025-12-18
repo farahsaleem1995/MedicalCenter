@@ -1,5 +1,5 @@
 using System.Security.Claims;
-using MedicalCenter.Core.Common;
+using MedicalCenter.Core.SharedKernel;
 
 namespace MedicalCenter.Core.Services;
 

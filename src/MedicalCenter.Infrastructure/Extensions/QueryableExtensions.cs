@@ -1,4 +1,4 @@
-using MedicalCenter.Core.Common;
+using MedicalCenter.Core.Primitives.Pagination;
 using MedicalCenter.Infrastructure.Identity;
 using Microsoft.EntityFrameworkCore;
 

@@ -23,6 +23,7 @@ This document outlines the high-level implementation plan for the Medical Center
 ### Completed Features
 
 - ✅ Core foundation with base classes and common abstractions
+- ✅ **Core layer reorganization** - Reorganized Core layer following DDD principles (Abstractions/, Primitives/, SharedKernel/, Queries/, organized Aggregates/)
 - ✅ Infrastructure with EF Core, Identity, and repositories
 - ✅ Authentication system (JWT, refresh tokens)
 - ✅ Patient aggregate with medical attributes (Allergies, ChronicDiseases, Medications, Surgeries)
@@ -30,7 +31,7 @@ This document outlines the high-level implementation plan for the Medical Center
 - ✅ Medical attributes CRUD endpoints
 - ✅ Pagination infrastructure (`PaginatedList<T>`, `PaginationMetadata`)
 - ✅ User query service with pagination support
-- ✅ Practitioner aggregates (Doctor, HealthcareEntity, Laboratory, ImagingCenter) with shared primary key
+- ✅ Practitioner aggregates (Doctor, HealthcareStaff, Laboratory, ImagingCenter) with shared primary key
 - ✅ Identity service for user management
 - ✅ Admin user management endpoints (CRUD, change password)
 - ✅ Get current user endpoint (`GET /auth/self`)
@@ -108,9 +109,13 @@ MedicalCenter/
 
 **Note on Shared Projects**: Initially considered a `MedicalCenter.Shared` project, but decided against it to maintain clean architecture principles. DTOs belong in the WebApi layer (they're presentation concerns), domain constants/enums belong in Core (organized by domain concepts), and API-specific constants belong in WebApi. This avoids unnecessary coupling between layers.
 
-**Domain Organization**: The domain model is organized around domain concepts, not technical classifications:
-- Aggregate-specific types (enums, value objects) live within their aggregates (e.g., `BloodType`, `BloodABO`, `BloodRh` in Patient aggregate)
-- Common abstractions and shared concepts live in Common folder (e.g., `IRepository`, `IUnitOfWork`, `ValueObject`, `Attachment`, `UserRole`, `ProviderType`)
+**Domain Organization**: The domain model is organized following DDD principles:
+- Aggregate-specific types (enums, value objects, entities, specifications) live within their aggregates (e.g., `BloodType`, `BloodABO`, `BloodRh` in Patients aggregate)
+- DDD building blocks (BaseEntity, ValueObject, IAggregateRoot) in `Abstractions/`
+- Cross-cutting technical concerns (Result pattern, Pagination) in `Primitives/`
+- Shared domain concepts (User, Repository, Domain Events) in `SharedKernel/`
+- Query service interfaces in `Queries/`
+- Domain service interfaces in `Services/`
 
 ---
 
@@ -153,7 +158,7 @@ The domain is organized around the following aggregates:
 
 ### 2.1.1 Practitioner Aggregates
 
-The practitioner user types (`Doctor`, `HealthcareEntity`, `Laboratory`, `ImagingCenter`) are **aggregate roots**:
+The practitioner user types (`Doctor`, `HealthcareStaff`, `Laboratory`, `ImagingCenter`) are **aggregate roots**:
 
 - They inherit from `User` for identity and authentication purposes
 - They are **referenced** by other aggregates (Encounters, MedicalRecords) but don't own them
@@ -161,7 +166,7 @@ The practitioner user types (`Doctor`, `HealthcareEntity`, `Laboratory`, `Imagin
 - They are aggregate roots even though they don't have related data - they represent distinct business concepts
 - They can be queried and displayed, and the core business logic revolves around Patients, Records, Encounters, and Practitioners
 
-**Repository consideration**: Since practitioner aggregates (`Doctor`, `HealthcareEntity`, etc.) are aggregate roots, they can be accessed through the repository pattern. However, for read operations, query service interfaces (e.g., `IUserQueryService`) are used for optimized queries. Practitioner data can also be included in specifications that query aggregates (e.g., a specification that loads Encounters with their associated Practitioner information).
+**Repository consideration**: Since practitioner aggregates (`Doctor`, `HealthcareStaff`, etc.) are aggregate roots, they can be accessed through the repository pattern. However, for read operations, query service interfaces (e.g., `IUserQueryService`) are used for optimized queries. Practitioner data can also be included in specifications that query aggregates (e.g., a specification that loads Encounters with their associated Practitioner information).
 
 ### 2.2 Domain Services
 
@@ -214,7 +219,7 @@ public interface IRepository<T> where T : IAggregateRoot
 - **Type Safety**: Generic constraint ensures only aggregate roots can be used
 - **Framework Integration**: Ardalis.Specification provides EF Core implementation out of the box
 
-**Practitioner Aggregates**: `Doctor`, `HealthcareEntity`, `Laboratory`, and `ImagingCenter` are aggregate roots. They can be accessed through the repository pattern, but for read operations, query service interfaces (defined in Core) with implementations in Infrastructure are used for optimized queries.
+**Practitioner Aggregates**: `Doctor`, `HealthcareStaff`, `Laboratory`, and `ImagingCenter` are aggregate roots. They can be accessed through the repository pattern, but for read operations, query service interfaces (defined in Core) with implementations in Infrastructure are used for optimized queries.
 
 ### 2.6 Query Service Interfaces
 
@@ -383,7 +388,7 @@ public async Task<IReadOnlyList<DoctorDto>> GetDoctorsBySpecialtyAsync(
 ```
 
 **When to Use Query Services**:
-- **Non-aggregate entities**: For querying `Doctor`, `HealthcareEntity`, `Laboratory`, `ImagingCenter`
+- **Non-aggregate entities**: For querying `Doctor`, `HealthcareStaff`, `Laboratory`, `ImagingCenter`
 - **Complex queries**: For queries that don't fit well into repository pattern
 - **Reporting/Read-only operations**: For queries that return DTOs optimized for specific views
 - **Performance-critical queries**: When you need direct control over SQL generation
@@ -479,7 +484,7 @@ See [Authorization Architecture](#authorization-architecture) section for detail
 User (abstract base)
 ├── Patient
 ├── Doctor
-├── HealthcareEntity
+├── HealthcareStaff
 ├── Laboratory
 └── ImagingCenter
 ```
@@ -744,8 +749,9 @@ Medical attributes are part of the `Patient` aggregate:
 - **DTOs belong in WebApi**: Request/Response DTOs are presentation concerns and should live in the WebApi layer. They're not shared across layers - Core doesn't need to know about DTOs.
 - **Domain organization**: Domain model organized around concepts, not technical terms
   - Aggregate-specific enums (e.g., `BloodABO`, `BloodRh`, `RecordType`) live within their aggregates
-  - Common enums (e.g., `UserRole`, `ProviderType`) live in Common folder
-  - Common abstractions (`IRepository`, `IUnitOfWork`, `ValueObject`, `Attachment`) live in Common folder
+- Shared domain concepts (e.g., `UserRole`, `ProviderType`, `User`, `Attachment`, `IRepository`, `IUnitOfWork`) live in `SharedKernel/`
+- DDD building blocks (`BaseEntity`, `ValueObject`, `IAggregateRoot`) live in `Abstractions/`
+- Cross-cutting concerns (`Result<T>`, `Error`, `PaginatedList<T>`) live in `Primitives/`
 - **API constants in WebApi**: API-specific constants (e.g., route names, policy names) belong in the WebApi layer.
 - **Avoid coupling**: Shared projects create coupling between layers, violating clean architecture principles. Each layer should only depend on layers below it.
 - **YAGNI principle**: We don't need a shared project until we have a concrete need that can't be satisfied by placing items in the appropriate layer.
@@ -754,7 +760,7 @@ Medical attributes are part of the `Patient` aggregate:
 
 #### 7.0.2 User Roles: All User Types as Aggregates
 
-**Decision**: All user types (`Patient`, `Doctor`, `HealthcareEntity`, `Laboratory`, `ImagingCenter`) are aggregate roots.
+**Decision**: All user types (`Patient`, `Doctor`, `HealthcareStaff`, `Laboratory`, `ImagingCenter`) are aggregate roots.
 
 **Rationale**:
 - **Patient is an aggregate** because:
@@ -797,7 +803,7 @@ Medical attributes are part of the `Patient` aggregate:
 
 **Aggregate Roots Only**:
 - Repository works exclusively with aggregate roots (entities that have their own consistency boundaries)
-- Regular entities (like `Doctor`, `HealthcareEntity`) are not accessed through the repository
+- Regular entities (like `Doctor`, `HealthcareStaff`) are not accessed through the repository
 - This enforces DDD principle: repositories are for aggregates, not all entities
 - Provider entities are queried through query service interfaces (defined in Core, implemented in Infrastructure)
 
@@ -1028,7 +1034,7 @@ This section provides a comprehensive, phase-by-phase implementation guide. Each
 2. **Create Common Abstractions**
    - `IRepository<T>` interface (generic repository)
    - `IUnitOfWork` interface (transaction management)
-   - Common enums: `UserRole`, `ProviderType` (in Common folder)
+   - Shared domain concepts: `UserRole`, `ProviderType`, `User` (in SharedKernel/)
    - Aggregate-specific enums: `BloodABO`, `BloodRh` (in Patient aggregate), `RecordType` (in MedicalRecord aggregate)
 
 3. **Create Result Pattern**
@@ -1111,7 +1117,7 @@ This section provides a comprehensive, phase-by-phase implementation guide. Each
 
 1. **User Domain Model**
    - Create abstract `User` base class (inherits from BaseEntity)
-   - Create `Patient`, `Doctor`, `HealthcareEntity`, `Laboratory`, `ImagingCenter` classes
+   - Create `Patient`, `Doctor`, `HealthcareStaff`, `Laboratory`, `ImagingCenter` classes
    - Create `UserRole` enum
 
 2. **Identity Configuration**
@@ -1152,7 +1158,7 @@ This section provides a comprehensive, phase-by-phase implementation guide. Each
      - Test `User` activation/deactivation behavior
      - Test `Patient` creation and properties
      - Test `Doctor` creation and properties
-     - Test `HealthcareEntity` creation and properties
+     - Test `HealthcareStaff` creation and properties
      - Test `Laboratory` creation and properties
      - Test `ImagingCenter` creation and properties
      - Test `Result<T>` pattern behavior

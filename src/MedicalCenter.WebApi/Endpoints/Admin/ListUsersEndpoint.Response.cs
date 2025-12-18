@@ -1,4 +1,5 @@
-using MedicalCenter.Core.Common;
+using MedicalCenter.Core.Primitives.Pagination;
+using MedicalCenter.Core.SharedKernel;
 
 namespace MedicalCenter.WebApi.Endpoints.Admin;
 

@@ -1,9 +1,11 @@
 using FastEndpoints;
-using MedicalCenter.Core.Aggregates.MedicalRecord;
-using MedicalCenter.Core.Aggregates.MedicalRecord.Specifications;
-using MedicalCenter.Core.Aggregates.Patient;
-using MedicalCenter.Core.Aggregates.Patient.Specifications;
-using MedicalCenter.Core.Common;
+using MedicalCenter.Core.Aggregates.MedicalRecords;
+using MedicalCenter.Core.Aggregates.MedicalRecords.Specifications;
+using MedicalCenter.Core.Aggregates.MedicalRecords.ValueObjects;
+using MedicalCenter.Core.Aggregates.Patients;
+using MedicalCenter.Core.Aggregates.Patients.Specifications;
+using MedicalCenter.Core.Primitives;
+using MedicalCenter.Core.SharedKernel;
 using MedicalCenter.Core.Services;
 using MedicalCenter.Infrastructure.Authorization;
 

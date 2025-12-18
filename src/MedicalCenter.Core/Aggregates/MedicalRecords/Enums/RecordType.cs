@@ -1,0 +1,17 @@
+namespace MedicalCenter.Core.Aggregates.MedicalRecords.Enums;
+
+/// <summary>
+/// Types of medical records in the system.
+/// Belongs to the MedicalRecord aggregate.
+/// </summary>
+public enum RecordType
+{
+    ConsultationNote = 1,
+    LaboratoryResult = 2,
+    ImagingReport = 3,
+    Prescription = 4,
+    Diagnosis = 5,
+    TreatmentPlan = 6,
+    Other = 99
+}
+

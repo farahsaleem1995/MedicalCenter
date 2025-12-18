@@ -1,4 +1,4 @@
-using MedicalCenter.Core.Common;
+using MedicalCenter.Core.SharedKernel;
 using MedicalCenter.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore.Storage;
 

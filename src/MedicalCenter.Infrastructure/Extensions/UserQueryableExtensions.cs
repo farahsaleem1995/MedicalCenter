@@ -1,4 +1,4 @@
-using MedicalCenter.Core.Common;
+using MedicalCenter.Core.SharedKernel;
 using MedicalCenter.Infrastructure.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -16,7 +16,7 @@ public static class UserQueryableExtensions {
         return query
             .Include(u => u.Patient)
             .Include(u => u.Doctor)
-            .Include(u => u.HealthcareEntity)
+            .Include(u => u.HealthcareStaff)
             .Include(u => u.Laboratory)
             .Include(u => u.ImagingCenter);
     }
@@ -25,12 +25,12 @@ public static class UserQueryableExtensions {
     {
         return query.Where(u =>
             // SystemAdmin users (no domain entity relationship) are always active
-            (u.Patient == null && u.Doctor == null && u.HealthcareEntity == null &&
+            (u.Patient == null && u.Doctor == null && u.HealthcareStaff == null &&
              u.Laboratory == null && u.ImagingCenter == null) ||
             // Otherwise, check if the user's specific domain entity is active
             (u.Patient != null && u.Patient.IsActive) ||
             (u.Doctor != null && u.Doctor.IsActive) ||
-            (u.HealthcareEntity != null && u.HealthcareEntity.IsActive) ||
+            (u.HealthcareStaff != null && u.HealthcareStaff.IsActive) ||
             (u.Laboratory != null && u.Laboratory.IsActive) ||
             (u.ImagingCenter != null && u.ImagingCenter.IsActive));
     }
@@ -42,7 +42,7 @@ public static class UserQueryableExtensions {
             // Check if the user's specific domain entity is inactive
             (u.Patient != null && !u.Patient.IsActive) ||
             (u.Doctor != null && !u.Doctor.IsActive) ||
-            (u.HealthcareEntity != null && !u.HealthcareEntity.IsActive) ||
+            (u.HealthcareStaff != null && !u.HealthcareStaff.IsActive) ||
             (u.Laboratory != null && !u.Laboratory.IsActive) ||
             (u.ImagingCenter != null && !u.ImagingCenter.IsActive));
     }

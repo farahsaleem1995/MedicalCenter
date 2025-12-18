@@ -1,7 +1,8 @@
 using Microsoft.EntityFrameworkCore;
-using MedicalCenter.Core.Aggregates.MedicalRecord;
-using MedicalCenter.Core.Common;
-using MedicalCenter.Core.Services;
+using MedicalCenter.Core.Aggregates.MedicalRecords;
+using MedicalCenter.Core.Aggregates.MedicalRecords.Enums;
+using MedicalCenter.Core.Primitives.Pagination;
+using MedicalCenter.Core.Queries;
 using MedicalCenter.Infrastructure.Data;
 using MedicalCenter.Infrastructure.Extensions;
 

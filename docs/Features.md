@@ -640,7 +640,7 @@ All admin endpoints require `RequireAdmin` policy (SystemAdmin only).
     "bloodType": "A+"
   },
   "doctorDetails": null,
-  "healthcareEntityDetails": null,
+  "healthcareStaffDetails": null,
   "laboratoryDetails": null,
   "imagingCenterDetails": null
 }
@@ -661,7 +661,7 @@ All admin endpoints require `RequireAdmin` policy (SystemAdmin only).
     "licenseNumber": "MD12345",
     "specialty": "Cardiology"
   },
-  "healthcareEntityDetails": null,
+  "healthcareStaffDetails": null,
   "laboratoryDetails": null,
   "imagingCenterDetails": null
 }
@@ -679,7 +679,7 @@ All admin endpoints require `RequireAdmin` policy (SystemAdmin only).
   "updatedAt": "2024-01-02T00:00:00Z",
   "patientDetails": null,
   "doctorDetails": null,
-  "healthcareEntityDetails": {
+  "healthcareStaffDetails": {
     "organizationName": "City Hospital",
     "department": "Emergency"
   },
@@ -700,7 +700,7 @@ All admin endpoints require `RequireAdmin` policy (SystemAdmin only).
   "updatedAt": "2024-01-02T00:00:00Z",
   "patientDetails": null,
   "doctorDetails": null,
-  "healthcareEntityDetails": null,
+  "healthcareStaffDetails": null,
   "laboratoryDetails": {
     "labName": "City Lab"
   },
@@ -720,7 +720,7 @@ All admin endpoints require `RequireAdmin` policy (SystemAdmin only).
   "updatedAt": "2024-01-02T00:00:00Z",
   "patientDetails": null,
   "doctorDetails": null,
-  "healthcareEntityDetails": null,
+  "healthcareStaffDetails": null,
   "laboratoryDetails": null,
   "imagingCenterDetails": {
     "centerName": "City Imaging Center"
@@ -740,7 +740,7 @@ All admin endpoints require `RequireAdmin` policy (SystemAdmin only).
   "updatedAt": "2024-01-02T00:00:00Z",
   "patientDetails": null,
   "doctorDetails": null,
-  "healthcareEntityDetails": null,
+  "healthcareStaffDetails": null,
   "laboratoryDetails": null,
   "imagingCenterDetails": null
 }
@@ -841,7 +841,7 @@ All admin endpoints require `RequireAdmin` policy (SystemAdmin only).
     "licenseNumber": "MD12345",
     "specialty": "Neurology"
   },
-  "healthcareEntityDetails": null,
+  "healthcareStaffDetails": null,
   "laboratoryDetails": null,
   "imagingCenterDetails": null
 }
@@ -859,7 +859,7 @@ All admin endpoints require `RequireAdmin` policy (SystemAdmin only).
   "updatedAt": "2024-01-02T00:00:00Z",
   "patientDetails": null,
   "doctorDetails": null,
-  "healthcareEntityDetails": {
+  "healthcareStaffDetails": {
     "organizationName": "City Hospital Updated",
     "department": "Cardiology"
   },
@@ -880,7 +880,7 @@ All admin endpoints require `RequireAdmin` policy (SystemAdmin only).
   "updatedAt": "2024-01-02T00:00:00Z",
   "patientDetails": null,
   "doctorDetails": null,
-  "healthcareEntityDetails": null,
+  "healthcareStaffDetails": null,
   "laboratoryDetails": {
     "labName": "City Lab Updated"
   },
@@ -900,7 +900,7 @@ All admin endpoints require `RequireAdmin` policy (SystemAdmin only).
   "updatedAt": "2024-01-02T00:00:00Z",
   "patientDetails": null,
   "doctorDetails": null,
-  "healthcareEntityDetails": null,
+  "healthcareStaffDetails": null,
   "laboratoryDetails": null,
   "imagingCenterDetails": {
     "centerName": "City Imaging Center Updated"

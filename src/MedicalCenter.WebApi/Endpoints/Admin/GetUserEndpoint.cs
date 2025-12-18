@@ -1,5 +1,6 @@
 using FastEndpoints;
-using MedicalCenter.Core.Services;
+using MedicalCenter.Core.SharedKernel;
+using MedicalCenter.Core.Queries;
 using MedicalCenter.Infrastructure.Authorization;
 using MedicalCenter.WebApi.Extensions;
 

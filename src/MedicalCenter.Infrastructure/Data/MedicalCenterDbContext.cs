@@ -1,9 +1,12 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using MedicalCenter.Core.Aggregates;
-using MedicalCenter.Core.Aggregates.Patient;
-using MedicalCenter.Core.Aggregates.MedicalRecord;
+using MedicalCenter.Core.Aggregates.Patients;
+using MedicalCenter.Core.Aggregates.MedicalRecords;
+using MedicalCenter.Core.Aggregates.Doctors;
+using MedicalCenter.Core.Aggregates.HealthcareStaff;
+using MedicalCenter.Core.Aggregates.Laboratories;
+using MedicalCenter.Core.Aggregates.ImagingCenters;
 using MedicalCenter.Infrastructure.Data.Configurations;
 using MedicalCenter.Infrastructure.Data.Interceptors;
 using MedicalCenter.Infrastructure.Data.Seeders;
@@ -39,7 +42,7 @@ public class MedicalCenterDbContext : IdentityDbContext<
     public DbSet<Patient> Patients { get; set; } = null!;
     public DbSet<MedicalRecord> MedicalRecords { get; set; } = null!;
     public DbSet<Doctor> Doctors { get; set; } = null!;
-    public DbSet<HealthcareEntity> HealthcareEntities { get; set; } = null!;
+    public DbSet<HealthcareStaff> HealthcareStaff { get; set; } = null!;
     public DbSet<Laboratory> Laboratories { get; set; } = null!;
     public DbSet<ImagingCenter> ImagingCenters { get; set; } = null!;
 

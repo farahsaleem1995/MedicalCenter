@@ -22,11 +22,11 @@ public class CreateUserRequestValidator : Validator<CreateUserRequest>
 
         RuleFor(x => x.Role)
             .IsInEnum()
-            .Must(role => role != MedicalCenter.Core.Common.UserRole.Patient && role != MedicalCenter.Core.Common.UserRole.SystemAdmin)
+            .Must(role => role != MedicalCenter.Core.SharedKernel.UserRole.Patient && role != MedicalCenter.Core.SharedKernel.UserRole.SystemAdmin)
             .WithMessage("Only practitioner roles (Doctor, HealthcareStaff, LabUser, ImagingUser) are allowed.");
 
         // Doctor validation
-        When(x => x.Role == MedicalCenter.Core.Common.UserRole.Doctor, () =>
+        When(x => x.Role == MedicalCenter.Core.SharedKernel.UserRole.Doctor, () =>
         {
             RuleFor(x => x.LicenseNumber)
                 .NotEmpty()
@@ -37,7 +37,7 @@ public class CreateUserRequestValidator : Validator<CreateUserRequest>
         });
 
         // HealthcareStaff validation
-        When(x => x.Role == MedicalCenter.Core.Common.UserRole.HealthcareStaff, () =>
+        When(x => x.Role == MedicalCenter.Core.SharedKernel.UserRole.HealthcareStaff, () =>
         {
             RuleFor(x => x.OrganizationName)
                 .NotEmpty()
@@ -48,7 +48,7 @@ public class CreateUserRequestValidator : Validator<CreateUserRequest>
         });
 
         // LabUser validation
-        When(x => x.Role == MedicalCenter.Core.Common.UserRole.LabUser, () =>
+        When(x => x.Role == MedicalCenter.Core.SharedKernel.UserRole.LabUser, () =>
         {
             RuleFor(x => x.LabName)
                 .NotEmpty()
@@ -59,7 +59,7 @@ public class CreateUserRequestValidator : Validator<CreateUserRequest>
         });
 
         // ImagingUser validation
-        When(x => x.Role == MedicalCenter.Core.Common.UserRole.ImagingUser, () =>
+        When(x => x.Role == MedicalCenter.Core.SharedKernel.UserRole.ImagingUser, () =>
         {
             RuleFor(x => x.CenterName)
                 .NotEmpty()

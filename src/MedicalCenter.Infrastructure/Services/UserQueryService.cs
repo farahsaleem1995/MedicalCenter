@@ -1,9 +1,13 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using MedicalCenter.Core.Aggregates;
-using MedicalCenter.Core.Aggregates.Patient;
-using MedicalCenter.Core.Common;
-using MedicalCenter.Core.Services;
+using MedicalCenter.Core.Aggregates.Patients;
+using MedicalCenter.Core.Aggregates.Doctors;
+using MedicalCenter.Core.Aggregates.HealthcareStaff;
+using MedicalCenter.Core.Aggregates.Laboratories;
+using MedicalCenter.Core.Aggregates.ImagingCenters;
+using MedicalCenter.Core.Primitives.Pagination;
+using MedicalCenter.Core.Queries;
+using MedicalCenter.Core.SharedKernel;
 using MedicalCenter.Infrastructure.Data;
 using MedicalCenter.Infrastructure.Identity;
 using MedicalCenter.Infrastructure.Extensions;
@@ -13,7 +17,7 @@ namespace MedicalCenter.Infrastructure.Services;
 /// <summary>
 /// Implementation of IUserQueryService for querying user entities.
 /// Queries start from ASP.NET Core Identity's ApplicationUser to access all user types
-/// (Patient, Doctor, HealthcareEntity, Laboratory, ImagingCenter, and SystemAdmin).
+/// (Patient, Doctor, HealthcareStaff, Laboratory, ImagingCenter, and SystemAdmin).
 /// Includes related domain entities and roles for comprehensive user data retrieval.
 /// </summary>
 public class UserQueryService(UserManager<ApplicationUser> userManager)
@@ -59,7 +63,7 @@ public class UserQueryService(UserManager<ApplicationUser> userManager)
     {
         return (User?)user.Patient
             ?? (User?)user.Doctor
-            ?? (User?)user.HealthcareEntity
+            ?? (User?)user.HealthcareStaff
             ?? (User?)user.Laboratory
             ?? (User?)user.ImagingCenter
             ?? new AdminUserWrapper(user);

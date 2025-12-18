@@ -1,6 +1,6 @@
 using FastEndpoints;
-using MedicalCenter.Core.Aggregates.MedicalRecord;
-using MedicalCenter.Core.Services;
+using MedicalCenter.Core.Aggregates.MedicalRecords;
+using MedicalCenter.Core.Queries;
 using MedicalCenter.Infrastructure.Authorization;
 
 namespace MedicalCenter.WebApi.Endpoints.Records;
