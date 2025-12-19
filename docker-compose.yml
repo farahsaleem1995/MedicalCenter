@@ -28,8 +28,6 @@ services:
     networks:
       - medicalcenter-network
     restart: unless-stopped
-    profiles:
-      - dev  # Only runs with: docker-compose --profile dev up
 
   webapi:
     build:
@@ -37,8 +35,10 @@ services:
       dockerfile: Dockerfile
     container_name: medicalcenter-webapi
     depends_on:
-      - sqlserver
-      - maildev  # Add dependency on maildev
+      sqlserver:
+        condition: service_healthy
+      maildev:
+        condition: service_started
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:8080
