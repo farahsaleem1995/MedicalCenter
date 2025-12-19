@@ -5,12 +5,14 @@ using MedicalCenter.Core.Primitives;
 using MedicalCenter.Core.SharedKernel;
 using MedicalCenter.Core.Services;
 using MedicalCenter.Core.Authorization;
+using MedicalCenter.WebApi.Attributes;
 
 namespace MedicalCenter.WebApi.Endpoints.Records;
 
 /// <summary>
 /// Remove attachment from medical record endpoint.
 /// </summary>
+[ActionLog("Attachment removed from medical record")]
 public class RemoveAttachmentFromRecordEndpoint(
     IRepository<MedicalRecord> recordRepository,
     IUnitOfWork unitOfWork,

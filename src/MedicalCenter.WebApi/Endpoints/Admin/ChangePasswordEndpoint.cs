@@ -6,12 +6,14 @@ using MedicalCenter.Core.Services;
 using MedicalCenter.Core.Queries;
 using MedicalCenter.Core.Authorization;
 using MedicalCenter.WebApi.Extensions;
+using MedicalCenter.WebApi.Attributes;
 
 namespace MedicalCenter.WebApi.Endpoints.Admin;
 
 /// <summary>
 /// Admin endpoint to change a user's password (without requiring current password).
 /// </summary>
+[ActionLog("System administrator changed a user's password")]
 public class ChangePasswordEndpoint(
     IIdentityService identityService,
     ITokenProvider tokenProvider,

@@ -4,12 +4,14 @@ using MedicalCenter.Core.Aggregates.Patients.Specifications;
 using MedicalCenter.Core.Primitives;
 using MedicalCenter.Core.SharedKernel;
 using MedicalCenter.Core.Authorization;
+using MedicalCenter.WebApi.Attributes;
 
 namespace MedicalCenter.WebApi.Endpoints.Patients.ChronicDiseases;
 
 /// <summary>
 /// Create chronic disease for a patient endpoint.
 /// </summary>
+[ActionLog("Chronic disease created for patient")]
 public class CreateChronicDiseaseEndpoint(
     IRepository<Patient> patientRepository,
     IUnitOfWork unitOfWork)

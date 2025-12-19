@@ -4,12 +4,14 @@ using MedicalCenter.Core.Aggregates.Patients.Specifications;
 using MedicalCenter.Core.Primitives;
 using MedicalCenter.Core.SharedKernel;
 using MedicalCenter.Core.Authorization;
+using MedicalCenter.WebApi.Attributes;
 
 namespace MedicalCenter.WebApi.Endpoints.Patients.Medications;
 
 /// <summary>
 /// Delete medication endpoint.
 /// </summary>
+[ActionLog("Patient medication deleted")]
 public class DeleteMedicationEndpoint(
     IRepository<Patient> patientRepository,
     IUnitOfWork unitOfWork)

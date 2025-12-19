@@ -8,6 +8,7 @@ using MedicalCenter.Core.Aggregates.HealthcareStaff;
 using MedicalCenter.Core.Aggregates.Laboratories;
 using MedicalCenter.Core.Aggregates.ImagingCenters;
 using MedicalCenter.Core.Aggregates.SystemAdmins;
+using MedicalCenter.Core.Aggregates.ActionLogs;
 using MedicalCenter.Infrastructure.Data.Configurations;
 using MedicalCenter.Infrastructure.Data.Interceptors;
 using MedicalCenter.Infrastructure.Data.Seeders;
@@ -43,6 +44,7 @@ public class MedicalCenterDbContext(
     public DbSet<Laboratory> Laboratories { get; set; } = null!;
     public DbSet<ImagingCenter> ImagingCenters { get; set; } = null!;
     public DbSet<SystemAdmin> SystemAdmins { get; set; } = null!;
+    public DbSet<ActionLogEntry> ActionLogs { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

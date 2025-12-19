@@ -4,12 +4,14 @@ using MedicalCenter.Core.Aggregates.Patients.Specifications;
 using MedicalCenter.Core.Primitives;
 using MedicalCenter.Core.SharedKernel;
 using MedicalCenter.Core.Authorization;
+using MedicalCenter.WebApi.Attributes;
 
 namespace MedicalCenter.WebApi.Endpoints.Patients.Allergies;
 
 /// <summary>
 /// Delete allergy endpoint.
 /// </summary>
+[ActionLog("Patient allergy deleted")]
 public class DeleteAllergyEndpoint(
     IRepository<Patient> patientRepository,
     IUnitOfWork unitOfWork)

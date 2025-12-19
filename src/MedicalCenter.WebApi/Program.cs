@@ -64,9 +64,15 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 // Use FastEndpoints (this maps the endpoints) and Swagger
-app.UseFastEndpoints(c => {
+app.UseFastEndpoints(c =>
+{
     c.Endpoints.RoutePrefix = "api";
     c.Errors.UseProblemDetails();
+    // Register global action log processor
+    c.Endpoints.Configurator = ep =>
+    {
+        ep.PostProcessor<MedicalCenter.WebApi.Processors.ActionLogProcessor>(Order.After);
+    };
 }).UseSwaggerGen();
 
 app.Run();

@@ -7,12 +7,14 @@ using MedicalCenter.Core.SharedKernel;
 using MedicalCenter.Core.Services;
 using MedicalCenter.Infrastructure;
 using MedicalCenter.WebApi.Extensions;
+using MedicalCenter.WebApi.Attributes;
 
 namespace MedicalCenter.WebApi.Endpoints.Auth;
 
 /// <summary>
 /// Patient registration endpoint - allows patients to self-register.
 /// </summary>
+[ActionLog("New patient registered")]
 public class RegisterPatientEndpoint(
     IIdentityService identityService,
     IRepository<Patient> patientRepository,

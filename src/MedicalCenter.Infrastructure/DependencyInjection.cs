@@ -132,6 +132,19 @@ public static class DependencyInjection
         // Configure SMTP options
         services.Configure<SmtpOptions>(configuration.GetSection(SmtpOptions.SectionName));
 
+        // Configure Action Log Options
+        services.Configure<ActionLogOptions>(
+            configuration.GetSection(ActionLogOptions.SectionName));
+
+        // Register Action Log Queue (singleton - shared across requests)
+        services.AddSingleton<IActionLogQueue, ActionLogQueue>();
+
+        // Register Action Log Service (scoped - uses DbContext)
+        services.AddScoped<IActionLogService, ActionLogService>();
+
+        // Register Action Log Background Service
+        services.AddHostedService<ActionLogBackgroundService>();
+
         return services;
     }
 }

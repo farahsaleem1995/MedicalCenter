@@ -211,6 +211,7 @@ The Web API layer handles HTTP requests, validation, authorization, and DTOs.
   - `CanViewRecords`: View records (Doctor, HealthcareStaff, LabUser, ImagingUser)
   - `CanModifyRecords`: Modify records (Doctor, HealthcareStaff, LabUser, ImagingUser)
   - `CanViewAllPatients`: View all patients (Doctor, HealthcareStaff, SystemAdmin)
+  - `CanViewActionLog`: View action logs (SystemAdmin role or AdminTier claim)
 
 - **Swagger/OpenAPI**:
   - FastEndpoints.Swagger (NSwag) for API documentation

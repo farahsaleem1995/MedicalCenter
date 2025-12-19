@@ -9,41 +9,41 @@ using MedicalCenter.Infrastructure.Identity;
 namespace MedicalCenter.Infrastructure.Authorization.Handlers;
 
 /// <summary>
-/// Authorization handler for CanViewAuditTrail requirement.
+/// Authorization handler for CanViewActionLog requirement.
 /// Checks if user is SystemAdmin role OR has any AdminTier claim in the database.
 /// </summary>
-public class CanViewAuditTrailHandler : AuthorizationHandler<CanViewAuditTrailRequirement>
+public class CanViewActionLogHandler : AuthorizationHandler<CanViewActionLogRequirement>
 {
     private readonly UserManager<ApplicationUser> _userManager;
 
-    public CanViewAuditTrailHandler(UserManager<ApplicationUser> userManager)
+    public CanViewActionLogHandler(UserManager<ApplicationUser> userManager)
     {
         _userManager = userManager;
     }
 
     protected override async Task HandleRequirementAsync(
         AuthorizationHandlerContext context,
-        CanViewAuditTrailRequirement requirement)
+        CanViewActionLogRequirement requirement)
     {
         if (!context.User.Identity?.IsAuthenticated ?? true)
         {
             return;
         }
 
-        var userIdClaim = context.User.FindFirst("userId")?.Value;
-        if (string.IsNullOrEmpty(userIdClaim) || !Guid.TryParse(userIdClaim, out var userId))
+        string? userIdClaim = context.User.FindFirst("userId")?.Value;
+        if (string.IsNullOrEmpty(userIdClaim) || !Guid.TryParse(userIdClaim, out Guid userId))
         {
             return;
         }
 
-        var user = await _userManager.FindByIdAsync(userId.ToString());
+        ApplicationUser? user = await _userManager.FindByIdAsync(userId.ToString());
         if (user == null)
         {
             return;
         }
 
         // Check if user is SystemAdmin role
-        var userRoles = await _userManager.GetRolesAsync(user);
+        IList<string> userRoles = await _userManager.GetRolesAsync(user);
         bool isSystemAdmin = userRoles.Contains(UserRole.SystemAdmin.ToString());
         
         if (isSystemAdmin)
@@ -53,7 +53,7 @@ public class CanViewAuditTrailHandler : AuthorizationHandler<CanViewAuditTrailRe
         }
 
         // Check if user has any AdminTier claim
-        var userClaims = await _userManager.GetClaimsAsync(user);
+        IList<System.Security.Claims.Claim> userClaims = await _userManager.GetClaimsAsync(user);
         bool hasAdminTierClaim = userClaims.Any(c => c.Type == IdentityClaimTypes.AdminTier);
 
         if (hasAdminTierClaim)
@@ -62,4 +62,3 @@ public class CanViewAuditTrailHandler : AuthorizationHandler<CanViewAuditTrailRe
         }
     }
 }
-

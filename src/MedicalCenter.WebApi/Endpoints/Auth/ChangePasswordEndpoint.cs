@@ -3,12 +3,14 @@ using FluentValidation;
 using MedicalCenter.Core.Services;
 using MedicalCenter.Core.SharedKernel;
 using MedicalCenter.WebApi.Extensions;
+using MedicalCenter.WebApi.Attributes;
 
 namespace MedicalCenter.WebApi.Endpoints.Auth;
 
 /// <summary>
 /// Change password endpoint for authenticated users.
 /// </summary>
+[ActionLog("User changed their password")]
 public class ChangePasswordEndpoint(
     IIdentityService identityService,
     ITokenProvider tokenProvider,

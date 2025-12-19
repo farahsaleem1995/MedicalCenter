@@ -4,12 +4,14 @@ using MedicalCenter.Core.Services;
 using MedicalCenter.Core.Authorization;
 using MedicalCenter.Infrastructure.Options;
 using Microsoft.Extensions.Options;
+using MedicalCenter.WebApi.Attributes;
 
 namespace MedicalCenter.WebApi.Endpoints.Records;
 
 /// <summary>
 /// Upload file attachment endpoint.
 /// </summary>
+[ActionLog("File attachment uploaded")]
 public class UploadAttachmentEndpoint(
     IFileStorageService fileStorageService,
     IOptions<FileStorageOptions> fileStorageOptions)

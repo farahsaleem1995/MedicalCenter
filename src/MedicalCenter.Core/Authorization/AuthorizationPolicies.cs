@@ -40,10 +40,10 @@ public static class AuthorizationPolicies
     public const string CanManageAdmins = "CanManageAdmins";
     
     /// <summary>
-    /// Policy: Can view audit trail entries.
+    /// Policy: Can view action log entries.
     /// Requirement: SystemAdmin role OR any AdminTier claim (checked via database)
     /// </summary>
-    public const string CanViewAuditTrail = "CanViewAuditTrail";
+    public const string CanViewActionLog = "CanViewActionLog";
     
     /// <summary>
     /// Policy: Can access PHI (Protected Health Information).

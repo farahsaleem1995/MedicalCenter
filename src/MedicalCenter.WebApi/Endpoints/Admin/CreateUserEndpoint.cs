@@ -12,12 +12,14 @@ using MedicalCenter.Core.SharedKernel;
 using MedicalCenter.Core.Services;
 using MedicalCenter.Infrastructure;
 using MedicalCenter.WebApi.Extensions;
+using MedicalCenter.WebApi.Attributes;
 
 namespace MedicalCenter.WebApi.Endpoints.Admin;
 
 /// <summary>
 /// Admin endpoint to create users (non-patients).
 /// </summary>
+[ActionLog("System administrator created a new user account")]
 public class CreateUserEndpoint(
     IIdentityService identityService,
     IAuthorizationService authorizationService,

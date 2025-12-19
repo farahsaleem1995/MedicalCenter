@@ -16,7 +16,7 @@ public static class AuthorizationExtensions
     {
         // Register authorization handlers
         services.AddScoped<IAuthorizationHandler, CanManageAdminsHandler>();
-        services.AddScoped<IAuthorizationHandler, CanViewAuditTrailHandler>();
+        services.AddScoped<IAuthorizationHandler, CanViewActionLogHandler>();
         services.AddScoped<IAuthorizationHandler, CanAccessPHIHandler>();
 
         services.AddAuthorization(options =>
@@ -83,8 +83,8 @@ public static class AuthorizationExtensions
             options.AddPolicy(AuthorizationPolicies.CanManageAdmins, policy =>
                 policy.Requirements.Add(new CanManageAdminsRequirement()));
 
-            options.AddPolicy(AuthorizationPolicies.CanViewAuditTrail, policy =>
-                policy.Requirements.Add(new CanViewAuditTrailRequirement()));
+            options.AddPolicy(AuthorizationPolicies.CanViewActionLog, policy =>
+                policy.Requirements.Add(new CanViewActionLogRequirement()));
 
             options.AddPolicy(AuthorizationPolicies.CanAccessPHI, policy =>
                 policy.Requirements.Add(new CanAccessPHIRequirement()));

@@ -10,12 +10,14 @@ using MedicalCenter.Core.SharedKernel;
 using MedicalCenter.Core.Services;
 using MedicalCenter.Core.Queries;
 using MedicalCenter.Infrastructure.Data;
+using MedicalCenter.WebApi.Attributes;
 
 namespace MedicalCenter.WebApi.Endpoints.Admin;
 
 /// <summary>
 /// Admin endpoint to update a user.
 /// </summary>
+[ActionLog("System administrator updated a user account")]
 public class UpdateUserEndpoint(
     IUserQueryService userQueryService,
     IIdentityService identityService,

@@ -5,12 +5,14 @@ using MedicalCenter.Core.Primitives;
 using MedicalCenter.Core.SharedKernel;
 using MedicalCenter.Core.Services;
 using MedicalCenter.Core.Authorization;
+using MedicalCenter.WebApi.Attributes;
 
 namespace MedicalCenter.WebApi.Endpoints.Records;
 
 /// <summary>
 /// Download file attachment endpoint.
 /// </summary>
+[ActionLog("Medical record attachment downloaded")]
 public class DownloadAttachmentEndpoint(
     IRepository<MedicalRecord> recordRepository,
     IFileStorageService fileStorageService,
