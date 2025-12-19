@@ -13,8 +13,8 @@ This document outlines the high-level implementation plan for the Medical Center
 - ✅ **Phase 5**: Patient Aggregate & Medical Attributes
 - 🔄 **Phase 6**: Medical Records (Medical Records complete, Encounters can now be implemented with domain events)
 - 🔄 **Phase 7**: Query Services & Practitioner Lookups (Partially Complete - UserQueryService implemented)
+- ✅ **Phase 8**: Action Logging & Audit Trail
 - 🔄 **Phase 10**: Admin Features (Partially Complete - User management endpoints implemented)
-- ⏳ **Phase 8**: Action Logging & Audit Trail
 - ⏳ **Phase 9**: Complete Provider Endpoints
 - ⏳ **Phase 11**: Patient Self-Service Features
 - ⏳ **Phase 12**: Testing & Quality Assurance
@@ -46,6 +46,8 @@ This document outlines the high-level implementation plan for the Medical Center
 - ✅ Medical records with file attachments support
 - ✅ File storage service (local filesystem)
 - ✅ Unified medical records endpoints for all practitioner types
+- ✅ Action logging system with queue-based background processing
+- ✅ Action log query endpoint for administrators
 - ✅ 210 domain unit tests passing
 
 ### In Progress
@@ -1425,42 +1427,54 @@ This section provides a comprehensive, phase-by-phase implementation guide. Each
 
 **Goal**: Implement action logging for audit and compliance.
 
-**Deliverable**: Working audit trail system.
+**Deliverable**: Working action log system with queue-based background processing.
 
 #### Tasks:
 
 1. **ActionLog Aggregate**
-   - Create `ActionLog` class
-   - Define action types enum
-   - Implement action logging domain logic
+   - ✅ Create `ActionLogEntry` aggregate root (Core layer)
+   - ✅ Create `ActionLogQuery` query object
+   - ✅ Implement factory methods for creation
 
 2. **Action Logging Service**
-   - Create `IActionLogService` interface (Core)
-   - Implement `ActionLogService` (Infrastructure)
-   - Integrate with endpoints via middleware or filters
+   - ✅ Create `IActionLogService` interface (Core)
+   - ✅ Implement `ActionLogService` (Infrastructure)
+   - ✅ Create `IActionLogQueue` interface and `ActionLogQueue` implementation (BoundedChannel)
+   - ✅ Create `ActionLogBackgroundService` hosted service for background processing
 
-3. **Audit Interceptors Enhancement**
-   - Enhance EF Core interceptors for comprehensive audit logging
-   - Log data access and modifications
+3. **FastEndpoints Integration**
+   - ✅ Create `ActionLogProcessor` implementing `IGlobalPostProcessor`
+   - ✅ Create `[ActionLog]` attribute for marking endpoints
+   - ✅ Register global processor via `c.Endpoints.Configurator`
+   - ✅ Mark business-critical endpoints with `[ActionLog]` attribute
 
 4. **Action Log Endpoints**
-   - GET /patients/self/action-logs (patient can see their action logs)
-   - GET /admin/action-logs (admin can see all action logs)
+   - ✅ GET /api/action-logs (admin can see all action logs with pagination and filtering)
 
-5. **Tests**
-   - Test action logging
-   - Test audit interceptors
-   - Test action log endpoints
+5. **Database**
+   - ✅ Create EF Core configuration for `ActionLogEntry`
+   - ✅ Create migration for `ActionLogs` table
+   - ✅ Add indexes for query performance
 
-6. **Update README.md**
-   - Action logging documentation
-   - Audit trail features
+6. **Authorization**
+   - ✅ Create `CanViewActionLog` policy (SystemAdmin role or AdminTier claim)
+   - ✅ Create authorization handler for action log access
 
 **Verification**:
-- ✅ Actions are logged correctly
-- ✅ Patients can view their action logs
-- ✅ Audit trail is comprehensive
+- ✅ Actions are logged correctly for marked endpoints
+- ✅ Only successful requests (2xx) are logged
+- ✅ Action logs are processed asynchronously via background service
+- ✅ Admin endpoint returns paginated and filtered results
 - ✅ All tests pass
+- ✅ Build successful
+
+**Design Decisions**:
+- **Aggregate Root**: `ActionLogEntry` is a domain aggregate root (not an auditable entity)
+- **Queue-Based**: Fire-and-forget pattern using `BoundedChannel` and hosted service
+- **Attribute-Based**: Endpoints marked with `[ActionLog]` attribute for selective logging
+- **Global Processor**: Single `ActionLogProcessor` registered globally checks for attribute
+- **Success-Only**: Only logs successful requests (2xx status codes)
+- **Independent Consistency**: Action logs persist even if main transaction rolls back
 
 ---
 

@@ -67,7 +67,9 @@ The Core layer is organized following Domain-Driven Design principles with clear
     - `Specifications/`: MedicalRecordByIdSpecification, MedicalRecordsByPatientSpecification
     - `Events/`: (Future) MedicalRecord-specific domain events
   - `Encounter`: (Planned) Encounter aggregate (requires domain events)
-  - `ActionLog`: (Planned) Audit log aggregate
+  - **ActionLogs/**: Action log aggregate
+    - `ActionLogEntry`: Aggregate root for tracking business-critical actions
+    - `ActionLogQuery`: Query object for retrieving action log history
 
 - **Queries/**: Query service interfaces for read operations
   - `IMedicalRecordQueryService`: Optimized queries for medical records
@@ -79,6 +81,7 @@ The Core layer is organized following Domain-Driven Design principles with clear
   - `IFileStorageService`: File storage abstraction interface
   - `ITokenProvider`: Token generation and validation interface
   - `IDateTimeProvider`: Unified time access interface
+  - `IActionLogService`: Action log service interface for recording and querying business-critical actions
 
 - **Authorization/**: Claims-based authorization infrastructure
   - `IdentityClaimTypes`: Claim type constants (AdminTier, Department, Certification)
@@ -140,6 +143,13 @@ The Infrastructure layer implements data access and external service integration
   - Provides unified time access across the application
   - Enables testability by allowing time to be mocked in tests
 
+- **Action Log Service**:
+  - `ActionLogService`: Implements `IActionLogService` for recording and querying action logs
+  - `ActionLogQueue`: Bounded channel-based queue for asynchronous action log processing
+  - `ActionLogBackgroundService`: Hosted service that processes action log entries from the queue
+  - Queue-based fire-and-forget pattern ensures action logging doesn't impact request performance
+  - Only logs successful requests (2xx status codes) for endpoints marked with `[ActionLog]` attribute
+
 - **EF Core Interceptors**:
   - `AuditableEntityInterceptor`: Automatically sets `CreatedAt` and `UpdatedAt`
     - Uses `IDateTimeProvider` for consistent time handling
@@ -164,7 +174,7 @@ The Infrastructure layer implements data access and external service integration
 - **Identity Tables**: ASP.NET Core Identity tables (AspNetUsers, AspNetRoles, AspNetUserRoles, etc.)
   - `ApplicationUserRole`: Custom user-role join entity with navigation properties
   - Configured directly in `IdentityDbContext` generics to avoid inheritance mapping
-- **Domain Tables**: Patient, MedicalRecord, MedicalRecordAttachments, Doctor, HealthcareStaff, Laboratory, ImagingCenter, SystemAdmins
+- **Domain Tables**: Patient, MedicalRecord, MedicalRecordAttachments, Doctor, HealthcareStaff, Laboratory, ImagingCenter, SystemAdmins, ActionLogs
 - **Relationships**: 
   - Practitioner aggregates (Doctor, HealthcareStaff, Laboratory, ImagingCenter, SystemAdmin) use shared primary key with ApplicationUser
   - MedicalRecord references Patient and Practitioner (practitioner snapshot as value object)
@@ -182,6 +192,7 @@ The Web API layer handles HTTP requests, validation, authorization, and DTOs.
   - Built-in validation and authorization support
   - Route prefix: All endpoints prefixed with `/api`
   - Error handling: Problem Details format for standardized error responses
+  - Global post-processors: `ActionLogProcessor` registered globally to check for `[ActionLog]` attributes
 
 - **CQRS Separation**:
   - Commands: Endpoints that modify state (POST, PUT, DELETE, PATCH)
@@ -290,6 +301,27 @@ The Web API layer handles HTTP requests, validation, authorization, and DTOs.
   - Properties throw `InvalidOperationException` with descriptive messages when claims are missing or invalid
   - Registered as scoped service (one per HTTP request)
   - Uses standard JWT claims: `ClaimTypes.NameIdentifier`, `ClaimTypes.Name`, `ClaimTypes.Email`, `ClaimTypes.Role`
+
+### Action Log Pattern
+
+- **Purpose**: Track business-critical actions for audit and compliance
+- **Implementation**: 
+  - `ActionLogEntry` aggregate root in Core layer
+  - `IActionLogService` interface in Core, `ActionLogService` implementation in Infrastructure
+  - Queue-based background processing using `BoundedChannel` and hosted service
+  - Global `ActionLogProcessor` (FastEndpoints `IGlobalPostProcessor`) that checks for `[ActionLog]` attribute
+- **Benefits**:
+  - Fire-and-forget pattern ensures action logging doesn't impact request performance
+  - Selective logging via `[ActionLog]` attribute on endpoints
+  - Only logs successful requests (2xx status codes)
+  - Queue buffers entries during high load
+  - Independent consistency boundary (not affected by main transaction rollback)
+- **Usage**:
+  - Mark business-critical endpoints with `[ActionLog("description")]` attribute
+  - Global processor automatically records action logs for marked endpoints
+  - Action logs are processed asynchronously in background service
+  - Query action logs via `GET /api/action-logs` endpoint (admin-only)
+- **Note**: `ActionLogEntry` is NOT an auditable entity (no CreatedAt/UpdatedAt)
 
 ### Time Handling Pattern
 

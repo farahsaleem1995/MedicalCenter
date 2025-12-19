@@ -1636,12 +1636,95 @@ Medical records allow providers to create, view, and manage medical records for 
 - **Multiple Attachments**: Records can have multiple attachments (up to 10 per record, configurable)
 - **File Storage**: Files are stored separately from database records; removing an attachment from a record does not delete the file
 
+## Action Logging
+
+The Action Log system tracks business-critical operations for audit and compliance purposes. It uses a global post-processor that checks for `[ActionLog]` attributes on endpoints and only logs successful requests (2xx status codes).
+
+### Get Action Logs
+
+**Endpoint**: `GET /api/action-logs`
+
+**Authorization**: `CanViewActionLog` policy (SystemAdmin role or AdminTier claim)
+
+**Query Parameters**:
+- `pageNumber` (optional, default: 1, minimum: 1)
+- `pageSize` (optional, default: 20, minimum: 1, maximum: 100)
+- `startDate` (optional, ISO 8601 format): Filter by start date (inclusive)
+- `endDate` (optional, ISO 8601 format): Filter by end date (inclusive)
+- `userId` (optional, Guid): Filter by user ID
+- `actionName` (optional, string): Filter by action name
+
+**Response**:
+```json
+{
+  "items": [
+    {
+      "id": "550e8400-e29b-41d4-a716-446655440000",
+      "actionName": "CreateUser",
+      "description": "System administrator created a new user account",
+      "userId": "550e8400-e29b-41d4-a716-446655440001",
+      "payload": "{\"email\":\"user@example.com\",\"role\":\"Doctor\"}",
+      "executedAt": "2024-01-01T12:00:00Z"
+    }
+  ],
+  "metadata": {
+    "pageNumber": 1,
+    "pageSize": 20,
+    "totalCount": 150,
+    "totalPages": 8,
+    "hasPrevious": false,
+    "hasNext": true
+  }
+}
+```
+
+**Note**: Results are always ordered by `ExecutedAt` descending (newest first).
+
+### Marked Endpoints
+
+The following business-critical endpoints are marked with `[ActionLog]` attribute:
+
+**Admin**:
+- `CreateUserEndpoint` - "System administrator created a new user account"
+- `UpdateUserEndpoint` - "System administrator updated a user account"
+- `DeleteUserEndpoint` - "System administrator deactivated a user account"
+- `ChangePasswordEndpoint` - "System administrator changed a user's password"
+
+**Auth**:
+- `RegisterPatientEndpoint` - "New patient registered"
+- `ChangePasswordEndpoint` - "User changed their password"
+
+**Records**:
+- `CreateRecordEndpoint` - "Medical record created"
+- `UpdateRecordEndpoint` - "Medical record updated"
+- `DeleteRecordEndpoint` - "Medical record deleted"
+- `GetRecordEndpoint` - "Medical record viewed"
+- `DownloadAttachmentEndpoint` - "Medical record attachment downloaded"
+- `UploadAttachmentEndpoint` - "File attachment uploaded"
+- `AddAttachmentToRecordEndpoint` - "Attachment added to medical record"
+- `RemoveAttachmentFromRecordEndpoint` - "Attachment removed from medical record"
+
+**Patients**:
+- All allergy endpoints (Create, Update, Delete)
+- All chronic disease endpoints (Create, Update, Delete)
+- All medication endpoints (Create, Update, Delete)
+- All surgery endpoints (Create, Update, Delete)
+- `UpdateBloodTypeEndpoint` - "Patient blood type updated"
+
+### Key Features
+
+- **Attribute-Based**: Endpoints are marked with `[ActionLog("description")]` attribute
+- **Global Processor**: Single `ActionLogProcessor` registered globally via `c.Endpoints.Configurator`
+- **Selective Logging**: Only logs endpoints with the attribute
+- **Success-Only**: Only records successful requests (2xx status codes)
+- **Queue-Based**: Fire-and-forget pattern using background service
+- **Aggregate Root**: `ActionLogEntry` is a domain aggregate root (not an auditable entity)
+
 ## Future Features
 
 ### Planned Features
 
 - **Encounters**: Track patient-provider interactions (requires domain events infrastructure)
-- **Action Logging**: Comprehensive audit trail
 - **Patient Reports**: Generate patient health reports
 - **Practitioner Endpoints**: Additional practitioner-specific endpoints
 - **Lab Results**: Enhanced laboratory test result management
