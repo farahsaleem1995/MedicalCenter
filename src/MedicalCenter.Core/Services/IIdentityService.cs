@@ -10,68 +10,13 @@ public interface IIdentityService
 {
     /// <summary>
     /// Creates a new Identity user (ApplicationUser) with the specified email and password.
-    /// This is a generic method that creates the base Identity user.
+    /// This is a generic method that creates the base Identity user only.
+    /// Domain entity creation should be handled by the calling endpoint.
     /// </summary>
     Task<Result<Guid>> CreateUserAsync(
         string email,
         string password,
         UserRole role,
-        CancellationToken cancellationToken = default);
-
-    /// <summary>
-    /// Creates a doctor user with Identity and domain entity.
-    /// </summary>
-    Task<Result<Guid>> CreateDoctorAsync(
-        string fullName,
-        string email,
-        string password,
-        string licenseNumber,
-        string specialty,
-        CancellationToken cancellationToken = default);
-
-    /// <summary>
-    /// Creates a healthcare staff user with Identity and domain entity.
-    /// </summary>
-    Task<Result<Guid>> CreateHealthcareStaffAsync(
-        string fullName,
-        string email,
-        string password,
-        string organizationName,
-        string department,
-        CancellationToken cancellationToken = default);
-
-    /// <summary>
-    /// Creates a laboratory user with Identity and domain entity.
-    /// </summary>
-    Task<Result<Guid>> CreateLaboratoryAsync(
-        string fullName,
-        string email,
-        string password,
-        string labName,
-        string licenseNumber,
-        CancellationToken cancellationToken = default);
-
-    /// <summary>
-    /// Creates an imaging center user with Identity and domain entity.
-    /// </summary>
-    Task<Result<Guid>> CreateImagingCenterAsync(
-        string fullName,
-        string email,
-        string password,
-        string centerName,
-        string licenseNumber,
-        CancellationToken cancellationToken = default);
-
-    /// <summary>
-    /// Creates a system admin user with Identity and domain entity.
-    /// Requires CanManageAdmins policy to be called.
-    /// </summary>
-    Task<Result<Guid>> CreateSystemAdminAsync(
-        string fullName,
-        string email,
-        string password,
-        string corporateId,
-        string department,
         CancellationToken cancellationToken = default);
 
     /// <summary>
@@ -84,9 +29,10 @@ public interface IIdentityService
         CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Admin can change a user's password without providing the current password.
+    /// Updates a user's password without requiring the current password.
+    /// Typically used by administrators to reset user passwords.
     /// </summary>
-    Task<Result> AdminChangePasswordAsync(
+    Task<Result> UpdatePasswordAsync(
         Guid userId,
         string newPassword,
         CancellationToken cancellationToken = default);

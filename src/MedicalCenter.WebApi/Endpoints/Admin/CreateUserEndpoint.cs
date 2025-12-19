@@ -1,5 +1,11 @@
 using FastEndpoints;
 using Microsoft.AspNetCore.Authorization;
+using MedicalCenter.Core.Abstractions;
+using MedicalCenter.Core.Aggregates.Doctors;
+using MedicalCenter.Core.Aggregates.HealthcareStaff;
+using MedicalCenter.Core.Aggregates.Laboratories;
+using MedicalCenter.Core.Aggregates.ImagingCenters;
+using MedicalCenter.Core.Aggregates.SystemAdmins;
 using MedicalCenter.Core.Authorization;
 using MedicalCenter.Core.Primitives;
 using MedicalCenter.Core.SharedKernel;
@@ -16,7 +22,13 @@ namespace MedicalCenter.WebApi.Endpoints.Admin;
 [Command]
 public class CreateUserEndpoint(
     IIdentityService identityService,
-    IAuthorizationService authorizationService)
+    IAuthorizationService authorizationService,
+    IRepository<Doctor> doctorRepository,
+    IRepository<HealthcareStaff> healthcareStaffRepository,
+    IRepository<Laboratory> laboratoryRepository,
+    IRepository<ImagingCenter> imagingCenterRepository,
+    IRepository<SystemAdmin> systemAdminRepository,
+    IUnitOfWork unitOfWork)
     : Endpoint<CreateUserRequest, CreateUserResponse>
 {
     public override void Configure()
@@ -52,60 +64,119 @@ public class CreateUserEndpoint(
             }
         }
 
-        Result<Guid> result = req.Role switch
-        {
-            UserRole.Doctor => await identityService.CreateDoctorAsync(
-                req.FullName,
-                req.Email,
-                req.Password,
-                req.LicenseNumber!,
-                req.Specialty!,
-                ct),
-            UserRole.HealthcareStaff => await identityService.CreateHealthcareStaffAsync(
-                req.FullName,
-                req.Email,
-                req.Password,
-                req.OrganizationName!,
-                req.Department!,
-                ct),
-            UserRole.LabUser => await identityService.CreateLaboratoryAsync(
-                req.FullName,
-                req.Email,
-                req.Password,
-                req.LabName!,
-                req.LicenseNumber!,
-                ct),
-            UserRole.ImagingUser => await identityService.CreateImagingCenterAsync(
-                req.FullName,
-                req.Email,
-                req.Password,
-                req.CenterName!,
-                req.LicenseNumber!,
-                ct),
-            UserRole.SystemAdmin => await identityService.CreateSystemAdminAsync(
-                req.FullName,
-                req.Email,
-                req.Password,
-                req.CorporateId!,
-                req.Department!,
-                ct),
-            _ => Result<Guid>.Failure(Error.Validation("Invalid role. Only practitioner roles and SystemAdmin are allowed."))
-        };
+        await unitOfWork.BeginTransactionAsync(ct);
 
-        if (result.IsFailure)
+        try
         {
-            int statusCode = result.Error!.Code.ToStatusCode();
-            ThrowError(result.Error.Message, statusCode);
-            return;
+            // Step 1: Create Identity user (generic user creation)
+            var createUserResult = await identityService.CreateUserAsync(
+                req.Email,
+                req.Password,
+                req.Role,
+                ct);
+
+            if (createUserResult.IsFailure)
+            {
+                await unitOfWork.RollbackTransactionAsync(ct);
+                int statusCode = createUserResult.Error!.Code.ToStatusCode();
+                ThrowError(createUserResult.Error.Message, statusCode);
+                return;
+            }
+
+            Guid userId = createUserResult.Value;
+
+            // Step 2: Create domain entity based on role
+            switch (req.Role)
+            {
+                case UserRole.Doctor:
+                    var doctor = CreateDoctorWithId(req.FullName, req.Email, req.LicenseNumber!, req.Specialty!, userId);
+                    await doctorRepository.AddAsync(doctor, ct);
+                    break;
+
+                case UserRole.HealthcareStaff:
+                    var healthcareStaff = CreateHealthcareStaffWithId(req.FullName, req.Email, req.OrganizationName!, req.Department!, userId);
+                    await healthcareStaffRepository.AddAsync(healthcareStaff, ct);
+                    break;
+
+                case UserRole.LabUser:
+                    var laboratory = CreateLaboratoryWithId(req.FullName, req.Email, req.LabName!, req.LicenseNumber!, userId);
+                    await laboratoryRepository.AddAsync(laboratory, ct);
+                    break;
+
+                case UserRole.ImagingUser:
+                    var imagingCenter = CreateImagingCenterWithId(req.FullName, req.Email, req.CenterName!, req.LicenseNumber!, userId);
+                    await imagingCenterRepository.AddAsync(imagingCenter, ct);
+                    break;
+
+                case UserRole.SystemAdmin:
+                    var systemAdmin = CreateSystemAdminWithId(req.FullName, req.Email, req.CorporateId!, req.Department!, userId);
+                    await systemAdminRepository.AddAsync(systemAdmin, ct);
+                    break;
+
+                default:
+                    await unitOfWork.RollbackTransactionAsync(ct);
+                    ThrowError("Invalid role. Only practitioner roles and SystemAdmin are allowed.", 400);
+                    return;
+            }
+
+            await unitOfWork.SaveChangesAsync(ct);
+
+            // Commit transaction
+            await unitOfWork.CommitTransactionAsync(ct);
+
+            await Send.OkAsync(new CreateUserResponse
+            {
+                UserId = userId,
+                Email = req.Email,
+                FullName = req.FullName,
+                Role = req.Role.ToString()
+            }, ct);
         }
-
-        await Send.OkAsync(new CreateUserResponse
+        catch
         {
-            UserId = result.Value,
-            Email = req.Email,
-            FullName = req.FullName,
-            Role = req.Role.ToString()
-        }, ct);
+            await unitOfWork.RollbackTransactionAsync(ct);
+            throw;
+        }
+    }
+
+    private static Doctor CreateDoctorWithId(string fullName, string email, string licenseNumber, string specialty, Guid id)
+    {
+        Doctor doctor = Doctor.Create(fullName, email, licenseNumber, specialty);
+        System.Reflection.PropertyInfo? idProperty = typeof(BaseEntity).GetProperty(nameof(BaseEntity.Id));
+        idProperty?.SetValue(doctor, id);
+        return doctor;
+    }
+
+    private static HealthcareStaff CreateHealthcareStaffWithId(string fullName, string email, string organizationName, string department, Guid id)
+    {
+        HealthcareStaff healthcareStaff = HealthcareStaff.Create(fullName, email, organizationName, department);
+        System.Reflection.PropertyInfo? idProperty = typeof(BaseEntity).GetProperty(nameof(BaseEntity.Id));
+        idProperty?.SetValue(healthcareStaff, id);
+        return healthcareStaff;
+    }
+
+    private static Laboratory CreateLaboratoryWithId(string fullName, string email, string labName, string licenseNumber, Guid id)
+    {
+        Laboratory laboratory = Laboratory.Create(fullName, email, labName, licenseNumber);
+        System.Reflection.PropertyInfo? idProperty = typeof(BaseEntity).GetProperty(nameof(BaseEntity.Id));
+        idProperty?.SetValue(laboratory, id);
+        return laboratory;
+    }
+
+    private static ImagingCenter CreateImagingCenterWithId(string fullName, string email, string centerName, string licenseNumber, Guid id)
+    {
+        ImagingCenter imagingCenter = ImagingCenter.Create(fullName, email, centerName, licenseNumber);
+        System.Reflection.PropertyInfo? idProperty = typeof(BaseEntity).GetProperty(nameof(BaseEntity.Id));
+        idProperty?.SetValue(imagingCenter, id);
+        return imagingCenter;
+    }
+
+    private static SystemAdmin CreateSystemAdminWithId(string fullName, string email, string corporateId, string department, Guid id)
+    {
+        SystemAdmin systemAdmin = SystemAdmin.Create(fullName, email, corporateId, department);
+        System.Reflection.PropertyInfo? idProperty = typeof(BaseEntity).GetProperty(nameof(BaseEntity.Id));
+        idProperty?.SetValue(systemAdmin, id);
+        return systemAdmin;
     }
 }
 

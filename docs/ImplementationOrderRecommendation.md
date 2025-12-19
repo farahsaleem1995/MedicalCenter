@@ -144,26 +144,26 @@
 
 ### Phase 4: Service Refactoring (After Transaction Changes)
 
-#### 4.1: IdentityServiceRefactoringPlan
+#### 4.1: IdentityServiceRefactoringPlan ✅ **COMPLETED**
 
 **Priority**: **MEDIUM-HIGH**  
 **Risk**: **MEDIUM**  
-**Dependencies**: CQRS Phase 2 (transaction methods removed)  
-**Conflicts**: None (if done after CQRS Phase 2)
+**Dependencies**: None (transaction methods still available)  
+**Status**: ✅ **COMPLETED**
 
-**Rationale**:
-- **MUST come after CQRS Phase 2** because it expects to use transaction methods that Phase 2 removes
-- After Phase 2, endpoints use TransactionScope (automatic), so this plan needs to be updated:
-  - Remove transaction management from endpoints (already handled by CQRS Phase 2)
-  - Focus on moving entity creation from service to endpoints
-- Medium risk (refactoring existing code)
+**What Was Done**:
+- ✅ Removed role-specific methods from `IIdentityService` (`CreateDoctorAsync`, `CreateHealthcareStaffAsync`, `CreateLaboratoryAsync`, `CreateImagingCenterAsync`, `CreateSystemAdminAsync`)
+- ✅ Kept only generic `CreateUserAsync` method (creates Identity user only)
+- ✅ Updated `CreateUserEndpoint` to follow `RegisterPatientEndpoint` pattern:
+  - Endpoints handle transaction management
+  - Endpoints create domain entities using repositories
+  - Consistent pattern across all user creation endpoints
+- ✅ Renamed `AdminChangePasswordAsync` → `UpdatePasswordAsync` for better naming consistency
 
-**⚠️ Plan Update Required**: This plan currently shows using `BeginTransactionAsync`/`CommitTransactionAsync` in endpoints. After CQRS Phase 2, these methods don't exist. The plan should be updated to:
-- Remove transaction management steps (handled by CQRS Phase 2)
-- Focus only on moving entity creation from service to endpoints
-- Endpoints just call `unitOfWork.SaveChangesAsync()` (transaction handled automatically)
-
-**Estimated Effort**: Medium (2-3 days, but plan needs update)
+**Result**:
+- Consistent pattern: All user creation endpoints follow the same approach
+- Separation of concerns: Identity service only handles Identity, endpoints handle domain logic
+- Better maintainability: Adding new user types only requires endpoint changes
 
 ---
 
@@ -264,11 +264,12 @@
    - **CRITICAL**: This is a breaking change
 
 ### Week 3: Service Refactoring
-5. ✅ **IdentityServiceRefactoringPlan** (Day 1-3)
-   - **UPDATE PLAN FIRST**: Remove transaction management steps (handled by CQRS Phase 2)
-   - Refactor IIdentityService (remove role-specific methods)
-   - Update CreateUserEndpoint (no transaction management needed)
-   - Verify pattern consistency
+5. ✅ **IdentityServiceRefactoringPlan** (Day 1-3) - **COMPLETED**
+   - ✅ Removed role-specific methods from IIdentityService
+   - ✅ Updated CreateUserEndpoint to follow RegisterPatientEndpoint pattern
+   - ✅ Endpoints now handle transaction management and entity creation
+   - ✅ Renamed AdminChangePasswordAsync → UpdatePasswordAsync
+   - ✅ Verified pattern consistency across all user creation endpoints
 
 ### Week 4: Features
 6. ✅ **DomainEventsPlan** (Day 1-3)
@@ -408,9 +409,9 @@ If CQRS Phase 2 (transaction management) is considered too risky or complex, alt
 
 1. **DateTimeProviderPlan** (Foundation, no dependencies)
 2. **SystemAdminModelingPlan** (Independent, low risk)
-3. **CQRS Phase 1** (Attributes, non-breaking)
+3. **CQRS Phase 1** (Attributes, non-breaking) ✅
 4. **CQRS Phase 2** (Transaction management, breaking change)
-5. **IdentityServiceRefactoringPlan** (Updated to not use transaction methods)
+5. **IdentityServiceRefactoringPlan** ✅ **COMPLETED** - Removed role-specific methods, moved entity creation to endpoints
 6. **DomainEventsPlan** (Independent, can use DateTimeProvider)
 7. **PatientEmailConfirmationPlan** (After IdentityService, can use DateTimeProvider)
 8. **CQRS Phase 3** (Audit trail, can use DateTimeProvider)

@@ -61,7 +61,7 @@ public class ChangePasswordEndpoint(
             }
         }
 
-        var result = await identityService.AdminChangePasswordAsync(req.Id, req.NewPassword, ct);
+        var result = await identityService.UpdatePasswordAsync(req.Id, req.NewPassword, ct);
 
         if (result.IsFailure)
         {

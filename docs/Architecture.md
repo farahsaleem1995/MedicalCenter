@@ -117,8 +117,9 @@ The Infrastructure layer implements data access and external service integration
 
 - **Identity Service**:
   - `IdentityService`: Implements `IIdentityService`
-  - Handles user creation, password management
-  - Supports practitioner user creation (Doctor, HealthcareStaff, Laboratory, ImagingCenter)
+  - Handles Identity user creation (`CreateUserAsync`) - creates `ApplicationUser` only
+  - Domain entity creation is handled by endpoints (following `RegisterPatientEndpoint` pattern)
+  - Password management: `ChangePasswordAsync` (requires current password), `UpdatePasswordAsync` (admin password reset)
   - Claims verification: Database-only claims stored in `AspNetUserClaims` table (not in JWT tokens)
   - Policy verification: `SatisfiesPolicyAsync()` evaluates claims and roles via database lookup
 
