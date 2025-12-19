@@ -39,6 +39,7 @@ This document outlines the high-level implementation plan for the Medical Center
 - ✅ Swagger/OpenAPI documentation (FastEndpoints.Swagger)
 - ✅ Security enhancements (RequirePatient policy, JWT role mapping)
 - ✅ **Domain Events** - Implemented with MediatR (DomainEventBase implements INotification, handlers implement INotificationHandler)
+- ✅ **User Context Pattern** - IUserContext interface with AspNetUserContextAdapter for abstracted user claim access
 - ✅ Dockerization (Dockerfile, docker-compose.yml, automatic migrations)
 - ✅ Medical records with file attachments support
 - ✅ File storage service (local filesystem)

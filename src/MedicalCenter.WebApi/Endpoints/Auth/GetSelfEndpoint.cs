@@ -1,7 +1,6 @@
 using FastEndpoints;
 using MedicalCenter.Core.Primitives;
 using MedicalCenter.Core.SharedKernel;
-using MedicalCenter.Core.SharedKernel;
 using MedicalCenter.Core.Services;
 
 namespace MedicalCenter.WebApi.Endpoints.Auth;
@@ -10,7 +9,8 @@ namespace MedicalCenter.WebApi.Endpoints.Auth;
 /// Get current authenticated user's generic information endpoint.
 /// </summary>
 public class GetSelfEndpoint(
-    IIdentityService identityService)
+    IIdentityService identityService,
+    IUserContext userContext)
     : EndpointWithoutRequest<GetSelfResponse>
 {
     public override void Configure()
@@ -29,12 +29,7 @@ public class GetSelfEndpoint(
 
     public override async Task HandleAsync(CancellationToken ct)
     {
-        string? userIdClaim = User.FindFirst("userId")?.Value;
-        if (string.IsNullOrEmpty(userIdClaim) || !Guid.TryParse(userIdClaim, out Guid userId))
-        {
-            ThrowError("Invalid user authentication", 401);
-            return;
-        }
+        Guid userId = userContext.UserId;
 
         User? user = await identityService.GetUserByIdAsync(userId, ct);
 

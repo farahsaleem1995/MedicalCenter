@@ -20,7 +20,8 @@ public class CreateRecordEndpoint(
     IFileStorageService fileStorageService,
     IIdentityService identityService,
     IUnitOfWork unitOfWork,
-    IDateTimeProvider dateTimeProvider)
+    IDateTimeProvider dateTimeProvider,
+    IUserContext userContext)
     : Endpoint<CreateRecordRequest, CreateRecordResponse>
 {
     public override void Configure()
@@ -42,12 +43,7 @@ public class CreateRecordEndpoint(
 
     public override async Task HandleAsync(CreateRecordRequest req, CancellationToken ct)
     {
-        var userIdClaim = User.FindFirst("userId")?.Value;
-        if (string.IsNullOrEmpty(userIdClaim) || !Guid.TryParse(userIdClaim, out var practitionerId))
-        {
-            ThrowError("Invalid user authentication", 401);
-            return;
-        }
+        var practitionerId = userContext.UserId;
 
         // Verify patient exists
         var patientSpec = new PatientByIdSpecification(req.PatientId);

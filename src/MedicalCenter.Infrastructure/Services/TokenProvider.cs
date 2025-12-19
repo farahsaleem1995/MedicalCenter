@@ -31,9 +31,7 @@ public class TokenProvider(
             new(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
             new(JwtRegisteredClaimNames.Email, user.Email),
             new(JwtRegisteredClaimNames.Name, user.FullName),
-            new(ClaimTypes.Role, user.Role.ToString()),
-            new("userId", user.Id.ToString()),
-            new("userRole", user.Role.ToString())
+            new(ClaimTypes.Role, user.Role.ToString())
         };
 
         // Add role-specific claims

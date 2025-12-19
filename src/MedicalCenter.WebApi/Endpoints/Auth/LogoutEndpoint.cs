@@ -9,7 +9,8 @@ namespace MedicalCenter.WebApi.Endpoints.Auth;
 /// Logout endpoint - invalidates all refresh tokens for the authenticated user.
 /// </summary>
 public class LogoutEndpoint(
-    IIdentityService identityService)
+    IIdentityService identityService,
+    IUserContext userContext)
     : EndpointWithoutRequest
 {
     public override void Configure()
@@ -27,12 +28,7 @@ public class LogoutEndpoint(
 
     public override async Task HandleAsync(CancellationToken ct)
     {
-        var userIdClaim = User.FindFirst("userId")?.Value;
-        if (string.IsNullOrEmpty(userIdClaim) || !Guid.TryParse(userIdClaim, out Guid userId))
-        {
-            ThrowError("Invalid user authentication", 401);
-            return;
-        }
+        var userId = userContext.UserId;
 
         var result = await identityService.InvalidateUserRefreshTokensAsync(userId, ct);
 

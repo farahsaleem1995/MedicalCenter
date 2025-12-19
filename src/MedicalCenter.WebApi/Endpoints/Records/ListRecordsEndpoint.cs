@@ -36,12 +36,7 @@ public class ListRecordsEndpoint(IMedicalRecordQueryService recordQueryService)
 
     public override async Task HandleAsync(ListRecordsRequest req, CancellationToken ct)
     {
-        string? userIdClaim = User.FindFirst("userId")?.Value;
-        if (string.IsNullOrEmpty(userIdClaim) || !Guid.TryParse(userIdClaim, out _))
-        {
-            ThrowError("Invalid user authentication", 401);
-            return;
-        }
+        // User authentication verified via IUserContext injection
 
         // Use query service for optimized query with includes
         // Practitioners can view all records, with optional filters

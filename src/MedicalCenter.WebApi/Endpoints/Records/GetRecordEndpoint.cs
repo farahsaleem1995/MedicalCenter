@@ -3,6 +3,7 @@ using MedicalCenter.Core.Aggregates.MedicalRecords;
 using MedicalCenter.Core.Aggregates.MedicalRecords.Enums;
 using MedicalCenter.Core.SharedKernel;
 using MedicalCenter.Core.Queries;
+using MedicalCenter.Core.Services;
 using MedicalCenter.Core.Authorization;
 
 namespace MedicalCenter.WebApi.Endpoints.Records;
@@ -10,7 +11,9 @@ namespace MedicalCenter.WebApi.Endpoints.Records;
 /// <summary>
 /// Get specific medical record endpoint.
 /// </summary>
-public class GetRecordEndpoint(IMedicalRecordQueryService recordQueryService)
+public class GetRecordEndpoint(
+    IMedicalRecordQueryService recordQueryService,
+    IUserContext userContext)
     : Endpoint<GetRecordRequest, GetRecordResponse>
 {
     public override void Configure()
@@ -31,12 +34,7 @@ public class GetRecordEndpoint(IMedicalRecordQueryService recordQueryService)
 
     public override async Task HandleAsync(GetRecordRequest req, CancellationToken ct)
     {
-        var userIdClaim = User.FindFirst("userId")?.Value;
-        if (string.IsNullOrEmpty(userIdClaim) || !Guid.TryParse(userIdClaim, out var currentUserId))
-        {
-            ThrowError("Invalid user authentication", 401);
-            return;
-        }
+        var currentUserId = userContext.UserId;
 
         var record = await recordQueryService.GetRecordByIdAsync(req.RecordId, ct);
 

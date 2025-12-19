@@ -3,6 +3,7 @@ using MedicalCenter.Core.Aggregates.MedicalRecords;
 using MedicalCenter.Core.Aggregates.MedicalRecords.Specifications;
 using MedicalCenter.Core.Primitives;
 using MedicalCenter.Core.SharedKernel;
+using MedicalCenter.Core.Services;
 using MedicalCenter.Core.Authorization;
 
 namespace MedicalCenter.WebApi.Endpoints.Patients;
@@ -10,7 +11,9 @@ namespace MedicalCenter.WebApi.Endpoints.Patients;
 /// <summary>
 /// Get current patient's own medical records endpoint.
 /// </summary>
-public class GetSelfRecordsEndpoint(IRepository<MedicalRecord> recordRepository)
+public class GetSelfRecordsEndpoint(
+    IRepository<MedicalRecord> recordRepository,
+    IUserContext userContext)
     : Endpoint<GetSelfRecordsRequest, GetSelfRecordsResponse>
 {
     public override void Configure()
@@ -30,12 +33,7 @@ public class GetSelfRecordsEndpoint(IRepository<MedicalRecord> recordRepository)
 
     public override async Task HandleAsync(GetSelfRecordsRequest req, CancellationToken ct)
     {
-        var userIdClaim = User.FindFirst("userId")?.Value;
-        if (string.IsNullOrEmpty(userIdClaim) || !Guid.TryParse(userIdClaim, out var patientId))
-        {
-            ThrowError("Invalid user authentication", 401);
-            return;
-        }
+        var patientId = userContext.UserId;
 
         var specification = new MedicalRecordsByPatientSpecification(patientId);
         var records = await recordRepository.ListAsync(specification, ct);

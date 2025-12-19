@@ -3,6 +3,7 @@ using MedicalCenter.Core.Aggregates.MedicalRecords;
 using MedicalCenter.Core.Aggregates.MedicalRecords.Specifications;
 using MedicalCenter.Core.Primitives;
 using MedicalCenter.Core.SharedKernel;
+using MedicalCenter.Core.Services;
 using MedicalCenter.Core.Authorization;
 
 namespace MedicalCenter.WebApi.Endpoints.Records;
@@ -12,7 +13,8 @@ namespace MedicalCenter.WebApi.Endpoints.Records;
 /// </summary>
 public class DeleteRecordEndpoint(
     IRepository<MedicalRecord> recordRepository,
-    IUnitOfWork unitOfWork)
+    IUnitOfWork unitOfWork,
+    IUserContext userContext)
     : Endpoint<DeleteRecordRequest>
 {
     public override void Configure()
@@ -33,12 +35,7 @@ public class DeleteRecordEndpoint(
 
     public override async Task HandleAsync(DeleteRecordRequest req, CancellationToken ct)
     {
-        var userIdClaim = User.FindFirst("userId")?.Value;
-        if (string.IsNullOrEmpty(userIdClaim) || !Guid.TryParse(userIdClaim, out var currentUserId))
-        {
-            ThrowError("Invalid user authentication", 401);
-            return;
-        }
+        var currentUserId = userContext.UserId;
 
         var specification = new MedicalRecordByIdSpecification(req.RecordId);
         var record = await recordRepository.FirstOrDefaultAsync(specification, ct);

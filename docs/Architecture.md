@@ -75,6 +75,7 @@ The Core layer is organized following Domain-Driven Design principles with clear
 
 - **Services/**: Domain service interfaces
   - `IIdentityService`: User identity management interface (includes claims and policy verification)
+  - `IUserContext`: User context interface for accessing authenticated user information (UserId, UserName, Email, Role)
   - `IFileStorageService`: File storage abstraction interface
   - `ITokenProvider`: Token generation and validation interface
   - `IDateTimeProvider`: Unified time access interface
@@ -267,6 +268,22 @@ The Web API layer handles HTTP requests, validation, authorization, and DTOs.
   - Aggregates raise events: `AddDomainEvent(new SomeEvent(...))`
   - Events are automatically dispatched after successful save
   - Handlers process events asynchronously
+
+### User Context Pattern
+
+- **Purpose**: Abstract user claim access and provide strongly-typed user information
+- **Implementation**: `IUserContext` interface in Core, `AspNetUserContextAdapter` in WebApi
+- **Benefits**:
+  - Decouples endpoints from ASP.NET Core's `HttpContext.User.Claims`
+  - Provides strongly-typed access to user information (Guid UserId instead of string parsing)
+  - Centralizes claim validation and error handling
+  - Enables easy mocking in tests
+  - Descriptive error messages for missing or invalid claims
+- **Usage**:
+  - All endpoints inject `IUserContext` instead of directly accessing `User.FindFirst()`
+  - Properties throw `InvalidOperationException` with descriptive messages when claims are missing or invalid
+  - Registered as scoped service (one per HTTP request)
+  - Uses standard JWT claims: `ClaimTypes.NameIdentifier`, `ClaimTypes.Name`, `ClaimTypes.Email`, `ClaimTypes.Role`
 
 ### Time Handling Pattern
 

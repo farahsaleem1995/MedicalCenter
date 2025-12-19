@@ -3,7 +3,6 @@ using MedicalCenter.Core.Aggregates.MedicalRecords;
 using MedicalCenter.Core.Aggregates.MedicalRecords.Specifications;
 using MedicalCenter.Core.Primitives;
 using MedicalCenter.Core.SharedKernel;
-using MedicalCenter.Core.SharedKernel;
 using MedicalCenter.Core.Services;
 using MedicalCenter.Core.Authorization;
 
@@ -14,7 +13,8 @@ namespace MedicalCenter.WebApi.Endpoints.Records;
 /// </summary>
 public class DownloadAttachmentEndpoint(
     IRepository<MedicalRecord> recordRepository,
-    IFileStorageService fileStorageService)
+    IFileStorageService fileStorageService,
+    IUserContext userContext)
     : Endpoint<DownloadAttachmentRequest>
 {
     public override void Configure()
@@ -35,12 +35,7 @@ public class DownloadAttachmentEndpoint(
 
     public override async Task HandleAsync(DownloadAttachmentRequest req, CancellationToken ct)
     {
-        var userIdClaim = User.FindFirst("userId")?.Value;
-        if (string.IsNullOrEmpty(userIdClaim) || !Guid.TryParse(userIdClaim, out var currentUserId))
-        {
-            ThrowError("Invalid user authentication", 401);
-            return;
-        }
+        var currentUserId = userContext.UserId;
 
         var specification = new MedicalRecordByIdSpecification(req.RecordId);
         var record = await recordRepository.FirstOrDefaultAsync(specification, ct);

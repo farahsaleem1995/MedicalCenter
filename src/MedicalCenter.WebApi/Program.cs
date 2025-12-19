@@ -1,8 +1,10 @@
 using MedicalCenter.Infrastructure;
 using MedicalCenter.WebApi.Middleware;
+using MedicalCenter.WebApi.Services;
 using FastEndpoints;
 using FastEndpoints.Swagger;
 using MedicalCenter.Infrastructure.Data;
+using MedicalCenter.Core.Services;
 using Microsoft.EntityFrameworkCore;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
@@ -23,6 +25,12 @@ builder.Services
             s.Description = "Medical Center Automation System API";
         };
     });
+
+// Register HttpContextAccessor for IUserContext
+builder.Services.AddHttpContextAccessor();
+
+// Register IUserContext
+builder.Services.AddScoped<IUserContext, AspNetUserContextAdapter>();
 
 // Register global exception handler
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();

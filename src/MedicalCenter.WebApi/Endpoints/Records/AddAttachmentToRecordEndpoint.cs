@@ -18,7 +18,8 @@ public class AddAttachmentToRecordEndpoint(
     IFileStorageService fileStorageService,
     IUnitOfWork unitOfWork,
     IOptions<FileStorageOptions> fileStorageOptions,
-    IDateTimeProvider dateTimeProvider)
+    IDateTimeProvider dateTimeProvider,
+    IUserContext userContext)
     : Endpoint<AddAttachmentToRecordRequest, AddAttachmentToRecordResponse>
 {
     public override void Configure()
@@ -41,12 +42,7 @@ public class AddAttachmentToRecordEndpoint(
 
     public override async Task HandleAsync(AddAttachmentToRecordRequest req, CancellationToken ct)
     {
-        var userIdClaim = User.FindFirst("userId")?.Value;
-        if (string.IsNullOrEmpty(userIdClaim) || !Guid.TryParse(userIdClaim, out var currentUserId))
-        {
-            ThrowError("Invalid user authentication", 401);
-            return;
-        }
+        var currentUserId = userContext.UserId;
 
         // Find the record
         var specification = new MedicalRecordByIdSpecification(req.RecordId);
