@@ -5,14 +5,12 @@ using MedicalCenter.Core.Primitives;
 using MedicalCenter.Core.SharedKernel;
 using MedicalCenter.Core.Services;
 using MedicalCenter.Core.Authorization;
-using MedicalCenter.WebApi.Attributes;
 
 namespace MedicalCenter.WebApi.Endpoints.Records;
 
 /// <summary>
 /// Update medical record endpoint.
 /// </summary>
-[Command]
 public class UpdateRecordEndpoint(
     IRepository<MedicalRecord> recordRepository,
     IUnitOfWork unitOfWork,

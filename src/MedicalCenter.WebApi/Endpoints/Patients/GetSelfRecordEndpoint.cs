@@ -5,7 +5,6 @@ using MedicalCenter.Core.SharedKernel;
 using MedicalCenter.Core.Queries;
 using MedicalCenter.Core.Services;
 using MedicalCenter.Core.Authorization;
-using MedicalCenter.WebApi.Attributes;
 using MedicalCenter.WebApi.Endpoints.Records;
 
 namespace MedicalCenter.WebApi.Endpoints.Patients;
@@ -13,7 +12,6 @@ namespace MedicalCenter.WebApi.Endpoints.Patients;
 /// <summary>
 /// Get current patient's specific medical record endpoint.
 /// </summary>
-[Query]
 public class GetSelfRecordEndpoint(
     IMedicalRecordQueryService recordQueryService,
     IUserContext userContext)

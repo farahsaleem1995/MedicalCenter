@@ -2,7 +2,6 @@ using FastEndpoints;
 using FluentValidation;
 using MedicalCenter.Core.Services;
 using MedicalCenter.Core.SharedKernel;
-using MedicalCenter.WebApi.Attributes;
 using MedicalCenter.WebApi.Extensions;
 
 namespace MedicalCenter.WebApi.Endpoints.Auth;
@@ -10,7 +9,6 @@ namespace MedicalCenter.WebApi.Endpoints.Auth;
 /// <summary>
 /// Change password endpoint for authenticated users.
 /// </summary>
-[Command]
 public class ChangePasswordEndpoint(
     IIdentityService identityService,
     ITokenProvider tokenProvider,

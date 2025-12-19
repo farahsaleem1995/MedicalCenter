@@ -2,7 +2,6 @@ using FastEndpoints;
 using MedicalCenter.Core.SharedKernel;
 using MedicalCenter.Core.Queries;
 using MedicalCenter.Core.Authorization;
-using MedicalCenter.WebApi.Attributes;
 using MedicalCenter.WebApi.Extensions;
 
 namespace MedicalCenter.WebApi.Endpoints.Admin;
@@ -10,7 +9,6 @@ namespace MedicalCenter.WebApi.Endpoints.Admin;
 /// <summary>
 /// Admin endpoint to get a user by ID.
 /// </summary>
-[Query]
 public class GetUserEndpoint(
     IUserQueryService userQueryService)
     : Endpoint<GetUserRequest, GetUserResponse>

@@ -4,7 +4,6 @@ using MedicalCenter.Core.Primitives;
 using MedicalCenter.Core.SharedKernel;
 using MedicalCenter.Core.Queries;
 using MedicalCenter.Core.Authorization;
-using MedicalCenter.WebApi.Attributes;
 using MedicalCenter.WebApi.Extensions;
 
 namespace MedicalCenter.WebApi.Endpoints.Admin;
@@ -12,7 +11,6 @@ namespace MedicalCenter.WebApi.Endpoints.Admin;
 /// <summary>
 /// Admin endpoint to list users with optional filtering.
 /// </summary>
-[Query]
 public class ListUsersEndpoint(
     IUserQueryService userQueryService,
     IAuthorizationService authorizationService)

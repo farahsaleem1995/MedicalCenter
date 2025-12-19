@@ -5,14 +5,12 @@ using MedicalCenter.Core.Aggregates.Patients.ValueObjects;
 using MedicalCenter.Core.Primitives;
 using MedicalCenter.Core.SharedKernel;
 using MedicalCenter.Core.Authorization;
-using MedicalCenter.WebApi.Attributes;
 
 namespace MedicalCenter.WebApi.Endpoints.Patients;
 
 /// <summary>
 /// Update patient blood type endpoint.
 /// </summary>
-[Command]
 public class UpdateBloodTypeEndpoint(
     IRepository<Patient> patientRepository,
     IUnitOfWork unitOfWork)

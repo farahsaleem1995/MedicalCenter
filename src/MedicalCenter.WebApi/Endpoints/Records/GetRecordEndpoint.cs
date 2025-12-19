@@ -5,14 +5,12 @@ using MedicalCenter.Core.SharedKernel;
 using MedicalCenter.Core.Queries;
 using MedicalCenter.Core.Services;
 using MedicalCenter.Core.Authorization;
-using MedicalCenter.WebApi.Attributes;
 
 namespace MedicalCenter.WebApi.Endpoints.Records;
 
 /// <summary>
 /// Get specific medical record endpoint.
 /// </summary>
-[Query]
 public class GetRecordEndpoint(
     IMedicalRecordQueryService recordQueryService,
     IUserContext userContext)

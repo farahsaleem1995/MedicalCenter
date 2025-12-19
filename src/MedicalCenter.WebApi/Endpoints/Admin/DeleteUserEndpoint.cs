@@ -5,14 +5,12 @@ using MedicalCenter.Core.SharedKernel;
 using MedicalCenter.Core.Queries;
 using MedicalCenter.Core.Services;
 using MedicalCenter.Infrastructure.Data;
-using MedicalCenter.WebApi.Attributes;
 
 namespace MedicalCenter.WebApi.Endpoints.Admin;
 
 /// <summary>
 /// Admin endpoint to delete/deactivate a user.
 /// </summary>
-[Command]
 public class DeleteUserEndpoint(
     IUserQueryService userQueryService,
     IAuthorizationService authorizationService,

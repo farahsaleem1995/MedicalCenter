@@ -4,14 +4,12 @@ using MedicalCenter.Core.Aggregates.Patients.Specifications;
 using MedicalCenter.Core.Primitives;
 using MedicalCenter.Core.SharedKernel;
 using MedicalCenter.Core.Authorization;
-using MedicalCenter.WebApi.Attributes;
 
 namespace MedicalCenter.WebApi.Endpoints.Patients.Medications;
 
 /// <summary>
 /// List medications for a patient endpoint.
 /// </summary>
-[Query]
 public class ListMedicationsEndpoint(IRepository<Patient> patientRepository)
     : Endpoint<ListMedicationsRequest, ListMedicationsResponse>
 {

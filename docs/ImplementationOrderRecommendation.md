@@ -252,10 +252,9 @@
    - Verify tests pass
 
 ### Week 2: CQRS Foundation
-3. ✅ **CQRS Phase 1** (Day 1) - **COMPLETED**
-   - Add Command/Query attributes
-   - Apply to all endpoints incrementally
-   - All 41 endpoints now have [Command] or [Query] attributes
+3. ✅ **CQRS Phase 1** (Day 1) - **COMPLETED** (Attributes removed)
+   - Command/Query attributes were added and then removed
+   - Endpoints follow CQRS principles through HTTP method conventions (GET = Query, POST/PUT/DELETE/PATCH = Command)
 
 4. ✅ **CQRS Phase 2** (Day 2-4)
    - Update IUnitOfWork (remove transaction methods)

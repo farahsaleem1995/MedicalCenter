@@ -2,7 +2,6 @@ using FastEndpoints;
 using Microsoft.Extensions.Options;
 using MedicalCenter.Core.SharedKernel;
 using MedicalCenter.Core.Services;
-using MedicalCenter.WebApi.Attributes;
 using MedicalCenter.WebApi.Extensions;
 using MedicalCenter.Infrastructure;
 
@@ -11,7 +10,6 @@ namespace MedicalCenter.WebApi.Endpoints.Auth;
 /// <summary>
 /// Refresh token endpoint - exchanges a refresh token for a new access token.
 /// </summary>
-[Command]
 public class RefreshTokenEndpoint(
     IIdentityService identityService,
     ITokenProvider tokenProvider,

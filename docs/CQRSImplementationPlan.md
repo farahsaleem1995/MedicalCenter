@@ -2,7 +2,10 @@
 
 **Status**: Temporary plan - to be removed after implementation  
 **Date**: 2025-12-18  
+**Last Updated**: 2025-01-XX (Phase 1 attributes removed)  
 **Objective**: Introduce CQRS concepts (Command/Query separation) with automatic transaction management, audit trail, and performance monitoring using FastEndpoints pipeline processors.
+
+**Note**: Phase 1 attributes (`[Command]` and `[Query]`) have been removed. CQRS separation is now achieved through HTTP method conventions (GET = Query, POST/PUT/DELETE/PATCH = Command).
 
 ---
 
@@ -10,7 +13,7 @@
 
 This plan introduces Command Query Responsibility Segregation (CQRS) concepts to the Medical Center API by:
 
-1. **Phase 1**: Adding `[Command]` and `[Query]` attributes to endpoints to explicitly mark their intent
+1. **Phase 1**: ~~Adding `[Command]` and `[Query]` attributes to endpoints to explicitly mark their intent~~ **REMOVED** - Using HTTP method conventions instead
 2. **Phase 2**: Simplifying `IUnitOfWork` and implementing automatic transaction management using `TransactionScope`
 3. **Phase 3**: Adding audit trail service to track all command executions
 4. **Phase 4**: Adding performance monitoring for queries
@@ -38,9 +41,9 @@ This plan introduces Command Query Responsibility Segregation (CQRS) concepts to
 - Can be discovered via reflection for pipeline configuration
 
 **Implementation**:
-- `[Command]` attribute for endpoints that modify state (POST, PUT, DELETE, PATCH)
-- `[Query]` attribute for endpoints that only read data (GET)
-- Attributes stored in metadata for pipeline processors to access
+- Commands: Endpoints that modify state (POST, PUT, DELETE, PATCH) - determined by HTTP method
+- Queries: Endpoints that only read data (GET) - determined by HTTP method
+- No attributes needed - separation achieved through HTTP method conventions
 
 ### 2. Transaction Management Strategy
 
@@ -100,7 +103,7 @@ This plan introduces Command Query Responsibility Segregation (CQRS) concepts to
 
 ### Objective
 
-Add `[Command]` and `[Query]` attributes to mark endpoints and configure their behavior.
+~~Add `[Command]` and `[Query]` attributes to mark endpoints and configure their behavior.~~ **REMOVED**: Attributes have been removed. CQRS separation is achieved through HTTP method conventions.
 
 ### Implementation Steps
 
@@ -272,12 +275,10 @@ public class TransactionPreProcessor<TRequest> : IPreProcessor<TRequest>
 {
     public async Task PreProcessAsync(IPreProcessorContext<TRequest> ctx, CancellationToken ct)
     {
-        // Check if endpoint has [Command] attribute
-        var endpointType = ctx.HttpContext.GetEndpoint()?.Metadata.GetMetadata<EndpointDefinition>()?.EndpointType;
-        if (endpointType == null) return;
-        
-        var commandAttr = endpointType.GetCustomAttribute<CommandAttribute>();
-        if (commandAttr == null || !commandAttr.IsTransactional) return;
+        // Check if endpoint is a command (POST, PUT, DELETE, PATCH)
+        var httpMethod = ctx.HttpContext.Request.Method;
+        var isCommand = httpMethod == "POST" || httpMethod == "PUT" || httpMethod == "DELETE" || httpMethod == "PATCH";
+        if (!isCommand) return;
         
         // Create TransactionScope with async flow enabled
         var transactionScope = new TransactionScope(
@@ -1273,12 +1274,10 @@ public class AuditTrailPostProcessor<TRequest, TResponse> : IPostProcessor<TRequ
     
     public async Task PostProcessAsync(IPostProcessorContext<TRequest, TResponse> ctx, CancellationToken ct)
     {
-        // Check if endpoint has [Command] attribute with IsTraceable = true
-        var endpointType = ctx.HttpContext.GetEndpoint()?.Metadata.GetMetadata<EndpointDefinition>()?.EndpointType;
-        if (endpointType == null) return;
-        
-        var commandAttr = endpointType.GetCustomAttribute<CommandAttribute>();
-        if (commandAttr == null || !commandAttr.IsTraceable) return;
+        // Check if endpoint is a command (POST, PUT, DELETE, PATCH)
+        var httpMethod = ctx.HttpContext.Request.Method;
+        var isCommand = httpMethod == "POST" || httpMethod == "PUT" || httpMethod == "DELETE" || httpMethod == "PATCH";
+        if (!isCommand) return;
         
         // Extract metadata
         var commandName = endpointType.Name;
@@ -1417,12 +1416,9 @@ public class QueryPerformancePreProcessor<TRequest> : IPreProcessor<TRequest>
 {
     public async Task PreProcessAsync(IPreProcessorContext<TRequest> ctx, CancellationToken ct)
     {
-        // Check if endpoint has [Query] attribute
-        var endpointType = ctx.HttpContext.GetEndpoint()?.Metadata.GetMetadata<EndpointDefinition>()?.EndpointType;
-        if (endpointType == null) return;
-        
-        var queryAttr = endpointType.GetCustomAttribute<QueryAttribute>();
-        if (queryAttr == null) return;
+        // Check if endpoint is a query (GET)
+        var httpMethod = ctx.HttpContext.Request.Method;
+        if (httpMethod != "GET") return;
         
         // Record start time
         ctx.HttpContext.Items["QueryStartTime"] = DateTime.UtcNow;
@@ -1450,12 +1446,9 @@ public class QueryPerformancePostProcessor<TRequest, TResponse> : IPostProcessor
     
     public async Task PostProcessAsync(IPostProcessorContext<TRequest, TResponse> ctx, CancellationToken ct)
     {
-        // Check if endpoint has [Query] attribute
-        var endpointType = ctx.HttpContext.GetEndpoint()?.Metadata.GetMetadata<EndpointDefinition>()?.EndpointType;
-        if (endpointType == null) return;
-        
-        var queryAttr = endpointType.GetCustomAttribute<QueryAttribute>();
-        if (queryAttr == null) return;
+        // Check if endpoint is a query (GET)
+        var httpMethod = ctx.HttpContext.Request.Method;
+        if (httpMethod != "GET") return;
         
         // Calculate duration
         if (!ctx.HttpContext.Items.TryGetValue("QueryStartTime", out var startTimeObj))
@@ -1465,7 +1458,8 @@ public class QueryPerformancePostProcessor<TRequest, TResponse> : IPostProcessor
             return;
         
         var duration = DateTime.UtcNow - startTime;
-        var queryName = endpointType.Name;
+        var endpointType = ctx.HttpContext.GetEndpoint()?.Metadata.GetMetadata<EndpointDefinition>()?.EndpointType;
+        var queryName = endpointType?.Name ?? "Unknown";
         var warningThreshold = _configuration.GetValue<TimeSpan?>("Performance:QueryWarningThreshold") 
             ?? DefaultWarningThreshold;
         
@@ -1638,27 +1632,9 @@ public class QueryPerformancePostProcessor<TRequest, TResponse> : IPostProcessor
 
 ### Additional Suggestions
 
-#### 1. Add Command/Query Validation
+#### 1. ~~Add Command/Query Validation~~ (No longer applicable)
 
-**Suggestion**: Validate that all endpoints have either `[Command]` or `[Query]` attribute
-
-**Implementation**: Add validation in `Program.cs` startup:
-```csharp
-// Validate all endpoints have Command or Query attribute
-var endpointTypes = Assembly.GetExecutingAssembly()
-    .GetTypes()
-    .Where(t => t.IsSubclassOf(typeof(EndpointBase)));
-    
-foreach (var endpointType in endpointTypes)
-{
-    var hasCommand = endpointType.GetCustomAttribute<CommandAttribute>() != null;
-    var hasQuery = endpointType.GetCustomAttribute<QueryAttribute>() != null;
-    
-    if (!hasCommand && !hasQuery)
-    {
-        throw new InvalidOperationException(
-            $"Endpoint {endpointType.Name} must have either [Command] or [Query] attribute");
-    }
+**Note**: Attributes have been removed. CQRS separation is now determined by HTTP method conventions (GET = Query, POST/PUT/DELETE/PATCH = Command). No validation needed.
 }
 ```
 

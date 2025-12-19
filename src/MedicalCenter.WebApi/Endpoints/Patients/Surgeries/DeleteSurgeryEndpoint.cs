@@ -4,14 +4,12 @@ using MedicalCenter.Core.Aggregates.Patients.Specifications;
 using MedicalCenter.Core.Primitives;
 using MedicalCenter.Core.SharedKernel;
 using MedicalCenter.Core.Authorization;
-using MedicalCenter.WebApi.Attributes;
 
 namespace MedicalCenter.WebApi.Endpoints.Patients.Surgeries;
 
 /// <summary>
 /// Delete surgery endpoint.
 /// </summary>
-[Command]
 public class DeleteSurgeryEndpoint(
     IRepository<Patient> patientRepository,
     IUnitOfWork unitOfWork)
