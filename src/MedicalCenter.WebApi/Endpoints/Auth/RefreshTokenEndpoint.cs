@@ -15,6 +15,7 @@ namespace MedicalCenter.WebApi.Endpoints.Auth;
 public class RefreshTokenEndpoint(
     IIdentityService identityService,
     ITokenProvider tokenProvider,
+    IUnitOfWork unitOfWork,
     IOptions<JwtSettings> jwtSettings,
     IDateTimeProvider dateTimeProvider)
     : Endpoint<RefreshTokenRequest, RefreshTokenResponse>
@@ -36,7 +37,7 @@ public class RefreshTokenEndpoint(
     public override async Task HandleAsync(RefreshTokenRequest req, CancellationToken ct)
     {
         // Validate refresh token
-        var validationResult = await identityService.ValidateRefreshTokenAsync(req.RefreshToken, ct);
+        var validationResult = await tokenProvider.ValidateRefreshTokenAsync(req.RefreshToken, ct);
         if (validationResult.IsFailure)
         {
             var statusCode = validationResult.Error!.Code.ToStatusCode();
@@ -60,23 +61,52 @@ public class RefreshTokenEndpoint(
             return;
         }
 
+        // Check email confirmation - users with unconfirmed email cannot refresh tokens
+        var isUnconfirmed = await identityService.IsUserUnconfirmedAsync(userId, ct);
+        if (isUnconfirmed)
+        {
+            // Revoke the refresh token since user is unconfirmed
+            await tokenProvider.RevokeRefreshTokenAsync(req.RefreshToken, ct);
+            ThrowError("Email address must be confirmed before accessing the system. Please check your email for the confirmation code.", 403);
+            return;
+        }
+
         // Generate new tokens
         var newToken = tokenProvider.GenerateAccessToken(user);
         var newRefreshToken = tokenProvider.GenerateRefreshToken();
 
-        // Revoke old refresh token and save new one
-        await identityService.RevokeRefreshTokenAsync(req.RefreshToken, ct);
-        var expiryDate = dateTimeProvider.Now.AddDays(jwtSettings.Value.RefreshTokenExpirationInDays);
-        var saveResult = await identityService.SaveRefreshTokenAsync(
-            newRefreshToken,
-            userId,
-            expiryDate,
-            ct);
-
-        if (saveResult.IsFailure)
+        // Revoke old refresh token and save new one atomically
+        await unitOfWork.BeginTransactionAsync(ct);
+        try
         {
-            ThrowError("Failed to save refresh token", 500);
-            return;
+            var revokeResult = await tokenProvider.RevokeRefreshTokenAsync(req.RefreshToken, ct);
+            if (revokeResult.IsFailure)
+            {
+                await unitOfWork.RollbackTransactionAsync(ct);
+                ThrowError("Failed to revoke refresh token", 500);
+                return;
+            }
+
+            var expiryDate = dateTimeProvider.Now.AddDays(jwtSettings.Value.RefreshTokenExpirationInDays);
+            var saveResult = await tokenProvider.SaveRefreshTokenAsync(
+                newRefreshToken,
+                userId,
+                expiryDate,
+                ct);
+
+            if (saveResult.IsFailure)
+            {
+                await unitOfWork.RollbackTransactionAsync(ct);
+                ThrowError("Failed to save refresh token", 500);
+                return;
+            }
+
+            await unitOfWork.CommitTransactionAsync(ct);
+        }
+        catch
+        {
+            await unitOfWork.RollbackTransactionAsync(ct);
+            throw;
         }
 
         await Send.OkAsync(new RefreshTokenResponse

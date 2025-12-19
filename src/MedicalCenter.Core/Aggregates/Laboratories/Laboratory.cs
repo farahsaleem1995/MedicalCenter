@@ -15,8 +15,8 @@ public class Laboratory : User, IAggregateRoot
 
     private Laboratory() { } // EF Core
 
-    public Laboratory(string fullName, string email, string labName, string licenseNumber)
-        : base(fullName, email, UserRole.LabUser)
+    public Laboratory(Guid id, string fullName, string email, string labName, string licenseNumber)
+        : base(id, fullName, email, UserRole.LabUser)
     {
         LabName = labName;
         LicenseNumber = licenseNumber;
@@ -27,7 +27,7 @@ public class Laboratory : User, IAggregateRoot
         Guard.Against.NullOrWhiteSpace(labName, nameof(labName));
         Guard.Against.NullOrWhiteSpace(licenseNumber, nameof(licenseNumber));
         
-        return new Laboratory(fullName, email, labName, licenseNumber);
+        return new Laboratory(Guid.NewGuid(), fullName, email, labName, licenseNumber);
     }
 
     public void UpdateLabName(string labName)

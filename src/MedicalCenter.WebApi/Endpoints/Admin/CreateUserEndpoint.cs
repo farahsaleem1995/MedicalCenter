@@ -69,10 +69,12 @@ public class CreateUserEndpoint(
         try
         {
             // Step 1: Create Identity user (generic user creation)
+            // Only patients require email confirmation, admin-created users don't
             var createUserResult = await identityService.CreateUserAsync(
                 req.Email,
                 req.Password,
                 req.Role,
+                requireEmailConfirmation: false,
                 ct);
 
             if (createUserResult.IsFailure)
@@ -89,27 +91,27 @@ public class CreateUserEndpoint(
             switch (req.Role)
             {
                 case UserRole.Doctor:
-                    var doctor = CreateDoctorWithId(req.FullName, req.Email, req.LicenseNumber!, req.Specialty!, userId);
+                    var doctor = new Doctor(userId, req.FullName, req.Email, req.LicenseNumber!, req.Specialty!);
                     await doctorRepository.AddAsync(doctor, ct);
                     break;
 
                 case UserRole.HealthcareStaff:
-                    var healthcareStaff = CreateHealthcareStaffWithId(req.FullName, req.Email, req.OrganizationName!, req.Department!, userId);
+                    var healthcareStaff = new HealthcareStaff(userId, req.FullName, req.Email, req.OrganizationName!, req.Department!);
                     await healthcareStaffRepository.AddAsync(healthcareStaff, ct);
                     break;
 
                 case UserRole.LabUser:
-                    var laboratory = CreateLaboratoryWithId(req.FullName, req.Email, req.LabName!, req.LicenseNumber!, userId);
+                    var laboratory = new Laboratory(userId, req.FullName, req.Email, req.LabName!, req.LicenseNumber!);
                     await laboratoryRepository.AddAsync(laboratory, ct);
                     break;
 
                 case UserRole.ImagingUser:
-                    var imagingCenter = CreateImagingCenterWithId(req.FullName, req.Email, req.CenterName!, req.LicenseNumber!, userId);
+                    var imagingCenter = new ImagingCenter(userId, req.FullName, req.Email, req.CenterName!, req.LicenseNumber!);
                     await imagingCenterRepository.AddAsync(imagingCenter, ct);
                     break;
 
                 case UserRole.SystemAdmin:
-                    var systemAdmin = CreateSystemAdminWithId(req.FullName, req.Email, req.CorporateId!, req.Department!, userId);
+                    var systemAdmin = new SystemAdmin(userId, req.FullName, req.Email, req.CorporateId!, req.Department!);
                     await systemAdminRepository.AddAsync(systemAdmin, ct);
                     break;
 
@@ -139,44 +141,5 @@ public class CreateUserEndpoint(
         }
     }
 
-    private static Doctor CreateDoctorWithId(string fullName, string email, string licenseNumber, string specialty, Guid id)
-    {
-        Doctor doctor = Doctor.Create(fullName, email, licenseNumber, specialty);
-        System.Reflection.PropertyInfo? idProperty = typeof(BaseEntity).GetProperty(nameof(BaseEntity.Id));
-        idProperty?.SetValue(doctor, id);
-        return doctor;
-    }
-
-    private static HealthcareStaff CreateHealthcareStaffWithId(string fullName, string email, string organizationName, string department, Guid id)
-    {
-        HealthcareStaff healthcareStaff = HealthcareStaff.Create(fullName, email, organizationName, department);
-        System.Reflection.PropertyInfo? idProperty = typeof(BaseEntity).GetProperty(nameof(BaseEntity.Id));
-        idProperty?.SetValue(healthcareStaff, id);
-        return healthcareStaff;
-    }
-
-    private static Laboratory CreateLaboratoryWithId(string fullName, string email, string labName, string licenseNumber, Guid id)
-    {
-        Laboratory laboratory = Laboratory.Create(fullName, email, labName, licenseNumber);
-        System.Reflection.PropertyInfo? idProperty = typeof(BaseEntity).GetProperty(nameof(BaseEntity.Id));
-        idProperty?.SetValue(laboratory, id);
-        return laboratory;
-    }
-
-    private static ImagingCenter CreateImagingCenterWithId(string fullName, string email, string centerName, string licenseNumber, Guid id)
-    {
-        ImagingCenter imagingCenter = ImagingCenter.Create(fullName, email, centerName, licenseNumber);
-        System.Reflection.PropertyInfo? idProperty = typeof(BaseEntity).GetProperty(nameof(BaseEntity.Id));
-        idProperty?.SetValue(imagingCenter, id);
-        return imagingCenter;
-    }
-
-    private static SystemAdmin CreateSystemAdminWithId(string fullName, string email, string corporateId, string department, Guid id)
-    {
-        SystemAdmin systemAdmin = SystemAdmin.Create(fullName, email, corporateId, department);
-        System.Reflection.PropertyInfo? idProperty = typeof(BaseEntity).GetProperty(nameof(BaseEntity.Id));
-        idProperty?.SetValue(systemAdmin, id);
-        return systemAdmin;
-    }
 }
 

@@ -18,7 +18,7 @@ public class LaboratoryTests
         var licenseNumber = "LAB123456";
 
         // Act
-        var laboratory = new Laboratory(fullName, email, labName, licenseNumber);
+        var laboratory = new Laboratory(Guid.NewGuid(), fullName, email, labName, licenseNumber);
 
         // Assert
         laboratory.FullName.Should().Be(fullName);
@@ -31,7 +31,7 @@ public class LaboratoryTests
     public void Constructor_SetsRoleToLabUser_WhenCreated()
     {
         // Arrange & Act
-        var laboratory = new Laboratory("Lab Technician Bob", "bob@lab.com", "City Lab Services", "LAB123456");
+        var laboratory = new Laboratory(Guid.NewGuid(), "Lab Technician Bob", "bob@lab.com", "City Lab Services", "LAB123456");
 
         // Assert
         laboratory.Role.Should().Be(UserRole.LabUser);
@@ -41,7 +41,7 @@ public class LaboratoryTests
     public void Constructor_SetsIsActiveToTrue_WhenCreated()
     {
         // Arrange & Act
-        var laboratory = new Laboratory("Lab Technician Bob", "bob@lab.com", "City Lab Services", "LAB123456");
+        var laboratory = new Laboratory(Guid.NewGuid(), "Lab Technician Bob", "bob@lab.com", "City Lab Services", "LAB123456");
 
         // Assert
         laboratory.IsActive.Should().BeTrue();
@@ -51,7 +51,7 @@ public class LaboratoryTests
     public void Constructor_GeneratesId_WhenCreated()
     {
         // Arrange & Act
-        var laboratory = new Laboratory("Lab Technician Bob", "bob@lab.com", "City Lab Services", "LAB123456");
+        var laboratory = new Laboratory(Guid.NewGuid(), "Lab Technician Bob", "bob@lab.com", "City Lab Services", "LAB123456");
 
         // Assert
         laboratory.Id.Should().NotBeEmpty();
@@ -82,7 +82,7 @@ public class LaboratoryTests
     public void Deactivate_DeactivatesLaboratory_WhenCalled()
     {
         // Arrange
-        var laboratory = new Laboratory("Lab Technician Bob", "bob@lab.com", "City Lab Services", "LAB123456");
+        var laboratory = new Laboratory(Guid.NewGuid(), "Lab Technician Bob", "bob@lab.com", "City Lab Services", "LAB123456");
 
         // Act
         laboratory.Deactivate();
@@ -95,7 +95,7 @@ public class LaboratoryTests
     public void Activate_ActivatesLaboratory_WhenCalled()
     {
         // Arrange
-        var laboratory = new Laboratory("Lab Technician Bob", "bob@lab.com", "City Lab Services", "LAB123456");
+        var laboratory = new Laboratory(Guid.NewGuid(), "Lab Technician Bob", "bob@lab.com", "City Lab Services", "LAB123456");
         laboratory.Deactivate();
 
         // Act
@@ -109,7 +109,7 @@ public class LaboratoryTests
     public void UpdateLabName_UpdatesLabName_WhenValidLabNameProvided()
     {
         // Arrange
-        var laboratory = new Laboratory("Lab Technician Bob", "bob@lab.com", "City Lab Services", "LAB123456");
+        var laboratory = new Laboratory(Guid.NewGuid(), "Lab Technician Bob", "bob@lab.com", "City Lab Services", "LAB123456");
         var newLabName = "Advanced Diagnostic Lab";
 
         // Act
@@ -126,7 +126,7 @@ public class LaboratoryTests
     public void UpdateLabName_ThrowsArgumentException_WhenLabNameIsNullOrWhiteSpace(string? invalidLabName)
     {
         // Arrange
-        var laboratory = new Laboratory("Lab Technician Bob", "bob@lab.com", "City Lab Services", "LAB123456");
+        var laboratory = new Laboratory(Guid.NewGuid(), "Lab Technician Bob", "bob@lab.com", "City Lab Services", "LAB123456");
 
         // Act & Assert
         var act = () => laboratory.UpdateLabName(invalidLabName!);

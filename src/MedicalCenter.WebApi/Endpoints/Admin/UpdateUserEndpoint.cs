@@ -21,6 +21,7 @@ namespace MedicalCenter.WebApi.Endpoints.Admin;
 public class UpdateUserEndpoint(
     IUserQueryService userQueryService,
     IIdentityService identityService,
+    ITokenProvider tokenProvider,
     IAuthorizationService authorizationService,
     MedicalCenterDbContext context)
     : Endpoint<UpdateUserRequest>
@@ -103,8 +104,8 @@ public class UpdateUserEndpoint(
         context.Update(user);
         await context.SaveChangesAsync(ct);
 
-        // Invalidate all refresh tokens for this user
-        await identityService.InvalidateUserRefreshTokensAsync(user.Id, ct);
+        // Revoke all refresh tokens for this user
+        await tokenProvider.RevokeUserRefreshTokensAsync(user.Id, ct);
 
         await Send.NoContentAsync(ct);
     }

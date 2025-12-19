@@ -20,9 +20,7 @@ namespace MedicalCenter.Infrastructure.Services;
 /// Implementation of IIdentityService using ASP.NET Core Identity.
 /// </summary>
 public class IdentityService(
-    MedicalCenterDbContext context,
     UserManager<ApplicationUser> userManager,
-    IUnitOfWork unitOfWork,
     IOptions<JwtSettings> jwtSettings,
     IDateTimeProvider dateTimeProvider)
     : IIdentityService
@@ -34,6 +32,7 @@ public class IdentityService(
         string email,
         string password,
         UserRole role,
+        bool requireEmailConfirmation = false,
         CancellationToken cancellationToken = default)
     {
         // Check if user already exists
@@ -50,7 +49,7 @@ public class IdentityService(
             Id = userId,
             UserName = email,
             Email = email,
-            EmailConfirmed = true // For now, we'll skip email confirmation
+            EmailConfirmed = !requireEmailConfirmation // Set based on flag
         };
 
         var identityResult = await userManager.CreateAsync(identityUser, password);
@@ -61,7 +60,14 @@ public class IdentityService(
         }
 
         // Add role
-        await userManager.AddToRoleAsync(identityUser, role.ToString());
+        var roleResult = await userManager.AddToRoleAsync(identityUser, role.ToString());
+        if (!roleResult.Succeeded)
+        {
+            // Rollback: delete user if role assignment fails
+            await userManager.DeleteAsync(identityUser);
+            var errors = roleResult.Errors.Select(e => e.Description);
+            return Result<Guid>.Failure(Error.Validation(string.Join("; ", errors)));
+        }
 
         return Result<Guid>.Success(userId);
     }
@@ -84,9 +90,6 @@ public class IdentityService(
             var errors = result.Errors.Select(e => e.Description);
             return Result.Failure(Error.Validation(string.Join("; ", errors)));
         }
-
-        // Invalidate all refresh tokens for this user
-        await InvalidateUserRefreshTokensAsync(userId, cancellationToken);
 
         return Result.Success();
     }
@@ -117,9 +120,6 @@ public class IdentityService(
             var errors = addResult.Errors.Select(e => e.Description);
             return Result.Failure(Error.Validation(string.Join("; ", errors)));
         }
-
-        // Invalidate all refresh tokens for this user
-        await InvalidateUserRefreshTokensAsync(userId, cancellationToken);
 
         return Result.Success();
     }
@@ -184,93 +184,133 @@ public class IdentityService(
         return Result<User>.Success(user);
     }
 
-    public async Task<Result> SaveRefreshTokenAsync(
-        string token,
+
+    public async Task<bool> IsUserUnconfirmedAsync(Guid userId, CancellationToken cancellationToken = default)
+    {
+        var identityUser = await userManager.FindByIdAsync(userId.ToString());
+        if (identityUser == null)
+        {
+            return false; // User doesn't exist
+        }
+
+        return !identityUser.EmailConfirmed;
+    }
+
+    public async Task<Result<string>> GenerateEmailConfirmationCodeAsync(
         Guid userId,
-        DateTime expiryDate,
         CancellationToken cancellationToken = default)
     {
-        // Remove any existing refresh tokens for this user (single active token per user)
-        var existingTokens = await context.RefreshTokens
-            .Where(rt => rt.UserId == userId)
-            .ToListAsync(cancellationToken);
-
-        context.RefreshTokens.RemoveRange(existingTokens);
-
-        // Add new refresh token
-        var refreshToken = new RefreshToken
+        var identityUser = await userManager.FindByIdAsync(userId.ToString());
+        if (identityUser == null)
         {
-            Token = token,
-            UserId = userId,
-            ExpiryDate = expiryDate
-        };
+            return Result<string>.Failure(Error.NotFound("User"));
+        }
 
-        context.RefreshTokens.Add(refreshToken);
-        await unitOfWork.SaveChangesAsync(cancellationToken);
+        if (identityUser.EmailConfirmed)
+        {
+            return Result<string>.Failure(Error.Validation("Email is already confirmed."));
+        }
+
+        // Use Identity's built-in TOTP token provider for email confirmation
+        // This generates a 6-digit numeric code
+        var code = await userManager.GenerateTwoFactorTokenAsync(
+            identityUser, 
+            TokenOptions.DefaultEmailProvider);
+
+        return Result<string>.Success(code);
+    }
+
+    public async Task<Result> ConfirmEmailAsync(
+        Guid userId,
+        string code,
+        CancellationToken cancellationToken = default)
+    {
+        var identityUser = await userManager.FindByIdAsync(userId.ToString());
+        if (identityUser == null)
+        {
+            return Result.Failure(Error.NotFound("User"));
+        }
+
+        if (identityUser.EmailConfirmed)
+        {
+            return Result.Failure(Error.Validation("Email is already confirmed."));
+        }
+
+        // Verify the TOTP code using Identity's built-in verification
+        var isValidCode = await userManager.VerifyTwoFactorTokenAsync(
+            identityUser,
+            TokenOptions.DefaultEmailProvider,
+            code);
+
+        if (!isValidCode)
+        {
+            return Result.Failure(Error.Validation("Invalid or expired confirmation code."));
+        }
+
+        // Generate email confirmation token and confirm email
+        var token = await userManager.GenerateEmailConfirmationTokenAsync(identityUser);
+        var result = await userManager.ConfirmEmailAsync(identityUser, token);
+        
+        if (!result.Succeeded)
+        {
+            var errors = result.Errors.Select(e => e.Description);
+            return Result.Failure(Error.Validation(string.Join("; ", errors)));
+        }
 
         return Result.Success();
     }
 
-    public async Task<Result<Guid>> ValidateRefreshTokenAsync(
-        string token,
-        CancellationToken cancellationToken = default)
-    {
-        var refreshToken = await context.RefreshTokens
-            .FirstOrDefaultAsync(rt => rt.Token == token, cancellationToken);
-
-        if (refreshToken == null)
-        {
-            return Result<Guid>.Failure(Error.Unauthorized("Invalid refresh token."));
-        }
-
-        if (refreshToken.Revoked)
-        {
-            return Result<Guid>.Failure(Error.Unauthorized("Refresh token has been revoked."));
-        }
-
-        if (refreshToken.ExpiryDate < _dateTimeProvider.Now)
-        {
-            // Token expired, remove it
-            context.RefreshTokens.Remove(refreshToken);
-            await unitOfWork.SaveChangesAsync(cancellationToken);
-            return Result<Guid>.Failure(Error.Unauthorized("Refresh token has expired."));
-        }
-
-        return Result<Guid>.Success(refreshToken.UserId);
-    }
-
-    public async Task<Result> RevokeRefreshTokenAsync(
-        string token,
-        CancellationToken cancellationToken = default)
-    {
-        var refreshToken = await context.RefreshTokens
-            .FirstOrDefaultAsync(rt => rt.Token == token, cancellationToken);
-
-        if (refreshToken == null)
-        {
-            return Result.Failure(Error.NotFound("Refresh token"));
-        }
-
-        refreshToken.Revoked = true;
-        await unitOfWork.SaveChangesAsync(cancellationToken);
-
-        return Result.Success();
-    }
-
-    public async Task<Result> InvalidateUserRefreshTokensAsync(
+    public async Task<Result<string>> GeneratePasswordResetCodeAsync(
         Guid userId,
         CancellationToken cancellationToken = default)
     {
-        var refreshTokens = await context.RefreshTokens
-            .Where(rt => rt.UserId == userId && !rt.Revoked)
-            .ToListAsync(cancellationToken);
-
-        foreach (var token in refreshTokens)
+        var identityUser = await userManager.FindByIdAsync(userId.ToString());
+        if (identityUser == null)
         {
-            token.Revoked = true;
+            return Result<string>.Failure(Error.NotFound("User"));
         }
 
-        await unitOfWork.SaveChangesAsync(cancellationToken);
+        // Use Identity's built-in TOTP token provider for password reset
+        // This generates a 6-digit numeric code
+        var code = await userManager.GenerateTwoFactorTokenAsync(
+            identityUser,
+            TokenOptions.DefaultEmailProvider);
+
+        return Result<string>.Success(code);
+    }
+
+    public async Task<Result> ResetPasswordAsync(
+        Guid userId,
+        string code,
+        string newPassword,
+        CancellationToken cancellationToken = default)
+    {
+        var identityUser = await userManager.FindByIdAsync(userId.ToString());
+        if (identityUser == null)
+        {
+            return Result.Failure(Error.NotFound("User"));
+        }
+
+        // Verify the TOTP code using Identity's built-in verification
+        var isValidCode = await userManager.VerifyTwoFactorTokenAsync(
+            identityUser,
+            TokenOptions.DefaultEmailProvider,
+            code);
+
+        if (!isValidCode)
+        {
+            return Result.Failure(Error.Validation("Invalid or expired reset code."));
+        }
+
+        // Generate password reset token and reset password
+        var token = await userManager.GeneratePasswordResetTokenAsync(identityUser);
+        var result = await userManager.ResetPasswordAsync(identityUser, token, newPassword);
+
+        if (!result.Succeeded)
+        {
+            var errors = result.Errors.Select(e => e.Description);
+            return Result.Failure(Error.Validation(string.Join("; ", errors)));
+        }
 
         return Result.Success();
     }
@@ -281,9 +321,8 @@ public class IdentityService(
     private class IdentityUserWrapper : User
     {
         public IdentityUserWrapper(ApplicationUser identityUser, UserRole role)
-            : base(identityUser.UserName ?? identityUser.Email ?? string.Empty, identityUser.Email ?? string.Empty, role)
+            : base(identityUser.Id, identityUser.UserName ?? identityUser.Email ?? string.Empty, identityUser.Email ?? string.Empty, role)
         {
-            Id = identityUser.Id;
             IsActive = !identityUser.LockoutEnabled || identityUser.LockoutEnd == null || identityUser.LockoutEnd <= DateTimeOffset.UtcNow;
         }
     }

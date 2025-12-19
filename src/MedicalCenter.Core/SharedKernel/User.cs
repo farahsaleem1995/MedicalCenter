@@ -17,12 +17,14 @@ public abstract class User : BaseEntity, IAuditableEntity
 
     protected User() { } // EF Core
 
-    protected User(string fullName, string email, UserRole role)
+    protected User(Guid id, string fullName, string email, UserRole role)
     {
+        Guard.Against.Default(id, nameof(id));
         Guard.Against.NullOrWhiteSpace(fullName, nameof(fullName));
         Guard.Against.NullOrWhiteSpace(email, nameof(email));
         Guard.Against.OutOfRange((int)role, nameof(role), 1, Enum.GetValues<UserRole>().Length);
         
+        Id = id;
         FullName = fullName;
         Email = email;
         Role = role;

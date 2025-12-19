@@ -18,7 +18,7 @@ public class ImagingCenterTests
         var licenseNumber = "IMG123456";
 
         // Act
-        var imagingCenter = new ImagingCenter(fullName, email, centerName, licenseNumber);
+        var imagingCenter = new ImagingCenter(Guid.NewGuid(), fullName, email, centerName, licenseNumber);
 
         // Assert
         imagingCenter.FullName.Should().Be(fullName);
@@ -31,7 +31,7 @@ public class ImagingCenterTests
     public void Constructor_SetsRoleToImagingUser_WhenCreated()
     {
         // Arrange & Act
-        var imagingCenter = new ImagingCenter("Imaging Tech Alice", "alice@imaging.com", "City Imaging Center", "IMG123456");
+        var imagingCenter = new ImagingCenter(Guid.NewGuid(), "Imaging Tech Alice", "alice@imaging.com", "City Imaging Center", "IMG123456");
 
         // Assert
         imagingCenter.Role.Should().Be(UserRole.ImagingUser);
@@ -41,7 +41,7 @@ public class ImagingCenterTests
     public void Constructor_SetsIsActiveToTrue_WhenCreated()
     {
         // Arrange & Act
-        var imagingCenter = new ImagingCenter("Imaging Tech Alice", "alice@imaging.com", "City Imaging Center", "IMG123456");
+        var imagingCenter = new ImagingCenter(Guid.NewGuid(), "Imaging Tech Alice", "alice@imaging.com", "City Imaging Center", "IMG123456");
 
         // Assert
         imagingCenter.IsActive.Should().BeTrue();
@@ -51,7 +51,7 @@ public class ImagingCenterTests
     public void Constructor_GeneratesId_WhenCreated()
     {
         // Arrange & Act
-        var imagingCenter = new ImagingCenter("Imaging Tech Alice", "alice@imaging.com", "City Imaging Center", "IMG123456");
+        var imagingCenter = new ImagingCenter(Guid.NewGuid(), "Imaging Tech Alice", "alice@imaging.com", "City Imaging Center", "IMG123456");
 
         // Assert
         imagingCenter.Id.Should().NotBeEmpty();
@@ -82,7 +82,7 @@ public class ImagingCenterTests
     public void Deactivate_DeactivatesImagingCenter_WhenCalled()
     {
         // Arrange
-        var imagingCenter = new ImagingCenter("Imaging Tech Alice", "alice@imaging.com", "City Imaging Center", "IMG123456");
+        var imagingCenter = new ImagingCenter(Guid.NewGuid(), "Imaging Tech Alice", "alice@imaging.com", "City Imaging Center", "IMG123456");
 
         // Act
         imagingCenter.Deactivate();
@@ -95,7 +95,7 @@ public class ImagingCenterTests
     public void Activate_ActivatesImagingCenter_WhenCalled()
     {
         // Arrange
-        var imagingCenter = new ImagingCenter("Imaging Tech Alice", "alice@imaging.com", "City Imaging Center", "IMG123456");
+        var imagingCenter = new ImagingCenter(Guid.NewGuid(), "Imaging Tech Alice", "alice@imaging.com", "City Imaging Center", "IMG123456");
         imagingCenter.Deactivate();
 
         // Act
@@ -109,7 +109,7 @@ public class ImagingCenterTests
     public void UpdateCenterName_UpdatesCenterName_WhenValidCenterNameProvided()
     {
         // Arrange
-        var imagingCenter = new ImagingCenter("Imaging Tech Alice", "alice@imaging.com", "City Imaging Center", "IMG123456");
+        var imagingCenter = new ImagingCenter(Guid.NewGuid(), "Imaging Tech Alice", "alice@imaging.com", "City Imaging Center", "IMG123456");
         var newCenterName = "Advanced Medical Imaging";
 
         // Act
@@ -126,7 +126,7 @@ public class ImagingCenterTests
     public void UpdateCenterName_ThrowsArgumentException_WhenCenterNameIsNullOrWhiteSpace(string? invalidCenterName)
     {
         // Arrange
-        var imagingCenter = new ImagingCenter("Imaging Tech Alice", "alice@imaging.com", "City Imaging Center", "IMG123456");
+        var imagingCenter = new ImagingCenter(Guid.NewGuid(), "Imaging Tech Alice", "alice@imaging.com", "City Imaging Center", "IMG123456");
 
         // Act & Assert
         var act = () => imagingCenter.UpdateCenterName(invalidCenterName!);

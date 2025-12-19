@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using MedicalCenter.Core.Authorization;
 using MedicalCenter.Core.SharedKernel;
 using MedicalCenter.Core.Queries;
+using MedicalCenter.Core.Services;
 using MedicalCenter.Infrastructure.Data;
 using MedicalCenter.WebApi.Attributes;
 
@@ -15,6 +16,7 @@ namespace MedicalCenter.WebApi.Endpoints.Admin;
 public class DeleteUserEndpoint(
     IUserQueryService userQueryService,
     IAuthorizationService authorizationService,
+    ITokenProvider tokenProvider,
     MedicalCenterDbContext context)
     : Endpoint<DeleteUserRequest>
 {
@@ -62,6 +64,9 @@ public class DeleteUserEndpoint(
         user.Deactivate();
         context.Update(user);
         await context.SaveChangesAsync(ct);
+
+        // Revoke all refresh tokens for this user
+        await tokenProvider.RevokeUserRefreshTokensAsync(user.Id, ct);
 
         await Send.NoContentAsync(ct);
     }

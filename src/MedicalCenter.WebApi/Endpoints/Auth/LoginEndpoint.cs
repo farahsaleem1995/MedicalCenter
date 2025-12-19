@@ -45,12 +45,20 @@ public class LoginEndpoint(
         }
 
         var user = result.Value!;
+
+        // Check email confirmation - users with unconfirmed email cannot login
+        var isUnconfirmed = await identityService.IsUserUnconfirmedAsync(user.Id, ct);
+        if (isUnconfirmed)
+        {
+            ThrowError("Email address must be confirmed before logging in. Please check your email for the confirmation code.", 403);
+            return;
+        }
         var token = tokenProvider.GenerateAccessToken(user);
         var refreshToken = tokenProvider.GenerateRefreshToken();
 
         // Save refresh token to database
         var expiryDate = dateTimeProvider.Now.AddDays(jwtSettings.Value.RefreshTokenExpirationInDays);
-        var saveResult = await identityService.SaveRefreshTokenAsync(
+        var saveResult = await tokenProvider.SaveRefreshTokenAsync(
             refreshToken,
             user.Id,
             expiryDate,

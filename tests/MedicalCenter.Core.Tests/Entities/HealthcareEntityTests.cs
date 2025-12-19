@@ -17,7 +17,7 @@ public class HealthcareStaffTests
         var department = "Emergency Department";
 
         // Act
-        var healthcareEntity = new HealthcareStaff(fullName, email, organizationName, department);
+        var healthcareEntity = new HealthcareStaff(Guid.NewGuid(), fullName, email, organizationName, department);
 
         // Assert
         healthcareEntity.FullName.Should().Be(fullName);
@@ -30,7 +30,7 @@ public class HealthcareStaffTests
     public void Constructor_SetsRoleToHealthcareStaff_WhenCreated()
     {
         // Arrange & Act
-        var healthcareEntity = new HealthcareStaff("Nurse Jane Doe", "jane.doe@hospital.com", "City General Hospital", "Emergency Department");
+        var healthcareEntity = new HealthcareStaff(Guid.NewGuid(), "Nurse Jane Doe", "jane.doe@hospital.com", "City General Hospital", "Emergency Department");
 
         // Assert
         healthcareEntity.Role.Should().Be(UserRole.HealthcareStaff);
@@ -40,7 +40,7 @@ public class HealthcareStaffTests
     public void Constructor_SetsIsActiveToTrue_WhenCreated()
     {
         // Arrange & Act
-        var healthcareEntity = new HealthcareStaff("Nurse Jane Doe", "jane.doe@hospital.com", "City General Hospital", "Emergency Department");
+        var healthcareEntity = new HealthcareStaff(Guid.NewGuid(), "Nurse Jane Doe", "jane.doe@hospital.com", "City General Hospital", "Emergency Department");
 
         // Assert
         healthcareEntity.IsActive.Should().BeTrue();
@@ -50,7 +50,7 @@ public class HealthcareStaffTests
     public void Constructor_GeneratesId_WhenCreated()
     {
         // Arrange & Act
-        var healthcareEntity = new HealthcareStaff("Nurse Jane Doe", "jane.doe@hospital.com", "City General Hospital", "Emergency Department");
+        var healthcareEntity = new HealthcareStaff(Guid.NewGuid(), "Nurse Jane Doe", "jane.doe@hospital.com", "City General Hospital", "Emergency Department");
 
         // Assert
         healthcareEntity.Id.Should().NotBeEmpty();
@@ -81,7 +81,7 @@ public class HealthcareStaffTests
     public void Deactivate_DeactivatesHealthcareStaff_WhenCalled()
     {
         // Arrange
-        var healthcareEntity = new HealthcareStaff("Nurse Jane Doe", "jane.doe@hospital.com", "City General Hospital", "Emergency Department");
+        var healthcareEntity = new HealthcareStaff(Guid.NewGuid(), "Nurse Jane Doe", "jane.doe@hospital.com", "City General Hospital", "Emergency Department");
 
         // Act
         healthcareEntity.Deactivate();
@@ -94,7 +94,7 @@ public class HealthcareStaffTests
     public void Activate_ActivatesHealthcareStaff_WhenCalled()
     {
         // Arrange
-        var healthcareEntity = new HealthcareStaff("Nurse Jane Doe", "jane.doe@hospital.com", "City General Hospital", "Emergency Department");
+        var healthcareEntity = new HealthcareStaff(Guid.NewGuid(), "Nurse Jane Doe", "jane.doe@hospital.com", "City General Hospital", "Emergency Department");
         healthcareEntity.Deactivate();
 
         // Act
@@ -108,7 +108,7 @@ public class HealthcareStaffTests
     public void UpdateOrganization_UpdatesOrganizationAndDepartment_WhenValidValuesProvided()
     {
         // Arrange
-        var healthcareEntity = new HealthcareStaff("Nurse Jane Doe", "jane.doe@hospital.com", "City General Hospital", "Emergency Department");
+        var healthcareEntity = new HealthcareStaff(Guid.NewGuid(), "Nurse Jane Doe", "jane.doe@hospital.com", "City General Hospital", "Emergency Department");
         var newOrganizationName = "Regional Medical Center";
         var newDepartment = "Intensive Care Unit";
 
@@ -130,7 +130,7 @@ public class HealthcareStaffTests
     public void UpdateOrganization_ThrowsArgumentException_WhenValuesAreNullOrWhiteSpace(string? invalidOrganization, string? invalidDepartment)
     {
         // Arrange
-        var healthcareEntity = new HealthcareStaff("Nurse Jane Doe", "jane.doe@hospital.com", "City General Hospital", "Emergency Department");
+        var healthcareEntity = new HealthcareStaff(Guid.NewGuid(), "Nurse Jane Doe", "jane.doe@hospital.com", "City General Hospital", "Emergency Department");
 
         // Act & Assert
         var act = () => healthcareEntity.UpdateOrganization(invalidOrganization!, invalidDepartment!);

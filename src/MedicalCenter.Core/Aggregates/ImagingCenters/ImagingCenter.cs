@@ -15,8 +15,8 @@ public class ImagingCenter : User, IAggregateRoot
 
     private ImagingCenter() { } // EF Core
 
-    public ImagingCenter(string fullName, string email, string centerName, string licenseNumber)
-        : base(fullName, email, UserRole.ImagingUser)
+    public ImagingCenter(Guid id, string fullName, string email, string centerName, string licenseNumber)
+        : base(id, fullName, email, UserRole.ImagingUser)
     {
         CenterName = centerName;
         LicenseNumber = licenseNumber;
@@ -27,7 +27,7 @@ public class ImagingCenter : User, IAggregateRoot
         Guard.Against.NullOrWhiteSpace(centerName, nameof(centerName));
         Guard.Against.NullOrWhiteSpace(licenseNumber, nameof(licenseNumber));
         
-        return new ImagingCenter(fullName, email, centerName, licenseNumber);
+        return new ImagingCenter(Guid.NewGuid(), fullName, email, centerName, licenseNumber);
     }
 
     public void UpdateCenterName(string centerName)

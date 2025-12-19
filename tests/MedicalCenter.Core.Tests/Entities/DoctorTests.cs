@@ -17,7 +17,7 @@ public class DoctorTests
         var specialty = "Cardiology";
 
         // Act
-        var doctor = new Doctor(fullName, email, licenseNumber, specialty);
+        var doctor = new Doctor(Guid.NewGuid(), fullName, email, licenseNumber, specialty);
 
         // Assert
         doctor.FullName.Should().Be(fullName);
@@ -30,7 +30,7 @@ public class DoctorTests
     public void Constructor_SetsRoleToDoctor_WhenCreated()
     {
         // Arrange & Act
-        var doctor = new Doctor("Dr. John Smith", "john.smith@example.com", "MD123456", "Cardiology");
+        var doctor = new Doctor(Guid.NewGuid(), "Dr. John Smith", "john.smith@example.com", "MD123456", "Cardiology");
 
         // Assert
         doctor.Role.Should().Be(UserRole.Doctor);
@@ -40,7 +40,7 @@ public class DoctorTests
     public void Constructor_SetsIsActiveToTrue_WhenCreated()
     {
         // Arrange & Act
-        var doctor = new Doctor("Dr. John Smith", "john.smith@example.com", "MD123456", "Cardiology");
+        var doctor = new Doctor(Guid.NewGuid(), "Dr. John Smith", "john.smith@example.com", "MD123456", "Cardiology");
 
         // Assert
         doctor.IsActive.Should().BeTrue();
@@ -50,7 +50,7 @@ public class DoctorTests
     public void Constructor_GeneratesId_WhenCreated()
     {
         // Arrange & Act
-        var doctor = new Doctor("Dr. John Smith", "john.smith@example.com", "MD123456", "Cardiology");
+        var doctor = new Doctor(Guid.NewGuid(), "Dr. John Smith", "john.smith@example.com", "MD123456", "Cardiology");
 
         // Assert
         doctor.Id.Should().NotBeEmpty();
@@ -81,7 +81,7 @@ public class DoctorTests
     public void Deactivate_DeactivatesDoctor_WhenCalled()
     {
         // Arrange
-        var doctor = new Doctor("Dr. John Smith", "john.smith@example.com", "MD123456", "Cardiology");
+        var doctor = new Doctor(Guid.NewGuid(), "Dr. John Smith", "john.smith@example.com", "MD123456", "Cardiology");
 
         // Act
         doctor.Deactivate();
@@ -94,7 +94,7 @@ public class DoctorTests
     public void Activate_ActivatesDoctor_WhenCalled()
     {
         // Arrange
-        var doctor = new Doctor("Dr. John Smith", "john.smith@example.com", "MD123456", "Cardiology");
+        var doctor = new Doctor(Guid.NewGuid(), "Dr. John Smith", "john.smith@example.com", "MD123456", "Cardiology");
         doctor.Deactivate();
 
         // Act
@@ -108,7 +108,7 @@ public class DoctorTests
     public void UpdateSpecialty_UpdatesSpecialty_WhenValidSpecialtyProvided()
     {
         // Arrange
-        var doctor = new Doctor("Dr. John Smith", "john.smith@example.com", "MD123456", "Cardiology");
+        var doctor = new Doctor(Guid.NewGuid(), "Dr. John Smith", "john.smith@example.com", "MD123456", "Cardiology");
         var newSpecialty = "Neurology";
 
         // Act
@@ -125,7 +125,7 @@ public class DoctorTests
     public void UpdateSpecialty_ThrowsArgumentException_WhenSpecialtyIsNullOrWhiteSpace(string? invalidSpecialty)
     {
         // Arrange
-        var doctor = new Doctor("Dr. John Smith", "john.smith@example.com", "MD123456", "Cardiology");
+        var doctor = new Doctor(Guid.NewGuid(), "Dr. John Smith", "john.smith@example.com", "MD123456", "Cardiology");
 
         // Act & Assert
         var act = () => doctor.UpdateSpecialty(invalidSpecialty!);

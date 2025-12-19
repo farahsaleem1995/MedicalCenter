@@ -38,6 +38,7 @@ services:
     container_name: medicalcenter-webapi
     depends_on:
       - sqlserver
+      - maildev  # Add dependency on maildev
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:8080

@@ -21,8 +21,8 @@ public class SystemAdmin : User, IAggregateRoot
 
     private SystemAdmin() { } // EF Core
 
-    private SystemAdmin(string fullName, string email, string corporateId, string department)
-        : base(fullName, email, UserRole.SystemAdmin)
+    public SystemAdmin(Guid id, string fullName, string email, string corporateId, string department)
+        : base(id, fullName, email, UserRole.SystemAdmin)
     {
         CorporateId = corporateId;
         Department = department;
@@ -39,7 +39,7 @@ public class SystemAdmin : User, IAggregateRoot
         Guard.Against.NullOrWhiteSpace(corporateId, nameof(corporateId));
         Guard.Against.NullOrWhiteSpace(department, nameof(department));
         
-        return new SystemAdmin(fullName, email, corporateId, department);
+        return new SystemAdmin(Guid.NewGuid(), fullName, email, corporateId, department);
     }
 
     public void UpdateCorporateId(string corporateId)

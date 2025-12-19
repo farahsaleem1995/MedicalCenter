@@ -15,8 +15,8 @@ public class Doctor : User, IAggregateRoot
 
     private Doctor() { } // EF Core
 
-    public Doctor(string fullName, string email, string licenseNumber, string specialty)
-        : base(fullName, email, UserRole.Doctor)
+    public Doctor(Guid id, string fullName, string email, string licenseNumber, string specialty)
+        : base(id, fullName, email, UserRole.Doctor)
     {
         LicenseNumber = licenseNumber;
         Specialty = specialty;
@@ -27,7 +27,7 @@ public class Doctor : User, IAggregateRoot
         Guard.Against.NullOrWhiteSpace(licenseNumber, nameof(licenseNumber));
         Guard.Against.NullOrWhiteSpace(specialty, nameof(specialty));
         
-        return new Doctor(fullName, email, licenseNumber, specialty);
+        return new Doctor(Guid.NewGuid(), fullName, email, licenseNumber, specialty);
     }
 
     public void UpdateSpecialty(string specialty)

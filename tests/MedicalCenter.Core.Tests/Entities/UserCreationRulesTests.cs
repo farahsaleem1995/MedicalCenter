@@ -19,7 +19,7 @@ public class UserCreationRulesTests
     public void Creates_Patient_WithCorrectRole()
     {
         // Arrange & Act
-        var patient = new Patient("John Doe", "john.doe@example.com", "123456789", new DateTime(1990, 1, 15));
+        var patient = new Patient(Guid.NewGuid(), "John Doe", "john.doe@example.com", "123456789", new DateTime(1990, 1, 15));
 
         // Assert - Domain rule: Patient has Patient role
         patient.Role.Should().Be(UserRole.Patient);
@@ -82,7 +82,7 @@ public class UserCreationRulesTests
     public void AllUsers_AreActive_ByDefault()
     {
         // Arrange & Act
-        var patient = new Patient("John Doe", "john@example.com", "123", DateTime.Now);
+        var patient = new Patient(Guid.NewGuid(), "John Doe", "john@example.com", "123", DateTime.Now);
         var doctor = Doctor.Create("Dr. Smith", "dr@example.com", "LIC1", "Cardiology");
 
         // Assert - Domain rule: All users are active by default
@@ -94,7 +94,7 @@ public class UserCreationRulesTests
     public void Users_CanBe_Deactivated()
     {
         // Arrange
-        var patient = new Patient("John Doe", "john@example.com", "123", DateTime.Now);
+        var patient = new Patient(Guid.NewGuid(), "John Doe", "john@example.com", "123", DateTime.Now);
 
         // Act
         patient.Deactivate();
@@ -107,7 +107,7 @@ public class UserCreationRulesTests
     public void Users_CanBe_Reactivated()
     {
         // Arrange
-        var patient = new Patient("John Doe", "john@example.com", "123", DateTime.Now);
+        var patient = new Patient(Guid.NewGuid(), "John Doe", "john@example.com", "123", DateTime.Now);
         patient.Deactivate();
 
         // Act

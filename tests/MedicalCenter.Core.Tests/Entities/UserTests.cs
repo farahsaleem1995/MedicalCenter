@@ -9,7 +9,7 @@ public class UserTests
     private class TestUser : User
     {
         public TestUser(string fullName, string email, UserRole role)
-            : base(fullName, email, role)
+            : base(Guid.NewGuid(), fullName, email, role)
         {
         }
     }

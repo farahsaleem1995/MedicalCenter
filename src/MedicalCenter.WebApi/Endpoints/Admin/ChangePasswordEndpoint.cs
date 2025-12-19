@@ -16,6 +16,7 @@ namespace MedicalCenter.WebApi.Endpoints.Admin;
 [Command]
 public class ChangePasswordEndpoint(
     IIdentityService identityService,
+    ITokenProvider tokenProvider,
     IUserQueryService userQueryService,
     IAuthorizationService authorizationService)
     : Endpoint<ChangePasswordRequest>
@@ -69,6 +70,9 @@ public class ChangePasswordEndpoint(
             ThrowError(result.Error.Message, statusCode);
             return;
         }
+
+        // Revoke all refresh tokens to force re-authentication
+        await tokenProvider.RevokeUserRefreshTokensAsync(req.Id, ct);
 
         await Send.NoContentAsync(ct);
     }

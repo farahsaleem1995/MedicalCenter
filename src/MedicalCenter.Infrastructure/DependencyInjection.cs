@@ -64,6 +64,9 @@ public static class DependencyInjection
             options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
             options.Lockout.MaxFailedAccessAttempts = 5;
             options.Lockout.AllowedForNewUsers = true;
+
+            // Token settings - use Email provider for email confirmation (generates numeric codes)
+            options.Tokens.EmailConfirmationTokenProvider = TokenOptions.DefaultEmailProvider;
         })
         .AddEntityFrameworkStores<MedicalCenterDbContext>()
         .AddDefaultTokenProviders();
@@ -122,6 +125,12 @@ public static class DependencyInjection
 
         // Configure Authorization Policies
         services.AddAuthorizationPolicies();
+
+        // Register SMTP client
+        services.AddScoped<ISmtpClient, SmtpClient>();
+
+        // Configure SMTP options
+        services.Configure<SmtpOptions>(configuration.GetSection(SmtpOptions.SectionName));
 
         return services;
     }

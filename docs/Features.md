@@ -12,8 +12,9 @@ This document provides a comprehensive overview of all implemented features in t
 
 - Patient self-registration
 - Creates both Identity user and Patient aggregate
-- Returns JWT token and refresh token
+- Returns 204 No Content on success
 - Validates email uniqueness and password strength
+- Email confirmation required (OTP sent via email)
 
 **Request**:
 ```json
@@ -26,16 +27,9 @@ This document provides a comprehensive overview of all implemented features in t
 }
 ```
 
-**Response**:
-```json
-{
-  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-  "refreshToken": "base64-encoded-token",
-  "userId": "550e8400-e29b-41d4-a716-446655440000",
-  "email": "john.doe@example.com",
-  "fullName": "John Doe"
-}
-```
+**Response**: `204 No Content`
+
+**Note**: After registration, patients must confirm their email using the email confirmation endpoint before they can generate access tokens.
 
 ### User Login
 
@@ -110,9 +104,90 @@ This document provides a comprehensive overview of all implemented features in t
 
 **Endpoint**: `POST /auth/logout`
 
-- Invalidates all refresh tokens for the authenticated user
+- Revokes all refresh tokens for the authenticated user
 - Requires authentication
 - Returns 204 No Content on success
+
+### Email Confirmation
+
+**Request Email Confirmation Code**
+
+**Endpoint**: `GET /auth/confirm?email={email}`
+
+- Sends a 6-digit OTP code to the user's email for email confirmation
+- Always returns 204 No Content (prevents user enumeration)
+- Code expires in up to 9 minutes (configurable via Identity settings)
+
+**Confirm Email**
+
+**Endpoint**: `POST /auth/confirm`
+
+- Confirms user's email using the 6-digit OTP code
+- Returns 204 No Content on success
+- Returns 400 Bad Request for invalid or expired code
+
+**Request**:
+```json
+{
+  "email": "john.doe@example.com",
+  "code": "123456"
+}
+```
+
+**Response**: `204 No Content`
+
+**Note**: Unconfirmed users cannot generate access tokens. They must confirm their email first.
+
+### Password Management
+
+**Request Password Reset**
+
+**Endpoint**: `GET /auth/password-reset?email={email}`
+
+- Sends a 6-digit OTP code to the user's email for password reset
+- Always returns 204 No Content (prevents user enumeration)
+- Code expires in up to 9 minutes (configurable via Identity settings)
+
+**Reset Password**
+
+**Endpoint**: `POST /auth/password-reset`
+
+- Resets user's password using the 6-digit OTP code
+- Revokes all refresh tokens for the user (forces re-authentication)
+- Returns 204 No Content on success
+- Returns 400 Bad Request for invalid or expired code
+- Returns 404 Not Found if user doesn't exist
+
+**Request**:
+```json
+{
+  "email": "john.doe@example.com",
+  "code": "123456",
+  "newPassword": "NewSecurePass123!"
+}
+```
+
+**Response**: `204 No Content`
+
+**Change Password (Authenticated Users)**
+
+**Endpoint**: `PUT /auth/password`
+
+- Changes password for authenticated users
+- Requires current password verification
+- Revokes all refresh tokens for the user (forces re-authentication)
+- Returns 204 No Content on success
+- Returns 400 Bad Request for invalid current password
+
+**Request**:
+```json
+{
+  "currentPassword": "OldSecurePass123!",
+  "newPassword": "NewSecurePass123!"
+}
+```
+
+**Response**: `204 No Content`
 
 ### User Roles
 

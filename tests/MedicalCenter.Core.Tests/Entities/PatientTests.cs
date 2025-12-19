@@ -17,7 +17,7 @@ public class PatientTests
         var dateOfBirth = new DateTime(1990, 1, 15);
 
         // Act
-        var patient = new Patient(fullName, email, nationalId, dateOfBirth);
+        var patient = new Patient(Guid.NewGuid(), fullName, email, nationalId, dateOfBirth);
 
         // Assert
         patient.FullName.Should().Be(fullName);
@@ -30,7 +30,7 @@ public class PatientTests
     public void Constructor_SetsRoleToPatient_WhenCreated()
     {
         // Arrange & Act
-        var patient = new Patient("Jane Smith", "jane.smith@example.com", "1234567890", new DateTime(1990, 1, 15));
+        var patient = new Patient(Guid.NewGuid(), "Jane Smith", "jane.smith@example.com", "1234567890", new DateTime(1990, 1, 15));
 
         // Assert
         patient.Role.Should().Be(UserRole.Patient);
@@ -40,7 +40,7 @@ public class PatientTests
     public void Constructor_SetsIsActiveToTrue_WhenCreated()
     {
         // Arrange & Act
-        var patient = new Patient("Jane Smith", "jane.smith@example.com", "1234567890", new DateTime(1990, 1, 15));
+        var patient = new Patient(Guid.NewGuid(), "Jane Smith", "jane.smith@example.com", "1234567890", new DateTime(1990, 1, 15));
 
         // Assert
         patient.IsActive.Should().BeTrue();
@@ -50,7 +50,7 @@ public class PatientTests
     public void Constructor_GeneratesId_WhenCreated()
     {
         // Arrange & Act
-        var patient = new Patient("Jane Smith", "jane.smith@example.com", "1234567890", new DateTime(1990, 1, 15));
+        var patient = new Patient(Guid.NewGuid(), "Jane Smith", "jane.smith@example.com", "1234567890", new DateTime(1990, 1, 15));
 
         // Assert
         patient.Id.Should().NotBeEmpty();
@@ -81,7 +81,7 @@ public class PatientTests
     public void Deactivate_DeactivatesPatient_WhenCalled()
     {
         // Arrange
-        var patient = new Patient("Jane Smith", "jane.smith@example.com", "1234567890", new DateTime(1990, 1, 15));
+        var patient = new Patient(Guid.NewGuid(), "Jane Smith", "jane.smith@example.com", "1234567890", new DateTime(1990, 1, 15));
 
         // Act
         patient.Deactivate();
@@ -94,7 +94,7 @@ public class PatientTests
     public void Activate_ActivatesPatient_WhenCalled()
     {
         // Arrange
-        var patient = new Patient("Jane Smith", "jane.smith@example.com", "1234567890", new DateTime(1990, 1, 15));
+        var patient = new Patient(Guid.NewGuid(), "Jane Smith", "jane.smith@example.com", "1234567890", new DateTime(1990, 1, 15));
         patient.Deactivate();
 
         // Act

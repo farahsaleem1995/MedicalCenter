@@ -11,7 +11,7 @@ namespace MedicalCenter.WebApi.Endpoints.Auth;
 /// </summary>
 [Command]
 public class LogoutEndpoint(
-    IIdentityService identityService,
+    ITokenProvider tokenProvider,
     IUserContext userContext)
     : EndpointWithoutRequest
 {
@@ -32,7 +32,7 @@ public class LogoutEndpoint(
     {
         var userId = userContext.UserId;
 
-        var result = await identityService.InvalidateUserRefreshTokensAsync(userId, ct);
+        var result = await tokenProvider.RevokeUserRefreshTokensAsync(userId, ct);
 
         if (result.IsFailure)
         {

@@ -30,8 +30,8 @@ public class Patient : User, IAggregateRoot
 
     private Patient() { } // EF Core
 
-    public Patient(string fullName, string email, string nationalId, DateTime dateOfBirth)
-        : base(fullName, email, UserRole.Patient)
+    public Patient(Guid id, string fullName, string email, string nationalId, DateTime dateOfBirth)
+        : base(id, fullName, email, UserRole.Patient)
     {
         NationalId = nationalId;
         DateOfBirth = dateOfBirth;
@@ -44,7 +44,7 @@ public class Patient : User, IAggregateRoot
         Guard.Against.NullOrWhiteSpace(nationalId, nameof(nationalId));
         Guard.Against.OutOfRange(dateOfBirth, nameof(dateOfBirth), DateTime.MinValue, DateTime.UtcNow);
 
-        var patient = new Patient(fullName, email, nationalId, dateOfBirth);
+        var patient = new Patient(Guid.NewGuid(), fullName, email, nationalId, dateOfBirth);
         
         // Raise domain event
         patient.AddDomainEvent(new PatientRegisteredEvent(

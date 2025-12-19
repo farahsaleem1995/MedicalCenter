@@ -17,12 +17,9 @@ namespace MedicalCenter.WebApi.Endpoints.Auth;
 [Command]
 public class RegisterPatientEndpoint(
     IIdentityService identityService,
-    ITokenProvider tokenProvider,
     IRepository<Patient> patientRepository,
-    IUnitOfWork unitOfWork,
-    IOptions<JwtSettings> jwtSettings,
-    IDateTimeProvider dateTimeProvider)
-    : Endpoint<RegisterPatientRequest, RegisterPatientResponse>
+    IUnitOfWork unitOfWork)
+    : Endpoint<RegisterPatientRequest>
 {
     public override void Configure()
     {
@@ -32,8 +29,8 @@ public class RegisterPatientEndpoint(
         Summary(s =>
         {
             s.Summary = "Register a new patient";
-            s.Description = "Allows patients to self-register and receive authentication tokens";
-            s.Responses[200] = "Registration successful";
+            s.Description = "Allows patients to self-register. Email confirmation is required before login.";
+            s.Responses[204] = "Registration successful";
             s.Responses[400] = "Validation error";
             s.Responses[409] = "User already exists";
         });
@@ -50,6 +47,7 @@ public class RegisterPatientEndpoint(
                 req.Email,
                 req.Password,
                 UserRole.Patient,
+                requireEmailConfirmation: true, // Patients require email confirmation
                 ct);
 
             if (createUserResult.IsFailure)
@@ -63,40 +61,14 @@ public class RegisterPatientEndpoint(
             Guid userId = createUserResult.Value;
 
             // Step 2: Create Patient entity with patient-specific details
-            Patient patient = CreatePatientWithId(req.FullName, req.Email, req.NationalId, req.DateOfBirth, userId);
+            Patient patient = new Patient(userId, req.FullName, req.Email, req.NationalId, req.DateOfBirth);
             await patientRepository.AddAsync(patient, ct);
             await unitOfWork.SaveChangesAsync(ct);
-
-            // Step 3: Generate tokens
-            string token = tokenProvider.GenerateAccessToken(patient);
-            string refreshToken = tokenProvider.GenerateRefreshToken();
-
-            // Step 4: Save refresh token
-            DateTime expiryDate = dateTimeProvider.Now.AddDays(jwtSettings.Value.RefreshTokenExpirationInDays);
-            var saveResult = await identityService.SaveRefreshTokenAsync(
-                refreshToken,
-                patient.Id,
-                expiryDate,
-                ct);
-
-            if (saveResult.IsFailure)
-            {
-                await unitOfWork.RollbackTransactionAsync(ct);
-                ThrowError("An error occurred during registration. Please try again later.", 500);
-                return;
-            }
 
             // Commit transaction
             await unitOfWork.CommitTransactionAsync(ct);
 
-            await Send.OkAsync(new RegisterPatientResponse
-            {
-                Token = token,
-                RefreshToken = refreshToken,
-                UserId = patient.Id,
-                Email = patient.Email,
-                FullName = patient.FullName
-            }, ct);
+            await Send.NoContentAsync(ct);
         }
         catch
         {
@@ -105,13 +77,5 @@ public class RegisterPatientEndpoint(
         }
     }
 
-    private static Patient CreatePatientWithId(string fullName, string email, string nationalId, DateTime dateOfBirth, Guid id)
-    {
-        // Use reflection to set the protected Id property
-        Patient patient = Patient.Create(fullName, email, nationalId, dateOfBirth);
-        System.Reflection.PropertyInfo? idProperty = typeof(BaseEntity).GetProperty(nameof(BaseEntity.Id));
-        idProperty?.SetValue(patient, id);
-        return patient;
-    }
 }
 
