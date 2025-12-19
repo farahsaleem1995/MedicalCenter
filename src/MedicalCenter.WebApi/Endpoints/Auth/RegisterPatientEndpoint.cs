@@ -6,6 +6,7 @@ using MedicalCenter.Core.Primitives;
 using MedicalCenter.Core.SharedKernel;
 using MedicalCenter.Core.Services;
 using MedicalCenter.Infrastructure;
+using MedicalCenter.WebApi.Attributes;
 using MedicalCenter.WebApi.Extensions;
 
 namespace MedicalCenter.WebApi.Endpoints.Auth;
@@ -13,6 +14,7 @@ namespace MedicalCenter.WebApi.Endpoints.Auth;
 /// <summary>
 /// Patient registration endpoint - allows patients to self-register.
 /// </summary>
+[Command]
 public class RegisterPatientEndpoint(
     IIdentityService identityService,
     ITokenProvider tokenProvider,

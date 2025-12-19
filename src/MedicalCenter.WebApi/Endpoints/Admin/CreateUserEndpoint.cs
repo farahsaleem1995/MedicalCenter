@@ -5,6 +5,7 @@ using MedicalCenter.Core.Primitives;
 using MedicalCenter.Core.SharedKernel;
 using MedicalCenter.Core.Services;
 using MedicalCenter.Infrastructure;
+using MedicalCenter.WebApi.Attributes;
 using MedicalCenter.WebApi.Extensions;
 
 namespace MedicalCenter.WebApi.Endpoints.Admin;
@@ -12,6 +13,7 @@ namespace MedicalCenter.WebApi.Endpoints.Admin;
 /// <summary>
 /// Admin endpoint to create users (non-patients).
 /// </summary>
+[Command]
 public class CreateUserEndpoint(
     IIdentityService identityService,
     IAuthorizationService authorizationService)

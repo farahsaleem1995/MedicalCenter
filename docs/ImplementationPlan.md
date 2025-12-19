@@ -40,6 +40,7 @@ This document outlines the high-level implementation plan for the Medical Center
 - ✅ Security enhancements (RequirePatient policy, JWT role mapping)
 - ✅ **Domain Events** - Implemented with MediatR (DomainEventBase implements INotification, handlers implement INotificationHandler)
 - ✅ **User Context Pattern** - IUserContext interface with AspNetUserContextAdapter for abstracted user claim access
+- ✅ **CQRS Phase 1** - Command/Query attributes applied to all 41 endpoints for explicit intent marking
 - ✅ Dockerization (Dockerfile, docker-compose.yml, automatic migrations)
 - ✅ Medical records with file attachments support
 - ✅ File storage service (local filesystem)

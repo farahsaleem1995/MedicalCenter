@@ -2,6 +2,7 @@ using FastEndpoints;
 using Microsoft.Extensions.Options;
 using MedicalCenter.Core.SharedKernel;
 using MedicalCenter.Core.Services;
+using MedicalCenter.WebApi.Attributes;
 using MedicalCenter.WebApi.Extensions;
 using MedicalCenter.Infrastructure;
 
@@ -10,6 +11,7 @@ namespace MedicalCenter.WebApi.Endpoints.Auth;
 /// <summary>
 /// Login endpoint - authenticates user and returns JWT token.
 /// </summary>
+[Query]
 public class LoginEndpoint(
     IIdentityService identityService,
     ITokenProvider tokenProvider,

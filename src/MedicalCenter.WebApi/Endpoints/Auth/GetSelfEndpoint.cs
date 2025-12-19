@@ -2,12 +2,14 @@ using FastEndpoints;
 using MedicalCenter.Core.Primitives;
 using MedicalCenter.Core.SharedKernel;
 using MedicalCenter.Core.Services;
+using MedicalCenter.WebApi.Attributes;
 
 namespace MedicalCenter.WebApi.Endpoints.Auth;
 
 /// <summary>
 /// Get current authenticated user's generic information endpoint.
 /// </summary>
+[Query]
 public class GetSelfEndpoint(
     IIdentityService identityService,
     IUserContext userContext)

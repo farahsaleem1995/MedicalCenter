@@ -3,6 +3,7 @@ using MedicalCenter.Core.Aggregates.MedicalRecords;
 using MedicalCenter.Core.Primitives.Pagination;
 using MedicalCenter.Core.Queries;
 using MedicalCenter.Core.Authorization;
+using MedicalCenter.WebApi.Attributes;
 
 namespace MedicalCenter.WebApi.Endpoints.Records;
 
@@ -10,6 +11,7 @@ namespace MedicalCenter.WebApi.Endpoints.Records;
 /// List all medical records endpoint.
 /// Practitioners can view all records with optional filtering.
 /// </summary>
+[Query]
 public class ListRecordsEndpoint(IMedicalRecordQueryService recordQueryService)
     : Endpoint<ListRecordsRequest, ListRecordsResponse>
 {

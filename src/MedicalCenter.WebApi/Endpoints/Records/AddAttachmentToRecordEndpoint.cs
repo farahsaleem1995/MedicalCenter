@@ -6,6 +6,7 @@ using MedicalCenter.Core.SharedKernel;
 using MedicalCenter.Core.Services;
 using MedicalCenter.Core.Authorization;
 using MedicalCenter.Infrastructure.Options;
+using MedicalCenter.WebApi.Attributes;
 using Microsoft.Extensions.Options;
 
 namespace MedicalCenter.WebApi.Endpoints.Records;
@@ -13,6 +14,7 @@ namespace MedicalCenter.WebApi.Endpoints.Records;
 /// <summary>
 /// Add attachment to existing medical record endpoint.
 /// </summary>
+[Command]
 public class AddAttachmentToRecordEndpoint(
     IRepository<MedicalRecord> recordRepository,
     IFileStorageService fileStorageService,

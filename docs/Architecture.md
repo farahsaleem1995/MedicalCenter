@@ -182,6 +182,14 @@ The Web API layer handles HTTP requests, validation, authorization, and DTOs.
   - Route prefix: All endpoints prefixed with `/api`
   - Error handling: Problem Details format for standardized error responses
 
+- **CQRS Attributes**:
+  - `[Command]` attribute: Marks endpoints that modify state (POST, PUT, DELETE, PATCH)
+    - Configurable: `IsTransactional` (default: true), `IsTraceable` (default: true)
+  - `[Query]` attribute: Marks endpoints that only read data (GET)
+  - `EndpointExtensions`: Helper methods for attribute discovery with reflection caching
+  - All 41 endpoints explicitly marked with their intent
+  - Foundation for automatic transaction management and audit trail (Phase 2-3)
+
 - **FluentValidation**: Request validation
   - Validators for all endpoints
   - Enforces business rules at API boundary

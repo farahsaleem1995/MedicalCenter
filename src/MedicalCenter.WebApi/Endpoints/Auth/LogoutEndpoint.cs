@@ -1,6 +1,7 @@
 using FastEndpoints;
 using MedicalCenter.Core.SharedKernel;
 using MedicalCenter.Core.Services;
+using MedicalCenter.WebApi.Attributes;
 using MedicalCenter.WebApi.Extensions;
 
 namespace MedicalCenter.WebApi.Endpoints.Auth;
@@ -8,6 +9,7 @@ namespace MedicalCenter.WebApi.Endpoints.Auth;
 /// <summary>
 /// Logout endpoint - invalidates all refresh tokens for the authenticated user.
 /// </summary>
+[Command]
 public class LogoutEndpoint(
     IIdentityService identityService,
     IUserContext userContext)

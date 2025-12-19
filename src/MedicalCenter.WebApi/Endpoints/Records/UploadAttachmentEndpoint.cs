@@ -3,6 +3,7 @@ using MedicalCenter.Core.SharedKernel;
 using MedicalCenter.Core.Services;
 using MedicalCenter.Core.Authorization;
 using MedicalCenter.Infrastructure.Options;
+using MedicalCenter.WebApi.Attributes;
 using Microsoft.Extensions.Options;
 
 namespace MedicalCenter.WebApi.Endpoints.Records;
@@ -10,6 +11,7 @@ namespace MedicalCenter.WebApi.Endpoints.Records;
 /// <summary>
 /// Upload file attachment endpoint.
 /// </summary>
+[Command]
 public class UploadAttachmentEndpoint(
     IFileStorageService fileStorageService,
     IOptions<FileStorageOptions> fileStorageOptions)

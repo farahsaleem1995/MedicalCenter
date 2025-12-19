@@ -5,12 +5,14 @@ using MedicalCenter.Core.Primitives;
 using MedicalCenter.Core.SharedKernel;
 using MedicalCenter.Core.Services;
 using MedicalCenter.Core.Authorization;
+using MedicalCenter.WebApi.Attributes;
 
 namespace MedicalCenter.WebApi.Endpoints.Records;
 
 /// <summary>
 /// Delete medical record endpoint (soft delete).
 /// </summary>
+[Command]
 public class DeleteRecordEndpoint(
     IRepository<MedicalRecord> recordRepository,
     IUnitOfWork unitOfWork,
