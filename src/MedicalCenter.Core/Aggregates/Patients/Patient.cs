@@ -2,6 +2,7 @@ using Ardalis.GuardClauses;
 using MedicalCenter.Core.Abstractions;
 using MedicalCenter.Core.SharedKernel;
 using MedicalCenter.Core.Aggregates.Patients.Entities;
+using MedicalCenter.Core.Aggregates.Patients.Events;
 using MedicalCenter.Core.Aggregates.Patients.ValueObjects;
 
 namespace MedicalCenter.Core.Aggregates.Patients;
@@ -43,7 +44,17 @@ public class Patient : User, IAggregateRoot
         Guard.Against.NullOrWhiteSpace(nationalId, nameof(nationalId));
         Guard.Against.OutOfRange(dateOfBirth, nameof(dateOfBirth), DateTime.MinValue, DateTime.UtcNow);
 
-        return new Patient(fullName, email, nationalId, dateOfBirth);
+        var patient = new Patient(fullName, email, nationalId, dateOfBirth);
+        
+        // Raise domain event
+        patient.AddDomainEvent(new PatientRegisteredEvent(
+            patient.Id,
+            patient.FullName,
+            patient.Email,
+            patient.NationalId,
+            patient.DateOfBirth));
+
+        return patient;
     }
 
     // Blood Type Management

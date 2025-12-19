@@ -19,25 +19,21 @@ namespace MedicalCenter.Infrastructure.Data;
 /// Entity Framework Core DbContext for the Medical Center application.
 /// Integrates ASP.NET Core Identity with domain entities.
 /// </summary>
-public class MedicalCenterDbContext : IdentityDbContext<
-    ApplicationUser, 
-    ApplicationRole, 
-    Guid,
-    IdentityUserClaim<Guid>,
-    ApplicationUserRole,
-    IdentityUserLogin<Guid>,
-    IdentityRoleClaim<Guid>,
-    IdentityUserToken<Guid>>
+public class MedicalCenterDbContext(
+    DbContextOptions<MedicalCenterDbContext> options,
+    AuditableEntityInterceptor auditableEntityInterceptor,
+    DomainEventDispatcherInterceptor domainEventDispatcherInterceptor) : IdentityDbContext<
+        ApplicationUser, 
+        ApplicationRole, 
+        Guid,
+        IdentityUserClaim<Guid>,
+        ApplicationUserRole,
+        IdentityUserLogin<Guid>,
+        IdentityRoleClaim<Guid>,
+        IdentityUserToken<Guid>>(options)
 {
-    private readonly AuditableEntityInterceptor _auditableEntityInterceptor;
-
-    public MedicalCenterDbContext(
-        DbContextOptions<MedicalCenterDbContext> options,
-        AuditableEntityInterceptor auditableEntityInterceptor)
-        : base(options)
-    {
-        _auditableEntityInterceptor = auditableEntityInterceptor;
-    }
+    private readonly AuditableEntityInterceptor _auditableEntityInterceptor = auditableEntityInterceptor;
+    private readonly DomainEventDispatcherInterceptor _domainEventDispatcherInterceptor = domainEventDispatcherInterceptor;
 
     public DbSet<RefreshToken> RefreshTokens { get; set; } = null!;
     public DbSet<Patient> Patients { get; set; } = null!;
@@ -65,7 +61,7 @@ public class MedicalCenterDbContext : IdentityDbContext<
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        optionsBuilder.AddInterceptors(_auditableEntityInterceptor);
+        optionsBuilder.AddInterceptors(_auditableEntityInterceptor, _domainEventDispatcherInterceptor);
         base.OnConfiguring(optionsBuilder);
     }
 }

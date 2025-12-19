@@ -1,10 +1,13 @@
+using MediatR;
+
 namespace MedicalCenter.Core.SharedKernel.Events;
 
 /// <summary>
 /// Base class for all domain events.
 /// Provides a default implementation of IDomainEvent with OccurredOn timestamp.
+/// Domain events implement INotification to work with MediatR.
 /// </summary>
-public abstract class DomainEventBase : IDomainEvent
+public abstract class DomainEventBase : IDomainEvent, INotification
 {
     public DateTime OccurredOn { get; } = DateTime.UtcNow;
 }

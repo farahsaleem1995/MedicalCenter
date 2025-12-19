@@ -32,7 +32,10 @@ The Core layer is organized following Domain-Driven Design principles with clear
   - `Attachment`: File attachment value object (shared concept)
   - `IRepository<T>`: Generic repository interface for aggregate roots (domain concept)
   - `IUnitOfWork`: Unit of Work interface for transaction management (domain concept)
-  - `Events/`: Domain event base types (`IDomainEvent`, `DomainEventBase`, `IHasDomainEvents`, etc.)
+  - `Events/`: Domain event base types (`IDomainEvent`, `DomainEventBase`, `IHasDomainEvents`)
+    - `DomainEventBase`: Base class implementing `INotification` (MediatR) for all domain events
+    - `IHasDomainEvents`: Interface for entities that can raise domain events
+    - All domain events inherit from `DomainEventBase` and are dispatched via MediatR
 
 - **Aggregates/**: Core domain model organized by bounded contexts
   - **Patients/**: Patient aggregate with medical attributes
@@ -41,7 +44,7 @@ The Core layer is organized following Domain-Driven Design principles with clear
     - `ValueObjects/`: BloodType
     - `Enums/`: BloodABO, BloodRh
     - `Specifications/`: PatientByIdSpecification, ActivePatientsSpecification, etc.
-    - `Events/`: (Future) Patient-specific domain events
+    - `Events/`: Patient-specific domain events (e.g., `PatientRegisteredEvent`)
   - **Doctors/**: Doctor aggregate
     - `Doctor`: Aggregate root
     - `Events/`: (Future) Doctor-specific domain events
@@ -135,14 +138,24 @@ The Infrastructure layer implements data access and external service integration
   - Provides unified time access across the application
   - Enables testability by allowing time to be mocked in tests
 
-- **Audit Interceptors**:
+- **EF Core Interceptors**:
   - `AuditableEntityInterceptor`: Automatically sets `CreatedAt` and `UpdatedAt`
-  - Uses `IDateTimeProvider` for consistent time handling
-  - Only affects entities implementing `IAuditableEntity`
+    - Uses `IDateTimeProvider` for consistent time handling
+    - Only affects entities implementing `IAuditableEntity`
+  - `DomainEventDispatcherInterceptor`: Dispatches domain events after `SaveChanges`
+    - Collects events from entities implementing `IHasDomainEvents`
+    - Dispatches events via MediatR after successful save
+    - Clears events after dispatch to prevent duplicate handling
+
+- **MediatR Integration**:
+  - Registered in `DependencyInjection.AddInfrastructure()`
+  - Scans Core assembly for `INotificationHandler<T>` implementations
+  - Handlers registered in Infrastructure layer (e.g., `PatientRegisteredEventHandler`)
 
 - **Dependency Injection**:
   - `DependencyInjection.AddInfrastructure()`: Registers all infrastructure services
   - Scoped lifetime for DbContext and repositories
+  - MediatR registered for domain event dispatching
 
 #### Database Schema
 
@@ -238,6 +251,23 @@ The Web API layer handles HTTP requests, validation, authorization, and DTOs.
 - **Implementation**: `PaginatedList<T>` and `PaginationMetadata`
 - **Usage**: All list endpoints return paginated results
 
+### Domain Events Pattern
+
+- **Purpose**: Enable cross-aggregate communication and side effects
+- **Implementation**: 
+  - `DomainEventBase` implements MediatR's `INotification`
+  - `BaseEntity` implements `IHasDomainEvents` for event collection
+  - `DomainEventDispatcherInterceptor` dispatches events after `SaveChanges`
+  - Handlers implement `INotificationHandler<T>` in Infrastructure layer
+- **Benefits**:
+  - Decouples aggregates from side effects
+  - Enables event-driven architecture
+  - Simple implementation using MediatR
+- **Usage**:
+  - Aggregates raise events: `AddDomainEvent(new SomeEvent(...))`
+  - Events are automatically dispatched after successful save
+  - Handlers process events asynchronously
+
 ### Time Handling Pattern
 
 - **Purpose**: Provide unified time access and enable testability
@@ -292,9 +322,11 @@ The Web API layer handles HTTP requests, validation, authorization, and DTOs.
 
 1. Request → Validation → Authorization
 2. Domain service/repository → Aggregate root
-3. Aggregate enforces business rules
+3. Aggregate enforces business rules and raises domain events
 4. EF Core saves changes
-5. Response returned
+5. Domain events dispatched via MediatR (after successful save)
+6. Event handlers process side effects
+7. Response returned
 
 ### Read Operations
 
@@ -316,6 +348,7 @@ The Web API layer handles HTTP requests, validation, authorization, and DTOs.
 
 - **FastEndpoints**: API framework
 - **FastEndpoints.Swagger**: OpenAPI documentation (NSwag)
+- **MediatR**: Mediator pattern for domain events
 - **Ardalis.Specification**: Query pattern
 - **Ardalis.GuardClauses**: Guard clauses
 - **FluentValidation**: Request validation
@@ -391,8 +424,8 @@ The Web API layer handles HTTP requests, validation, authorization, and DTOs.
 
 ## Future Considerations
 
-- **Domain Events**: For cross-aggregate communication
 - **CQRS**: Separate read and write models if needed
 - **Event Sourcing**: For audit trail requirements
 - **Microservices**: Split into bounded contexts if needed
+- **Additional Domain Events**: Expand event coverage for other aggregates (MedicalRecord, Encounter, etc.)
 

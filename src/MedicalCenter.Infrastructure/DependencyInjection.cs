@@ -18,6 +18,7 @@ using MedicalCenter.Infrastructure.Options;
 using MedicalCenter.Infrastructure.Repositories;
 using MedicalCenter.Infrastructure.Services;
 using System.IO.Abstractions;
+using MedicalCenter.Core.SharedKernel.Events;
 
 namespace MedicalCenter.Infrastructure;
 
@@ -30,13 +31,20 @@ public static class DependencyInjection
         this IServiceCollection services,
         IConfiguration configuration)
     {
+        // Register MediatR
+        services.AddMediatR(cfg =>
+        {
+            cfg.RegisterServicesFromAssemblyContaining<DomainEventBase>();
+        });
+
         // Register DbContext and Interceptors
         services.AddScoped<AuditableEntityInterceptor>(); // Register interceptor as scoped
+        services.AddScoped<DomainEventDispatcherInterceptor>(); // Register domain event dispatcher interceptor
         services.AddDbContext<MedicalCenterDbContext>(options =>
         {
             var connectionString = configuration.GetConnectionString("DefaultConnection");
             options.UseSqlServer(connectionString);
-            // Interceptor is added via OnConfiguring in DbContext, which resolves it from DI
+            // Interceptors are added via OnConfiguring in DbContext, which resolves them from DI
         });
 
         // Configure ASP.NET Core Identity

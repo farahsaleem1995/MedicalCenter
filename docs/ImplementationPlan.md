@@ -11,7 +11,7 @@ This document outlines the high-level implementation plan for the Medical Center
 - ✅ **Phase 3**: Infrastructure Foundation
 - ✅ **Phase 4**: Identity System Foundation
 - ✅ **Phase 5**: Patient Aggregate & Medical Attributes
-- 🔄 **Phase 6**: Medical Records (Medical Records complete, Encounters postponed - requires domain events)
+- 🔄 **Phase 6**: Medical Records (Medical Records complete, Encounters can now be implemented with domain events)
 - 🔄 **Phase 7**: Query Services & Practitioner Lookups (Partially Complete - UserQueryService implemented)
 - 🔄 **Phase 10**: Admin Features (Partially Complete - User management endpoints implemented)
 - ⏳ **Phase 8**: Action Logging & Audit Trail
@@ -38,6 +38,7 @@ This document outlines the high-level implementation plan for the Medical Center
 - ✅ FluentValidation for all endpoints
 - ✅ Swagger/OpenAPI documentation (FastEndpoints.Swagger)
 - ✅ Security enhancements (RequirePatient policy, JWT role mapping)
+- ✅ **Domain Events** - Implemented with MediatR (DomainEventBase implements INotification, handlers implement INotificationHandler)
 - ✅ Dockerization (Dockerfile, docker-compose.yml, automatic migrations)
 - ✅ Medical records with file attachments support
 - ✅ File storage service (local filesystem)
