@@ -18,7 +18,7 @@ public class GetSelfMedicalAttributesEndpoint(
 {
     public override void Configure()
     {
-        Get("/patients/self/medical-attributes");
+        Get("/self/medical-attributes");
         Group<PatientsGroup>();
         Policies(AuthorizationPolicies.RequirePatient);
         Summary(s =>

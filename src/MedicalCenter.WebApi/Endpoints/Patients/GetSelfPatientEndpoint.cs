@@ -18,7 +18,7 @@ public class GetSelfPatientEndpoint(
 {
     public override void Configure()
     {
-        Get("/patients/self");
+        Get("/self");
         Group<PatientsGroup>();
         Policies(AuthorizationPolicies.RequirePatient);
         Summary(s =>
