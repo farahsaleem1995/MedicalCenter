@@ -13,31 +13,25 @@ namespace MedicalCenter.Infrastructure.Authorization.Handlers;
 /// Authorization handler for CanManageAdmins requirement.
 /// Checks if user has AdminTier claim with value "Super" in the database.
 /// </summary>
-public class CanManageAdminsHandler : AuthorizationHandler<CanManageAdminsRequirement>
+public class CanManageAdminsHandler(
+    UserManager<ApplicationUser> userManager,
+    IUserContext userContext) : AuthorizationHandler<CanManageAdminsRequirement>
 {
-    private readonly UserManager<ApplicationUser> _userManager;
-
-    public CanManageAdminsHandler(UserManager<ApplicationUser> userManager)
-    {
-        _userManager = userManager;
-    }
+    private readonly UserManager<ApplicationUser> _userManager = userManager;
+    private readonly IUserContext _userContext = userContext;
 
     protected override async Task HandleRequirementAsync(
         AuthorizationHandlerContext context,
         CanManageAdminsRequirement requirement)
     {
-        if (!context.User.Identity?.IsAuthenticated ?? true)
+        if (!_userContext.IsAuthenticated)
         {
             return;
         }
 
-        var userIdClaim = context.User.FindFirst("userId")?.Value;
-        if (string.IsNullOrEmpty(userIdClaim) || !Guid.TryParse(userIdClaim, out var userId))
-        {
-            return;
-        }
-
-        var user = await _userManager.FindByIdAsync(userId.ToString());
+        Guid userId = _userContext.UserId;
+        
+        ApplicationUser? user = await _userManager.FindByIdAsync(userId.ToString());
         if (user == null)
         {
             return;

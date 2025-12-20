@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using MedicalCenter.Core.Authorization;
 using MedicalCenter.Infrastructure.Authorization.Requirements;
 using MedicalCenter.Infrastructure.Identity;
+using MedicalCenter.Core.Services;
 
 namespace MedicalCenter.Infrastructure.Authorization.Handlers;
 
@@ -11,31 +12,25 @@ namespace MedicalCenter.Infrastructure.Authorization.Handlers;
 /// Authorization handler for CanAccessPHI requirement.
 /// Checks if user has Certification claim "HIPAA" or "PHI-Access" in the database.
 /// </summary>
-public class CanAccessPHIHandler : AuthorizationHandler<CanAccessPHIRequirement>
+public class CanAccessPHIHandler(
+    UserManager<ApplicationUser> userManager,
+    IUserContext userContext) : AuthorizationHandler<CanAccessPHIRequirement>
 {
-    private readonly UserManager<ApplicationUser> _userManager;
-
-    public CanAccessPHIHandler(UserManager<ApplicationUser> userManager)
-    {
-        _userManager = userManager;
-    }
+    private readonly UserManager<ApplicationUser> _userManager = userManager;
+    private readonly IUserContext _userContext = userContext;
 
     protected override async Task HandleRequirementAsync(
         AuthorizationHandlerContext context,
         CanAccessPHIRequirement requirement)
     {
-        if (!context.User.Identity?.IsAuthenticated ?? true)
+        if (!_userContext.IsAuthenticated)
         {
             return;
         }
 
-        var userIdClaim = context.User.FindFirst("userId")?.Value;
-        if (string.IsNullOrEmpty(userIdClaim) || !Guid.TryParse(userIdClaim, out var userId))
-        {
-            return;
-        }
+        Guid userId = _userContext.UserId;
 
-        var user = await _userManager.FindByIdAsync(userId.ToString());
+        ApplicationUser? user = await _userManager.FindByIdAsync(userId.ToString());
         if (user == null)
         {
             return;

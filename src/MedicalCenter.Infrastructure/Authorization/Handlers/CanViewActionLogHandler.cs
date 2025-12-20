@@ -5,6 +5,7 @@ using MedicalCenter.Core.Authorization;
 using MedicalCenter.Core.SharedKernel;
 using MedicalCenter.Infrastructure.Authorization.Requirements;
 using MedicalCenter.Infrastructure.Identity;
+using MedicalCenter.Core.Services;
 
 namespace MedicalCenter.Infrastructure.Authorization.Handlers;
 
@@ -12,29 +13,23 @@ namespace MedicalCenter.Infrastructure.Authorization.Handlers;
 /// Authorization handler for CanViewActionLog requirement.
 /// Checks if user is SystemAdmin role OR has any AdminTier claim in the database.
 /// </summary>
-public class CanViewActionLogHandler : AuthorizationHandler<CanViewActionLogRequirement>
+public class CanViewActionLogHandler(
+    UserManager<ApplicationUser> userManager,
+    IUserContext userContext) : AuthorizationHandler<CanViewActionLogRequirement>
 {
-    private readonly UserManager<ApplicationUser> _userManager;
-
-    public CanViewActionLogHandler(UserManager<ApplicationUser> userManager)
-    {
-        _userManager = userManager;
-    }
+    private readonly UserManager<ApplicationUser> _userManager = userManager;
+    private readonly IUserContext _userContext = userContext;
 
     protected override async Task HandleRequirementAsync(
         AuthorizationHandlerContext context,
         CanViewActionLogRequirement requirement)
     {
-        if (!context.User.Identity?.IsAuthenticated ?? true)
+        if (!_userContext.IsAuthenticated)
         {
             return;
         }
 
-        string? userIdClaim = context.User.FindFirst("userId")?.Value;
-        if (string.IsNullOrEmpty(userIdClaim) || !Guid.TryParse(userIdClaim, out Guid userId))
-        {
-            return;
-        }
+        Guid userId = _userContext.UserId;
 
         ApplicationUser? user = await _userManager.FindByIdAsync(userId.ToString());
         if (user == null)
