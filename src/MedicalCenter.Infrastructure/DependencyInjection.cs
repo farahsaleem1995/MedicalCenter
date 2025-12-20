@@ -9,8 +9,6 @@ using System.Text;
 using MedicalCenter.Core.SharedKernel;
 using MedicalCenter.Core.Services;
 using MedicalCenter.Core.Queries;
-using MedicalCenter.Core.Authorization;
-using MedicalCenter.Infrastructure.Authorization;
 using MedicalCenter.Infrastructure.Data;
 using MedicalCenter.Infrastructure.Data.Interceptors;
 using MedicalCenter.Infrastructure.Identity;
@@ -42,7 +40,7 @@ public static class DependencyInjection
         services.AddScoped<DomainEventDispatcherInterceptor>(); // Register domain event dispatcher interceptor
         services.AddDbContext<MedicalCenterDbContext>(options =>
         {
-            var connectionString = configuration.GetConnectionString("DefaultConnection");
+            string? connectionString = configuration.GetConnectionString("DefaultConnection");
             options.UseSqlServer(connectionString);
             // Interceptors are added via OnConfiguring in DbContext, which resolves them from DI
         });
@@ -73,7 +71,7 @@ public static class DependencyInjection
 
         // Configure JWT Authentication
         var jwtSettings = configuration.GetSection("JwtSettings");
-        var secretKey = jwtSettings["SecretKey"] ?? throw new InvalidOperationException("JWT SecretKey is not configured");
+        string secretKey = jwtSettings["SecretKey"] ?? throw new InvalidOperationException("JWT SecretKey is not configured");
 
         services.AddAuthentication(options =>
         {
@@ -122,9 +120,6 @@ public static class DependencyInjection
 
         // Configure JWT Settings
         services.Configure<JwtSettings>(jwtSettings);
-
-        // Configure Authorization Policies
-        services.AddAuthorizationPolicies();
 
         // Register SMTP client
         services.AddScoped<ISmtpClient, SmtpClient>();

@@ -1,8 +1,8 @@
 using FastEndpoints;
-using MedicalCenter.Core.Authorization;
 using MedicalCenter.Core.Primitives.Pagination;
 using MedicalCenter.Core.Queries;
 using MedicalCenter.Core.Services;
+using MedicalCenter.WebApi.Authorization;
 
 namespace MedicalCenter.WebApi.Endpoints.ActionLogs;
 

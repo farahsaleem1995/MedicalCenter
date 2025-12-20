@@ -3,9 +3,9 @@ using Microsoft.AspNetCore.Authorization;
 using MedicalCenter.Core.SharedKernel;
 using MedicalCenter.Core.Services;
 using MedicalCenter.Core.Queries;
-using MedicalCenter.Core.Authorization;
 using MedicalCenter.WebApi.Extensions;
 using MedicalCenter.WebApi.Attributes;
+using MedicalCenter.WebApi.Authorization;
 
 namespace MedicalCenter.WebApi.Endpoints.Admin;
 

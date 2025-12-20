@@ -3,8 +3,8 @@ using MedicalCenter.Core.Aggregates.Patients;
 using MedicalCenter.Core.Aggregates.Patients.Specifications;
 using MedicalCenter.Core.Primitives;
 using MedicalCenter.Core.SharedKernel;
-using MedicalCenter.Core.Authorization;
 using MedicalCenter.WebApi.Attributes;
+using MedicalCenter.WebApi.Authorization;
 
 namespace MedicalCenter.WebApi.Endpoints.Patients.Allergies;
 

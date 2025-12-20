@@ -5,10 +5,10 @@ using MedicalCenter.Core.Aggregates.MedicalRecords.ValueObjects;
 using MedicalCenter.Core.Aggregates.Patients;
 using MedicalCenter.Core.Aggregates.Patients.Specifications;
 using MedicalCenter.Core.Services;
-using MedicalCenter.Core.Authorization;
 using MedicalCenter.WebApi.Attributes;
 using MedicalCenter.Core.Queries;
 using MedicalCenter.Core.SharedKernel;
+using MedicalCenter.WebApi.Authorization;
 
 namespace MedicalCenter.WebApi.Endpoints.Records;
 

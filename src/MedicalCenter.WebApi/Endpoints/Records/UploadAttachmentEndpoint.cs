@@ -1,10 +1,10 @@
 using FastEndpoints;
 using MedicalCenter.Core.SharedKernel;
 using MedicalCenter.Core.Services;
-using MedicalCenter.Core.Authorization;
 using MedicalCenter.Infrastructure.Options;
 using Microsoft.Extensions.Options;
 using MedicalCenter.WebApi.Attributes;
+using MedicalCenter.WebApi.Authorization;
 
 namespace MedicalCenter.WebApi.Endpoints.Records;
 

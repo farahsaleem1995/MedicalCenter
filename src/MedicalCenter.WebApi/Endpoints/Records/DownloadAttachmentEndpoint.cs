@@ -4,8 +4,8 @@ using MedicalCenter.Core.Aggregates.MedicalRecords.Specifications;
 using MedicalCenter.Core.Primitives;
 using MedicalCenter.Core.SharedKernel;
 using MedicalCenter.Core.Services;
-using MedicalCenter.Core.Authorization;
 using MedicalCenter.WebApi.Attributes;
+using MedicalCenter.WebApi.Authorization;
 
 namespace MedicalCenter.WebApi.Endpoints.Records;
 
@@ -57,7 +57,7 @@ public class DownloadAttachmentEndpoint(
         }
 
         // Resource-based authorization
-        var isPatient = User.IsInRole("Patient");
+        bool isPatient = User.IsInRole("Patient");
 
         // Patients can only access their own records
         if (isPatient && record.PatientId != currentUserId)

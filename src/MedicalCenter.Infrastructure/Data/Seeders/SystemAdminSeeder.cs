@@ -3,7 +3,6 @@ using System.Text;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using MedicalCenter.Core.Aggregates.SystemAdmins;
-using MedicalCenter.Core.Authorization;
 using MedicalCenter.Core.SharedKernel;
 using MedicalCenter.Infrastructure.Identity;
 
@@ -76,8 +75,8 @@ public static class SystemAdminSeeder
         {
             Id = 1, // Unique ID for the claim
             UserId = adminId,
-            ClaimType = IdentityClaimTypes.AdminTier,
-            ClaimValue = IdentityClaimValues.AdminTier.Super
+            ClaimType = "MedicalCenter.AdminTier",
+            ClaimValue = "Super"
         });
     }
 

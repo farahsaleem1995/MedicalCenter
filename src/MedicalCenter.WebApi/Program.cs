@@ -6,6 +6,7 @@ using FastEndpoints.Swagger;
 using MedicalCenter.Infrastructure.Data;
 using MedicalCenter.Core.Services;
 using Microsoft.EntityFrameworkCore;
+using MedicalCenter.WebApi.Authorization;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
@@ -25,6 +26,9 @@ builder.Services
             s.Description = "Medical Center Automation System API";
         };
     });
+
+// Configure Authorization Policies
+builder.Services.AddAuthorizationPolicies();
 
 // Register HttpContextAccessor for IUserContext
 builder.Services.AddHttpContextAccessor();

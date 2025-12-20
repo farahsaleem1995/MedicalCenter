@@ -1,4 +1,4 @@
-namespace MedicalCenter.Core.Authorization;
+namespace MedicalCenter.WebApi.Authorization;
 
 /// <summary>
 /// Defines all authorization policy names used throughout the application.

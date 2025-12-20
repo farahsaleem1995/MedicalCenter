@@ -1,4 +1,4 @@
-namespace MedicalCenter.Core.Authorization;
+namespace MedicalCenter.WebApi.Authorization;
 
 /// <summary>
 /// Defines claim types that describe user identity attributes.

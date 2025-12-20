@@ -1,7 +1,7 @@
 using FastEndpoints;
 using MedicalCenter.Core.Queries;
-using MedicalCenter.Core.Authorization;
 using MedicalCenter.WebApi.Extensions;
+using MedicalCenter.WebApi.Authorization;
 
 namespace MedicalCenter.WebApi.Endpoints.Admin;
 

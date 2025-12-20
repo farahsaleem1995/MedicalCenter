@@ -1,11 +1,10 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.DependencyInjection;
-using MedicalCenter.Core.Authorization;
 using MedicalCenter.Core.SharedKernel;
-using MedicalCenter.Infrastructure.Authorization.Handlers;
-using MedicalCenter.Infrastructure.Authorization.Requirements;
+using MedicalCenter.WebApi.Authorization.Handlers;
+using MedicalCenter.WebApi.Authorization.Requirements;
 
-namespace MedicalCenter.Infrastructure.Authorization;
+namespace MedicalCenter.WebApi.Authorization;
 
 /// <summary>
 /// Extension methods for configuring authorization policies.

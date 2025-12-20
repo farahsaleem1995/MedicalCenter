@@ -1,11 +1,11 @@
 using FastEndpoints;
 using Microsoft.AspNetCore.Authorization;
-using MedicalCenter.Core.Authorization;
 using MedicalCenter.Core.SharedKernel;
 using MedicalCenter.Core.Queries;
 using MedicalCenter.Core.Services;
 using MedicalCenter.Infrastructure.Data;
 using MedicalCenter.WebApi.Attributes;
+using MedicalCenter.WebApi.Authorization;
 
 namespace MedicalCenter.WebApi.Endpoints.Admin;
 

@@ -5,12 +5,12 @@ using MedicalCenter.Core.Aggregates.HealthcareStaff;
 using MedicalCenter.Core.Aggregates.Laboratories;
 using MedicalCenter.Core.Aggregates.ImagingCenters;
 using MedicalCenter.Core.Aggregates.SystemAdmins;
-using MedicalCenter.Core.Authorization;
 using MedicalCenter.Core.SharedKernel;
 using MedicalCenter.Core.Services;
 using MedicalCenter.Core.Queries;
 using MedicalCenter.Infrastructure.Data;
 using MedicalCenter.WebApi.Attributes;
+using MedicalCenter.WebApi.Authorization;
 
 namespace MedicalCenter.WebApi.Endpoints.Admin;
 

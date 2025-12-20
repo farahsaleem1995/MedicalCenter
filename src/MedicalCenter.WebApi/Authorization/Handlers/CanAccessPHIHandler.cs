@@ -1,12 +1,11 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
-using MedicalCenter.Core.Authorization;
-using MedicalCenter.Infrastructure.Authorization.Requirements;
 using MedicalCenter.Infrastructure.Identity;
 using MedicalCenter.Core.Services;
+using MedicalCenter.WebApi.Authorization.Requirements;
 
-namespace MedicalCenter.Infrastructure.Authorization.Handlers;
+namespace MedicalCenter.WebApi.Authorization.Handlers;
 
 /// <summary>
 /// Authorization handler for CanAccessPHI requirement.
