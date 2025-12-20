@@ -1,7 +1,6 @@
 using FastEndpoints;
 using MedicalCenter.Core.Aggregates.Patients;
 using MedicalCenter.Core.Aggregates.Patients.Specifications;
-using MedicalCenter.Core.Primitives;
 using MedicalCenter.Core.SharedKernel;
 using MedicalCenter.Core.Services;
 using MedicalCenter.WebApi.Authorization;
@@ -46,21 +45,21 @@ public class GetSelfMedicalAttributesEndpoint(
 
         await Send.OkAsync(new GetSelfMedicalAttributesResponse
         {
-            Allergies = patient.Allergies.Select(a => new AllergySummaryDto
+            Allergies = [.. patient.Allergies.Select(a => new AllergySummaryDto
             {
                 Id = a.Id,
                 Name = a.Name,
                 Severity = a.Severity,
                 Notes = a.Notes
-            }).ToList(),
-            ChronicDiseases = patient.ChronicDiseases.Select(cd => new ChronicDiseaseSummaryDto
+            })],
+            ChronicDiseases = [.. patient.ChronicDiseases.Select(cd => new ChronicDiseaseSummaryDto
             {
                 Id = cd.Id,
                 Name = cd.Name,
                 DiagnosisDate = cd.DiagnosisDate,
                 Notes = cd.Notes
-            }).ToList(),
-            Medications = patient.Medications.Select(m => new MedicationSummaryDto
+            })],
+            Medications = [.. patient.Medications.Select(m => new MedicationSummaryDto
             {
                 Id = m.Id,
                 Name = m.Name,
@@ -68,15 +67,15 @@ public class GetSelfMedicalAttributesEndpoint(
                 StartDate = m.StartDate,
                 EndDate = m.EndDate,
                 Notes = m.Notes
-            }).ToList(),
-            Surgeries = patient.Surgeries.Select(s => new SurgerySummaryDto
+            })],
+            Surgeries = [.. patient.Surgeries.Select(s => new SurgerySummaryDto
             {
                 Id = s.Id,
                 Name = s.Name,
                 Date = s.Date,
                 Surgeon = s.Surgeon,
                 Notes = s.Notes
-            }).ToList()
+            })],
         }, ct);
     }
 }

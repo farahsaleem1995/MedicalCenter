@@ -29,6 +29,9 @@ public static class AuthorizationPolicies
     public const string CanViewRecords = "CanViewRecords";
     public const string CanModifyRecords = "CanModifyRecords";
     
+    // Encounters policies (evaluated from JWT token)
+    public const string CanViewEncounters = "CanViewEncounters";
+    
     // Other role-based policies (evaluated from JWT token)
     public const string CanViewAllPatients = "CanViewAllPatients";
     

@@ -122,14 +122,14 @@ public class CreateRecordEndpoint(
             RecordType = record.RecordType,
             Title = record.Title,
             Content = record.Content,
-            Attachments = record.Attachments.Select(a => new AttachmentDto
+            Attachments = [.. record.Attachments.Select(a => new AttachmentDto
             {
                 FileId = a.FileId,
                 FileName = a.FileName,
                 FileSize = a.FileSize,
                 ContentType = a.ContentType,
                 UploadedAt = a.UploadedAt
-            }).ToList(),
+            })],
             CreatedAt = record.CreatedAt
         }, ct);
     }

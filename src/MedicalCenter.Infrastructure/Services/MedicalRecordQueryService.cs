@@ -33,11 +33,11 @@ public class MedicalRecordQueryService(MedicalCenterDbContext dbContext) : IMedi
         var criteria = query.Criteria;
         if (criteria != null)
         {
-            dbQuery = dbQuery.Where(mr => mr.PractitionerId == criteria.PractitionerId)
-                .Where(mr => criteria.PatientId.HasValue && mr.PatientId == criteria.PatientId.Value)
-                .Where(mr => criteria.RecordType.HasValue && mr.RecordType == criteria.RecordType.Value)
-                .Where(mr => criteria.DateFrom.HasValue && mr.CreatedAt >= criteria.DateFrom.Value)
-                .Where(mr => criteria.DateTo.HasValue && mr.CreatedAt <= criteria.DateTo.Value);
+            dbQuery = dbQuery.Where(mr => !criteria.PractitionerId.HasValue || mr.PractitionerId == criteria.PractitionerId.Value)
+                .Where(mr => !criteria.PatientId.HasValue || mr.PatientId == criteria.PatientId.Value)
+                .Where(mr => !criteria.RecordType.HasValue || mr.RecordType == criteria.RecordType.Value)
+                .Where(mr => !criteria.DateFrom.HasValue || mr.CreatedAt >= criteria.DateFrom.Value)
+                .Where(mr => !criteria.DateTo.HasValue || mr.CreatedAt <= criteria.DateTo.Value);
         }
 
         return await dbQuery.ToPaginatedListAsync(query.PageNumber, query.PageSize, cancellationToken);

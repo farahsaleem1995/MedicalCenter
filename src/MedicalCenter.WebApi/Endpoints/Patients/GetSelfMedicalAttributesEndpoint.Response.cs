@@ -5,10 +5,10 @@ namespace MedicalCenter.WebApi.Endpoints.Patients;
 /// </summary>
 public class GetSelfMedicalAttributesResponse
 {
-    public List<AllergySummaryDto> Allergies { get; set; } = new();
-    public List<ChronicDiseaseSummaryDto> ChronicDiseases { get; set; } = new();
-    public List<MedicationSummaryDto> Medications { get; set; } = new();
-    public List<SurgerySummaryDto> Surgeries { get; set; } = new();
+    public List<AllergySummaryDto> Allergies { get; set; } = [];
+    public List<ChronicDiseaseSummaryDto> ChronicDiseases { get; set; } = [];
+    public List<MedicationSummaryDto> Medications { get; set; } = [];
+    public List<SurgerySummaryDto> Surgeries { get; set; } = [];
 }
 
 public class AllergySummaryDto

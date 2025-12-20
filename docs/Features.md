@@ -1361,6 +1361,7 @@ This ensures that even unexpected errors follow the Problem Details format.
   - `CanModifyMedicalAttributes`: Doctor, HealthcareStaff, SystemAdmin
   - `CanViewRecords`: Doctor, HealthcareStaff, LabUser, ImagingUser
   - `CanModifyRecords`: Doctor, HealthcareStaff, LabUser, ImagingUser
+  - `CanViewEncounters`: Doctor, HealthcareStaff, LabUser, ImagingUser, SystemAdmin
   - `CanViewAllPatients`: Doctor, HealthcareStaff, SystemAdmin
 - **Resource-Based Authorization**: Users can only access their own data (for patient endpoints)
 - **Sensitive Information**: `IsActive` status is only exposed to system administrators through admin endpoints
@@ -1647,6 +1648,173 @@ Medical records allow providers to create, view, and manage medical records for 
 - **Multiple Attachments**: Records can have multiple attachments (up to 10 per record, configurable)
 - **File Storage**: Files are stored separately from database records; removing an attachment from a record does not delete the file
 
+## Encounters
+
+Encounters represent clinically meaningful interactions between patients and healthcare providers. They are automatically created when medical records are created and serve as the domain narrative of patient care. Encounters are immutable historical facts that capture what happened medically, who was involved, and when it occurred.
+
+### Overview
+
+- **Automatic Creation**: Encounters are automatically created when a medical record is created via domain event (`MedicalRecordCreatedEvent`)
+- **Immutable**: Encounters are historical facts and cannot be modified once created
+- **Historical Records**: Encounters preserve a snapshot of practitioner information at the time of the encounter
+- **Patient-Visible**: Encounters are part of patient-visible medical history
+
+### Encounter Properties
+
+- **Id**: Unique identifier for the encounter
+- **PatientId**: Reference to the patient involved in the encounter
+- **Practitioner**: Value object containing practitioner information (FullName, Role) at the time of encounter
+- **OccurredOn**: DateTime when the medical event occurred (when the medical record was created)
+- **Reason**: Description of what happened medically (generated from medical record type, title, and content)
+
+### List Encounters (Practitioners/Admins)
+
+**Endpoint**: `GET /api/encounters`
+
+- Lists all encounters in the system
+- Available to practitioners (Doctor, HealthcareStaff, LabUser, ImagingUser) and system administrators
+- Supports filtering by patient and date range
+- Supports pagination
+- Requires `CanViewEncounters` policy
+
+**Query Parameters**:
+- `pageNumber` (optional, default: 1, minimum: 1)
+- `pageSize` (optional, default: 10, minimum: 1, maximum: 100)
+- `patientId` (optional): Filter by patient ID
+- `dateFrom` (optional): Filter encounters from this date (ISO 8601 format)
+- `dateTo` (optional): Filter encounters to this date (ISO 8601 format)
+
+**Response**:
+```json
+{
+  "items": [
+    {
+      "id": "550e8400-e29b-41d4-a716-446655440000",
+      "patientId": "550e8400-e29b-41d4-a716-446655440001",
+      "patient": {
+        "id": "550e8400-e29b-41d4-a716-446655440001",
+        "fullName": "John Doe",
+        "email": "john.doe@example.com"
+      },
+      "practitioner": {
+        "fullName": "Dr. Jane Smith",
+        "role": 3
+      },
+      "occurredOn": "2024-01-15T10:30:00Z",
+      "reason": "Laboratory Test: Blood Test Results - Patient shows elevated glucose levels..."
+    }
+  ],
+  "metadata": {
+    "pageNumber": 1,
+    "pageSize": 10,
+    "totalCount": 50,
+    "totalPages": 5,
+    "hasPrevious": false,
+    "hasNext": true
+  }
+}
+```
+
+**Note**: Results are ordered by `OccurredOn` descending (most recent first).
+
+### Get Encounter (Practitioners/Admins)
+
+**Endpoint**: `GET /api/encounters/{encounterId}`
+
+- Gets a specific encounter by ID
+- Available to practitioners and system administrators
+- Requires `CanViewEncounters` policy
+
+**Response**:
+```json
+{
+  "id": "550e8400-e29b-41d4-a716-446655440000",
+  "patientId": "550e8400-e29b-41d4-a716-446655440001",
+  "patient": {
+    "id": "550e8400-e29b-41d4-a716-446655440001",
+    "fullName": "John Doe",
+    "email": "john.doe@example.com"
+  },
+  "practitioner": {
+    "fullName": "Dr. Jane Smith",
+    "role": 3
+  },
+  "occurredOn": "2024-01-15T10:30:00Z",
+  "reason": "Laboratory Test: Blood Test Results - Patient shows elevated glucose levels..."
+}
+```
+
+### Patient View Encounters
+
+**Endpoint**: `GET /api/patients/self/encounters`
+
+- Lists all encounters for the authenticated patient
+- Supports filtering by date range
+- Supports pagination
+- Requires `RequirePatient` policy
+
+**Query Parameters**:
+- `pageNumber` (optional, default: 1, minimum: 1)
+- `pageSize` (optional, default: 10, minimum: 1, maximum: 100)
+- `dateFrom` (optional): Filter encounters from this date (ISO 8601 format)
+- `dateTo` (optional): Filter encounters to this date (ISO 8601 format)
+
+**Response**:
+```json
+{
+  "encounters": [
+    {
+      "id": "550e8400-e29b-41d4-a716-446655440000",
+      "practitioner": {
+        "fullName": "Dr. Jane Smith",
+        "role": 3
+      },
+      "occurredOn": "2024-01-15T10:30:00Z",
+      "reason": "Laboratory Test: Blood Test Results - Patient shows elevated glucose levels..."
+    }
+  ],
+  "metadata": {
+    "pageNumber": 1,
+    "pageSize": 10,
+    "totalCount": 50,
+    "totalPages": 5,
+    "hasPrevious": false,
+    "hasNext": true
+  }
+}
+```
+
+**Note**: Results are ordered by `OccurredOn` descending (most recent first).
+
+**Endpoint**: `GET /api/patients/self/encounters/{encounterId}`
+
+- Gets a specific encounter for the authenticated patient
+- Returns 404 if encounter does not belong to patient
+- Requires `RequirePatient` policy
+
+**Response**:
+```json
+{
+  "id": "550e8400-e29b-41d4-a716-446655440000",
+  "practitioner": {
+    "fullName": "Dr. Jane Smith",
+    "role": 3
+  },
+  "occurredOn": "2024-01-15T10:30:00Z",
+  "reason": "Laboratory Test: Blood Test Results - Patient shows elevated glucose levels..."
+}
+```
+
+### Business Rules
+
+- **Automatic Creation**: Encounters are automatically created when a medical record is created (via domain event)
+- **Immutable**: Encounters cannot be modified or deleted once created - they are historical facts
+- **Practitioner Snapshot**: Practitioner information (FullName, Role) is stored as a snapshot at the time of encounter creation
+- **Reason Generation**: The Reason field is automatically generated from the medical record's type, title, and content to capture "what happened medically"
+- **OccurredOn**: Represents when the medical event occurred (same as the medical record's creation time)
+- **Not Auditable**: Encounters do not have CreatedAt/UpdatedAt fields - they only have OccurredOn (when the medical event occurred)
+- **Separation from Records**: Encounters do not reference MedicalRecords directly - they only store PatientId and Practitioner snapshot to maintain proper domain separation
+
 ## Action Logging
 
 The Action Log system tracks business-critical operations for audit and compliance purposes. It uses a global post-processor that checks for `[ActionLog]` attributes on endpoints and only logs successful requests (2xx status codes).
@@ -1735,7 +1903,6 @@ The following business-critical endpoints are marked with `[ActionLog]` attribut
 
 ### Planned Features
 
-- **Encounters**: Track patient-provider interactions (requires domain events infrastructure)
 - **Patient Reports**: Generate patient health reports
 - **Practitioner Endpoints**: Additional practitioner-specific endpoints
 - **Lab Results**: Enhanced laboratory test result management

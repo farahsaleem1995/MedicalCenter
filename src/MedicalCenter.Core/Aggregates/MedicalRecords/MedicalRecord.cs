@@ -1,9 +1,9 @@
 using Ardalis.GuardClauses;
 using MedicalCenter.Core.Abstractions;
-using MedicalCenter.Core.SharedKernel;
 using MedicalCenter.Core.Aggregates.MedicalRecords.ValueObjects;
 using MedicalCenter.Core.Aggregates.MedicalRecords.Enums;
-using PatientAggregate = MedicalCenter.Core.Aggregates.Patients.Patient;
+using MedicalCenter.Core.Aggregates.MedicalRecords.Events;
+using MedicalCenter.Core.Aggregates.Patients;
 
 namespace MedicalCenter.Core.Aggregates.MedicalRecords;
 
@@ -17,7 +17,7 @@ namespace MedicalCenter.Core.Aggregates.MedicalRecords;
 public class MedicalRecord : BaseEntity, IAggregateRoot, IAuditableEntity
 {
     public Guid PatientId { get; private set; }
-    public PatientAggregate? Patient { get; private set; } // Navigation property to Patient aggregate
+    public Patient? Patient { get; private set; } // Navigation property to Patient aggregate
     public Guid PractitionerId { get; private set; } // Practitioner who created the record
     public Practitioner Practitioner { get; private set; } = null!; // Practitioner value object (owned entity)
     public RecordType RecordType { get; private set; }
@@ -54,7 +54,12 @@ public class MedicalRecord : BaseEntity, IAggregateRoot, IAuditableEntity
         Guard.Against.NullOrWhiteSpace(content, nameof(content));
         Guard.Against.InvalidInput(recordType, nameof(recordType), rt => Enum.IsDefined(typeof(RecordType), rt), "Record type must be a valid enum value.");
 
-        return new MedicalRecord(patientId, practitionerId, practitioner, recordType, title, content);
+        var record = new MedicalRecord(patientId, practitionerId, practitioner, recordType, title, content);
+        
+        // Raise domain event to trigger Encounter creation
+        record.AddDomainEvent(new MedicalRecordCreatedEvent(record));
+
+        return record;
     }
 
     /// <summary>

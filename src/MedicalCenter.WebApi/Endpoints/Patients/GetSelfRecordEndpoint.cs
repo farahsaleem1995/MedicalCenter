@@ -39,16 +39,9 @@ public class GetSelfRecordEndpoint(
 
         var record = await recordQueryService.GetRecordByIdAsync(req.RecordId, ct);
 
-        if (record == null)
+        if (record == null || record.PatientId != patientId)
         {
             ThrowError("Record not found", 404);
-            return;
-        }
-
-        // Resource-based authorization: Verify record belongs to patient
-        if (record.PatientId != patientId)
-        {
-            ThrowError("You are not authorized to view this record", 403);
             return;
         }
 
