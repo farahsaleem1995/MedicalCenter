@@ -12,7 +12,7 @@ public interface IUserQueryService
     /// <summary>
     /// Gets a user by ID.
     /// </summary>
-    Task<User?> GetUserByIdAdminAsync(Guid id, CancellationToken cancellationToken = default);
+    Task<User?> GetUserByIdAsync(Guid id, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Lists users with pagination and optional filtering.

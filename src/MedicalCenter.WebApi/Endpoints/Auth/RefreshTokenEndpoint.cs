@@ -1,9 +1,7 @@
 using FastEndpoints;
-using Microsoft.Extensions.Options;
-using MedicalCenter.Core.SharedKernel;
 using MedicalCenter.Core.Services;
 using MedicalCenter.WebApi.Extensions;
-using MedicalCenter.Infrastructure;
+using MedicalCenter.Core.Queries;
 
 namespace MedicalCenter.WebApi.Endpoints.Auth;
 
@@ -13,9 +11,7 @@ namespace MedicalCenter.WebApi.Endpoints.Auth;
 public class RefreshTokenEndpoint(
     IIdentityService identityService,
     ITokenProvider tokenProvider,
-    IUnitOfWork unitOfWork,
-    IOptions<JwtSettings> jwtSettings,
-    IDateTimeProvider dateTimeProvider)
+    IUserQueryService userQueryService)
     : Endpoint<RefreshTokenRequest, RefreshTokenResponse>
 {
     public override void Configure()
@@ -46,7 +42,7 @@ public class RefreshTokenEndpoint(
         var userId = validationResult.Value!;
 
         // Get user
-        var user = await identityService.GetUserByIdAsync(userId, ct);
+        var user = await userQueryService.GetUserByIdAsync(userId, ct);
         if (user == null)
         {
             ThrowError("User not found", 404);
@@ -70,41 +66,14 @@ public class RefreshTokenEndpoint(
         }
 
         // Generate new tokens
-        var newToken = tokenProvider.GenerateAccessToken(user);
-        var newRefreshToken = tokenProvider.GenerateRefreshToken();
+        var newToken = await tokenProvider.GenerateAccessTokenAsync(user.Id, ct);
+        var newRefreshToken = await tokenProvider.GenerateRefreshTokenAsync(user.Id, ct);
 
-        // Revoke old refresh token and save new one atomically
-        await unitOfWork.BeginTransactionAsync(ct);
-        try
+        var revokeResult = await tokenProvider.RevokeRefreshTokenAsync(req.RefreshToken, ct);
+        if (revokeResult.IsFailure)
         {
-            var revokeResult = await tokenProvider.RevokeRefreshTokenAsync(req.RefreshToken, ct);
-            if (revokeResult.IsFailure)
-            {
-                await unitOfWork.RollbackTransactionAsync(ct);
-                ThrowError("Failed to revoke refresh token", 500);
-                return;
-            }
-
-            var expiryDate = dateTimeProvider.Now.AddDays(jwtSettings.Value.RefreshTokenExpirationInDays);
-            var saveResult = await tokenProvider.SaveRefreshTokenAsync(
-                newRefreshToken,
-                userId,
-                expiryDate,
-                ct);
-
-            if (saveResult.IsFailure)
-            {
-                await unitOfWork.RollbackTransactionAsync(ct);
-                ThrowError("Failed to save refresh token", 500);
-                return;
-            }
-
-            await unitOfWork.CommitTransactionAsync(ct);
-        }
-        catch
-        {
-            await unitOfWork.RollbackTransactionAsync(ct);
-            throw;
+            ThrowError("Failed to revoke refresh token", 500);
+            return;
         }
 
         await Send.OkAsync(new RefreshTokenResponse

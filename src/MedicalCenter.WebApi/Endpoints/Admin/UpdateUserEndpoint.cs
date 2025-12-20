@@ -20,7 +20,6 @@ namespace MedicalCenter.WebApi.Endpoints.Admin;
 [ActionLog("System administrator updated a user account")]
 public class UpdateUserEndpoint(
     IUserQueryService userQueryService,
-    IIdentityService identityService,
     ITokenProvider tokenProvider,
     IAuthorizationService authorizationService,
     MedicalCenterDbContext context)
@@ -46,7 +45,7 @@ public class UpdateUserEndpoint(
     public override async Task HandleAsync(UpdateUserRequest req, CancellationToken ct)
     {
         // Use admin method to ignore query filters (can update deactivated users)
-        var user = await userQueryService.GetUserByIdAdminAsync(req.Id, ct);
+        var user = await userQueryService.GetUserByIdAsync(req.Id, ct);
 
         if (user == null)
         {

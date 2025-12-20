@@ -1,6 +1,5 @@
 using FastEndpoints;
 using Microsoft.AspNetCore.Authorization;
-using MedicalCenter.Core.Primitives;
 using MedicalCenter.Core.SharedKernel;
 using MedicalCenter.Core.Services;
 using MedicalCenter.Core.Queries;
@@ -41,7 +40,7 @@ public class ChangePasswordEndpoint(
     public override async Task HandleAsync(ChangePasswordRequest req, CancellationToken ct)
     {
         // Check if the user being modified is a SystemAdmin
-        var user = await userQueryService.GetUserByIdAdminAsync(req.Id, ct);
+        var user = await userQueryService.GetUserByIdAsync(req.Id, ct);
         if (user == null)
         {
             ThrowError("User not found", 404);

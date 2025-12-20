@@ -27,6 +27,11 @@ public interface IIdentityService
         CancellationToken cancellationToken = default);
 
     /// <summary>
+    /// Gets a user ID by email.
+    /// </summary>
+    Task<Guid?> GetUserByEmailAsync(string email, CancellationToken cancellationToken = default);
+
+    /// <summary>
     /// Changes a user's password.
     /// </summary>
     Task<Result> ChangePasswordAsync(
@@ -45,23 +50,12 @@ public interface IIdentityService
         CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Gets a user by ID.
-    /// </summary>
-    Task<User?> GetUserByIdAsync(Guid id, CancellationToken cancellationToken = default);
-
-    /// <summary>
-    /// Gets a user by email.
-    /// </summary>
-    Task<User?> GetUserByEmailAsync(string email, CancellationToken cancellationToken = default);
-
-    /// <summary>
     /// Validates user credentials.
     /// </summary>
-    Task<Result<User>> ValidateCredentialsAsync(
+    Task<Result<Guid>> ValidateCredentialsAsync(
         string email,
         string password,
         CancellationToken cancellationToken = default);
-
 
     /// <summary>
     /// Checks if a user's email is unconfirmed.

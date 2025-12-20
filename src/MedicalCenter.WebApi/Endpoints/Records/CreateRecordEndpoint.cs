@@ -4,11 +4,11 @@ using MedicalCenter.Core.Aggregates.MedicalRecords.Specifications;
 using MedicalCenter.Core.Aggregates.MedicalRecords.ValueObjects;
 using MedicalCenter.Core.Aggregates.Patients;
 using MedicalCenter.Core.Aggregates.Patients.Specifications;
-using MedicalCenter.Core.Primitives;
-using MedicalCenter.Core.SharedKernel;
 using MedicalCenter.Core.Services;
 using MedicalCenter.Core.Authorization;
 using MedicalCenter.WebApi.Attributes;
+using MedicalCenter.Core.Queries;
+using MedicalCenter.Core.SharedKernel;
 
 namespace MedicalCenter.WebApi.Endpoints.Records;
 
@@ -20,7 +20,7 @@ public class CreateRecordEndpoint(
     IRepository<MedicalRecord> recordRepository,
     IRepository<Patient> patientRepository,
     IFileStorageService fileStorageService,
-    IIdentityService identityService,
+    IUserQueryService userQueryService,
     IUnitOfWork unitOfWork,
     IDateTimeProvider dateTimeProvider,
     IUserContext userContext)
@@ -57,7 +57,7 @@ public class CreateRecordEndpoint(
         }
 
         // Get practitioner user to populate Practitioner value object
-        var practitionerUser = await identityService.GetUserByIdAsync(practitionerId, ct);
+        var practitionerUser = await userQueryService.GetUserByIdAsync(practitionerId, ct);
         if (practitionerUser == null)
         {
             ThrowError("Practitioner not found", 404);

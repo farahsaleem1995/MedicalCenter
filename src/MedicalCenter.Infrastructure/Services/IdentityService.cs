@@ -1,17 +1,8 @@
-using System.Security.Claims;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
-using MedicalCenter.Core.Aggregates.Doctors;
-using MedicalCenter.Core.Aggregates.HealthcareStaff;
-using MedicalCenter.Core.Aggregates.Laboratories;
-using MedicalCenter.Core.Aggregates.ImagingCenters;
-using MedicalCenter.Core.Aggregates.SystemAdmins;
-using MedicalCenter.Core.Authorization;
 using MedicalCenter.Core.Primitives;
 using MedicalCenter.Core.SharedKernel;
 using MedicalCenter.Core.Services;
-using MedicalCenter.Infrastructure.Data;
 using MedicalCenter.Infrastructure.Identity;
 
 namespace MedicalCenter.Infrastructure.Services;
@@ -72,6 +63,16 @@ public class IdentityService(
         return Result<Guid>.Success(userId);
     }
 
+    public async Task<Guid?> GetUserByEmailAsync(string email, CancellationToken cancellationToken = default)
+    {
+        var identityUser = await userManager.FindByEmailAsync(email);
+        if (identityUser == null)
+        {
+            return null;
+        }
+        return identityUser.Id;
+    }
+
     public async Task<Result> ChangePasswordAsync(
         Guid userId,
         string currentPassword,
@@ -125,35 +126,7 @@ public class IdentityService(
     }
 
 
-    public async Task<User?> GetUserByIdAsync(Guid id, CancellationToken cancellationToken = default)
-    {
-        var identityUser = await userManager.FindByIdAsync(id.ToString());
-        if (identityUser == null)
-        {
-            return null;
-        }
-
-        var roles = await userManager.GetRolesAsync(identityUser);
-        if (roles.Count == 0 || !Enum.TryParse<UserRole>(roles[0], out var role))
-        {
-            return null;
-        }
-
-        return new IdentityUserWrapper(identityUser, role);
-    }
-
-    public async Task<User?> GetUserByEmailAsync(string email, CancellationToken cancellationToken = default)
-    {
-        var identityUser = await userManager.FindByEmailAsync(email);
-        if (identityUser == null)
-        {
-            return null;
-        }
-
-        return await GetUserByIdAsync(identityUser.Id, cancellationToken);
-    }
-
-    public async Task<Result<User>> ValidateCredentialsAsync(
+    public async Task<Result<Guid>> ValidateCredentialsAsync(
         string email,
         string password,
         CancellationToken cancellationToken = default)
@@ -161,27 +134,25 @@ public class IdentityService(
         var identityUser = await userManager.FindByEmailAsync(email);
         if (identityUser == null)
         {
-            return Result<User>.Failure(Error.Unauthorized("Invalid email or password."));
+            return Result<Guid>.Failure(Error.Unauthorized("Invalid email or password."));
         }
 
         var isValidPassword = await userManager.CheckPasswordAsync(identityUser, password);
         if (!isValidPassword)
         {
-            return Result<User>.Failure(Error.Unauthorized("Invalid email or password."));
+            return Result<Guid>.Failure(Error.Unauthorized("Invalid email or password."));
         }
 
-        var user = await GetUserByIdAsync(identityUser.Id, cancellationToken);
-        if (user == null)
+        // Check if user account is locked out (inactive)
+        var isLockedOut = identityUser.LockoutEnabled && 
+                         identityUser.LockoutEnd != null && 
+                         identityUser.LockoutEnd > DateTimeOffset.UtcNow;
+        if (isLockedOut)
         {
-            return Result<User>.Failure(Error.NotFound("User"));
+            return Result<Guid>.Failure(Error.Unauthorized("User account is inactive."));
         }
 
-        if (!user.IsActive)
-        {
-            return Result<User>.Failure(Error.Unauthorized("User account is inactive."));
-        }
-
-        return Result<User>.Success(user);
+        return Result<Guid>.Success(identityUser.Id);
     }
 
 
@@ -313,18 +284,6 @@ public class IdentityService(
         }
 
         return Result.Success();
-    }
-
-    /// <summary>
-    /// Simple wrapper to convert Identity ApplicationUser to domain User.
-    /// </summary>
-    private class IdentityUserWrapper : User
-    {
-        public IdentityUserWrapper(ApplicationUser identityUser, UserRole role)
-            : base(identityUser.Id, identityUser.UserName ?? identityUser.Email ?? string.Empty, identityUser.Email ?? string.Empty, role)
-        {
-            IsActive = !identityUser.LockoutEnabled || identityUser.LockoutEnd == null || identityUser.LockoutEnd <= DateTimeOffset.UtcNow;
-        }
     }
 }
 

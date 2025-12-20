@@ -34,27 +34,6 @@ namespace MedicalCenter.WebApi.Services
             }
         }
 
-        public string UserName
-        {
-            get
-            {
-                if (!IsAuthenticated)
-                {
-                    throw new InvalidOperationException("Cannot access UserName: User is not authenticated.");
-                }
-
-                string? userName = _httpContextAccessor.HttpContext!.User.Claims
-                    .FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value;
-
-                if (string.IsNullOrWhiteSpace(userName))
-                {
-                    throw new InvalidOperationException("Cannot access UserName: Name claim is missing from the authentication token.");
-                }
-
-                return userName;
-            }
-        }
-
 
         public string Email
         {

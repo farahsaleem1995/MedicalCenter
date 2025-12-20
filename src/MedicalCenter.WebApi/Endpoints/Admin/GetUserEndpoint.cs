@@ -1,5 +1,4 @@
 using FastEndpoints;
-using MedicalCenter.Core.SharedKernel;
 using MedicalCenter.Core.Queries;
 using MedicalCenter.Core.Authorization;
 using MedicalCenter.WebApi.Extensions;
@@ -32,7 +31,7 @@ public class GetUserEndpoint(
     public override async Task HandleAsync(GetUserRequest req, CancellationToken ct)
     {
         // Use admin method to ignore query filters (include deactivated users)
-        var user = await userQueryService.GetUserByIdAdminAsync(req.Id, ct);
+        var user = await userQueryService.GetUserByIdAsync(req.Id, ct);
 
         if (user == null)
         {

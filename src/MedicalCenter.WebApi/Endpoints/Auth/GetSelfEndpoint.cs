@@ -1,7 +1,7 @@
 using FastEndpoints;
-using MedicalCenter.Core.Primitives;
 using MedicalCenter.Core.SharedKernel;
 using MedicalCenter.Core.Services;
+using MedicalCenter.Core.Queries;
 
 namespace MedicalCenter.WebApi.Endpoints.Auth;
 
@@ -9,7 +9,7 @@ namespace MedicalCenter.WebApi.Endpoints.Auth;
 /// Get current authenticated user's generic information endpoint.
 /// </summary>
 public class GetSelfEndpoint(
-    IIdentityService identityService,
+    IUserQueryService userQueryService,
     IUserContext userContext)
     : EndpointWithoutRequest<GetSelfResponse>
 {
@@ -31,7 +31,7 @@ public class GetSelfEndpoint(
     {
         Guid userId = userContext.UserId;
 
-        User? user = await identityService.GetUserByIdAsync(userId, ct);
+        User? user = await userQueryService.GetUserByIdAsync(userId, ct);
 
         if (user == null)
         {

@@ -8,8 +8,6 @@ namespace MedicalCenter.Core.Services
 
         public Guid UserId { get; }
 
-        public string UserName { get; }
-
         public string Email { get; }
 
         public UserRole Role { get; }

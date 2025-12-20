@@ -1,11 +1,5 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using MedicalCenter.Core.Aggregates.Patients;
-using MedicalCenter.Core.Aggregates.Doctors;
-using MedicalCenter.Core.Aggregates.HealthcareStaff;
-using MedicalCenter.Core.Aggregates.Laboratories;
-using MedicalCenter.Core.Aggregates.ImagingCenters;
-using MedicalCenter.Core.Aggregates.SystemAdmins;
 using MedicalCenter.Core.Primitives.Pagination;
 using MedicalCenter.Core.Queries;
 using MedicalCenter.Core.SharedKernel;
@@ -24,7 +18,7 @@ namespace MedicalCenter.Infrastructure.Services;
 public class UserQueryService(UserManager<ApplicationUser> userManager)
     : IUserQueryService
 {
-    public async Task<User?> GetUserByIdAdminAsync(Guid id, CancellationToken cancellationToken = default)
+    public async Task<User?> GetUserByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
         return await QueryUsers(null, null)
             .Where(u => u.Id == id)

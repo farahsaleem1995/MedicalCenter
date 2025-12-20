@@ -39,7 +39,7 @@ public class DeleteUserEndpoint(
     public override async Task HandleAsync(DeleteUserRequest req, CancellationToken ct)
     {
         // Use admin method to ignore query filters (can deactivate already deactivated users)
-        var user = await userQueryService.GetUserByIdAdminAsync(req.Id, ct);
+        var user = await userQueryService.GetUserByIdAsync(req.Id, ct);
         if (user == null)
         {
             ThrowError("User not found", 404);

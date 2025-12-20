@@ -1,5 +1,6 @@
 using FastEndpoints;
 using FluentValidation;
+using MedicalCenter.Core.Queries;
 using MedicalCenter.Core.Services;
 
 namespace MedicalCenter.WebApi.Endpoints.Auth;
@@ -9,6 +10,7 @@ namespace MedicalCenter.WebApi.Endpoints.Auth;
 /// </summary>
 public class RequestPasswordResetEndpoint(
     IIdentityService identityService,
+    IUserQueryService userQueryService,
     ISmtpClient smtpClient)
     : Endpoint<RequestPasswordResetRequest>
 {
@@ -30,29 +32,27 @@ public class RequestPasswordResetEndpoint(
     public override async Task HandleAsync(RequestPasswordResetRequest req, CancellationToken ct)
     {
         // Find user by email
-        var user = await identityService.GetUserByEmailAsync(req.Email, ct);
-        if (user == null)
+        Guid? userId = await identityService.GetUserByEmailAsync(req.Email, ct);
+        if (!userId.HasValue)
         {
             ThrowError("User not found", 404);
             return;
         }
 
         // Generate 6-digit OTP code (via Identity service)
-        var codeResult = await identityService.GeneratePasswordResetCodeAsync(user.Id, ct);
+        var codeResult = await identityService.GeneratePasswordResetCodeAsync(userId.Value, ct);
         if (codeResult.IsFailure)
         {
             ThrowError(codeResult.Error!.Message, 400);
             return;
         }
 
-        var code = codeResult.Value!;
-
         // Generate email body with OTP code
-        var emailBody = GeneratePasswordResetEmailBody(user.FullName, code);
+        var emailBody = await GeneratePasswordResetEmailBody(userId.Value, codeResult.Value!, ct);
 
         // Send password reset email
         var sendResult = await smtpClient.SendEmailAsync(
-            user.Email,
+            req.Email,
             "Password Reset - Medical Center",
             emailBody,
             ct);
@@ -68,13 +68,19 @@ public class RequestPasswordResetEndpoint(
         await Send.NoContentAsync(ct);
     }
 
-    private static string GeneratePasswordResetEmailBody(string fullName, string code)
+    private async Task<string> GeneratePasswordResetEmailBody(Guid userId, string code, CancellationToken ct)
     {
+        var user = await userQueryService.GetUserByIdAsync(userId, ct);
+        if (user == null)
+        {
+            throw new InvalidCastException("Failed to generate password reset email body. User not found.");
+        }
+        
         return $@"
             <html>
             <body>
                 <h2>Password Reset</h2>
-                <p>Hello {fullName},</p>
+                <p>Hello {user.FullName},</p>
                 <p>Your password reset code is:</p>
                 <h3 style=""font-size: 24px; letter-spacing: 5px; color: #2563eb;"">{code}</h3>
                 <p>This code will expire in up to 9 minutes.</p>

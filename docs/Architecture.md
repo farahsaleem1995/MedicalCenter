@@ -73,13 +73,17 @@ The Core layer is organized following Domain-Driven Design principles with clear
 
 - **Queries/**: Query service interfaces for read operations
   - `IMedicalRecordQueryService`: Optimized queries for medical records
-  - `IUserQueryService`: Optimized queries for user entities
+  - `IUserQueryService`: Optimized queries for user entities (returns domain `User` objects)
+    - Used for retrieving domain user data after authentication
+    - Separated from identity services to maintain clear boundaries
 
 - **Services/**: Domain service interfaces
-  - `IIdentityService`: User identity management interface (includes claims and policy verification)
+  - `IIdentityService`: User identity management interface (authentication, password management, email confirmation)
+    - Does NOT return domain `User` objects - only works with `Guid` and primitive types
+    - Separated from domain user queries (use `IUserQueryService` for domain data)
   - `IUserContext`: User context interface for accessing authenticated user information (UserId, UserName, Email, Role)
   - `IFileStorageService`: File storage abstraction interface
-  - `ITokenProvider`: Token generation and validation interface
+  - `ITokenProvider`: Token generation and validation interface (works with `Guid` only, no domain objects)
   - `IDateTimeProvider`: Unified time access interface
   - `IActionLogService`: Action log service interface for recording and querying business-critical actions
 
@@ -123,6 +127,10 @@ The Infrastructure layer implements data access and external service integration
   - Handles Identity user creation (`CreateUserAsync`) - creates `ApplicationUser` only
   - Domain entity creation is handled by endpoints (following `RegisterPatientEndpoint` pattern)
   - Password management: `ChangePasswordAsync` (requires current password), `UpdatePasswordAsync` (admin password reset)
+  - Credential validation: `ValidateCredentialsAsync` returns `Guid` (userId) only, not domain objects
+  - Email confirmation and password reset: OTP-based flows using Identity's token providers
+  - **Separation of Concerns**: Identity services do NOT return domain `User` objects - they only work with `Guid` and primitive types
+  - Domain user queries are handled by `IUserQueryService` (separate service for domain data retrieval)
   - Claims verification: Database-only claims stored in `AspNetUserClaims` table (not in JWT tokens)
   - Policy verification: `SatisfiesPolicyAsync()` evaluates claims and roles via database lookup
 

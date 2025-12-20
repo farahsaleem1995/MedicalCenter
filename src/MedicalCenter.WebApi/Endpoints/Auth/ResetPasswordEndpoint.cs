@@ -31,15 +31,15 @@ public class ResetPasswordEndpoint(
     public override async Task HandleAsync(ResetPasswordRequest req, CancellationToken ct)
     {
         // Find user by email
-        var user = await identityService.GetUserByEmailAsync(req.Email, ct);
-        if (user == null)
+        Guid? userId = await identityService.GetUserByEmailAsync(req.Email, ct);
+        if (!userId.HasValue)
         {
             ThrowError("User not found", 404);
             return;
         }
 
         // Reset password using OTP code (via Identity service)
-        var resetResult = await identityService.ResetPasswordAsync(user.Id, req.Code, req.NewPassword, ct);
+        var resetResult = await identityService.ResetPasswordAsync(userId.Value, req.Code, req.NewPassword, ct);
         if (resetResult.IsFailure)
         {
             int statusCode = resetResult.Error!.Code.ToStatusCode();
@@ -48,7 +48,7 @@ public class ResetPasswordEndpoint(
         }
 
         // Revoke all refresh tokens to force re-authentication
-        await tokenProvider.RevokeUserRefreshTokensAsync(user.Id, ct);
+        await tokenProvider.RevokeUserRefreshTokensAsync(userId.Value, ct);
 
         await Send.NoContentAsync(ct);
     }

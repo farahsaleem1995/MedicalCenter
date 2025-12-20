@@ -1,6 +1,5 @@
 using System.Security.Claims;
 using MedicalCenter.Core.Primitives;
-using MedicalCenter.Core.SharedKernel;
 
 namespace MedicalCenter.Core.Services;
 
@@ -12,38 +11,22 @@ public interface ITokenProvider
     /// <summary>
     /// Generates a JWT access token for a user.
     /// </summary>
-    string GenerateAccessToken(User user);
+    Task<string> GenerateAccessTokenAsync(Guid userId, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Generates a refresh token.
     /// </summary>
-    string GenerateRefreshToken();
+    Task<string> GenerateRefreshTokenAsync(Guid userId, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Validates an access token and returns the claims principal.
     /// </summary>
-    bool ValidateAccessToken(string token, out ClaimsPrincipal? principal);
+    public Task<ClaimsPrincipal?> ValidateAccessTokenAsync(string token, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Validates a refresh token format (stateless validation).
+    /// Validates a refresh token and returns the user ID.
     /// </summary>
-    bool ValidateRefreshToken(string token);
-
-    /// <summary>
-    /// Saves a refresh token for a user.
-    /// </summary>
-    Task<Result> SaveRefreshTokenAsync(
-        string token,
-        Guid userId,
-        DateTime expiryDate,
-        CancellationToken cancellationToken = default);
-
-    /// <summary>
-    /// Validates and retrieves user ID from a refresh token.
-    /// </summary>
-    Task<Result<Guid>> ValidateRefreshTokenAsync(
-        string token,
-        CancellationToken cancellationToken = default);
+    Task<Result<Guid>> ValidateRefreshTokenAsync(string token, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Revokes a refresh token (marks it as invalid).

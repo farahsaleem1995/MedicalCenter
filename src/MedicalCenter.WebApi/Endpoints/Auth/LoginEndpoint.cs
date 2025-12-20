@@ -1,9 +1,7 @@
 using FastEndpoints;
-using Microsoft.Extensions.Options;
-using MedicalCenter.Core.SharedKernel;
+using MedicalCenter.Core.Queries;
 using MedicalCenter.Core.Services;
 using MedicalCenter.WebApi.Extensions;
-using MedicalCenter.Infrastructure;
 
 namespace MedicalCenter.WebApi.Endpoints.Auth;
 
@@ -12,9 +10,8 @@ namespace MedicalCenter.WebApi.Endpoints.Auth;
 /// </summary>
 public class LoginEndpoint(
     IIdentityService identityService,
-    ITokenProvider tokenProvider,
-    IOptions<JwtSettings> jwtSettings,
-    IDateTimeProvider dateTimeProvider)
+    IUserQueryService userQueryService,
+    ITokenProvider tokenProvider)
     : Endpoint<LoginRequest, LoginResponse>
 {
     public override void Configure()
@@ -42,29 +39,23 @@ public class LoginEndpoint(
             return;
         }
 
-        var user = result.Value!;
+        var userId = result.Value!;
 
         // Check email confirmation - users with unconfirmed email cannot login
-        var isUnconfirmed = await identityService.IsUserUnconfirmedAsync(user.Id, ct);
+        var isUnconfirmed = await identityService.IsUserUnconfirmedAsync(userId, ct);
         if (isUnconfirmed)
         {
             ThrowError("Email address must be confirmed before logging in. Please check your email for the confirmation code.", 403);
             return;
         }
-        var token = tokenProvider.GenerateAccessToken(user);
-        var refreshToken = tokenProvider.GenerateRefreshToken();
 
-        // Save refresh token to database
-        var expiryDate = dateTimeProvider.Now.AddDays(jwtSettings.Value.RefreshTokenExpirationInDays);
-        var saveResult = await tokenProvider.SaveRefreshTokenAsync(
-            refreshToken,
-            user.Id,
-            expiryDate,
-            ct);
+        var token = await tokenProvider.GenerateAccessTokenAsync(userId, ct);
+        var refreshToken = await tokenProvider.GenerateRefreshTokenAsync(userId, ct);
 
-        if (saveResult.IsFailure)
+        var user = await userQueryService.GetUserByIdAsync(userId, ct);
+        if (user == null)
         {
-            ThrowError("Failed to save refresh token", 500);
+            ThrowError("Invalid login.", 401);
             return;
         }
 
