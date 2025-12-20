@@ -265,7 +265,7 @@ MedicalCenter/
 - ✅ Patient aggregate with medical attributes
 - ✅ Blood type management (create/update)
 - ✅ Allergies, Chronic Diseases, Medications, Surgeries
-- ✅ Patient self-service endpoints
+- ✅ Patient self-service endpoints (records, encounters, medical attributes)
 
 ### Medical Attributes Management
 
@@ -281,6 +281,22 @@ MedicalCenter/
 - ✅ Multiple attachments per record (up to 10, configurable)
 - ✅ Practitioner and patient views
 - ✅ Practitioner-based authorization
+
+### Encounters
+
+- ✅ Automatic encounter creation when medical records are created
+- ✅ Immutable historical facts tracking patient interactions
+- ✅ Practitioner and patient views
+- ✅ Date range filtering and pagination
+- ✅ Domain event-driven architecture
+
+### Action Logging & Audit Trail
+
+- ✅ Queue-based background processing for action logs
+- ✅ Attribute-based logging (mark endpoints with [ActionLog])
+- ✅ Admin query endpoint for viewing action logs
+- ✅ Fire-and-forget pattern for performance
+- ✅ Success-only logging (2xx status codes)
 
 ### Admin Features
 
@@ -301,8 +317,8 @@ MedicalCenter/
 ## Documentation
 
 - **[Architecture](docs/Architecture.md)** - Comprehensive architecture documentation
-- **[Features](docs/Features.md)** - Detailed features documentation with API endpoint details and enum value mappings
-- **[Implementation Plan](docs/ImplementationPlan.md)** - Implementation roadmap and progress
+- **[Features](docs/Features.md)** - Detailed features documentation with API endpoint details, authorization policies, response examples, and enum value mappings
+- **[Implementation Plan](docs/ImplementationPlan.md)** - Implementation roadmap and progress tracking
 
 ## Testing
 
@@ -408,16 +424,15 @@ This project follows patterns from the [Ardalis Clean Architecture template](htt
 - ✅ **Phase 3**: Infrastructure Foundation
 - ✅ **Phase 4**: Identity System Foundation
 - ✅ **Phase 5**: Patient Aggregate & Medical Attributes
-- 🔄 **Phase 6**: Medical Records (Medical Records complete, Encounters postponed - requires domain events)
-- 🔄 **Phase 7**: Query Services & Provider Lookups (Partially Complete - UserQueryService implemented)
-- 🔄 **Phase 10**: Admin Features (Partially Complete - User management endpoints implemented)
-- ⏳ **Phase 8**: Action Logging & Audit Trail
-- ⏳ **Phase 9**: Complete Provider Endpoints
-- ⏳ **Phase 11**: Patient Self-Service Features
-- ⏳ **Phase 12**: Testing & Quality Assurance
-- ✅ **Phase 13**: Dockerization
+- ✅ **Phase 6**: Medical Records (complete)
+- ✅ **Phase 6.1**: Encounters (complete)
+- 🔄 **Phase 7**: Query Services & Provider Lookups (Core query services complete: UserQueryService, MedicalRecordQueryService, EncounterQueryService)
+- ✅ **Phase 8**: Action Logging & Audit Trail
+- 🔄 **Phase 10**: Admin Features (User management complete)
+- 🔄 **Phase 11**: Patient Self-Service Features (Basic features and encounters complete)
+- ✅ **Phase 12**: Dockerization
 
-See [ImplementationPlan.md](docs/ImplementationPlan.md) for detailed progress.
+See [ImplementationPlan.md](docs/ImplementationPlan.md) for detailed progress and future enhancements.
 
 ## Troubleshooting
 
