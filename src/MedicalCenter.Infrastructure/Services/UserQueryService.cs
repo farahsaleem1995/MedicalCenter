@@ -27,15 +27,12 @@ public class UserQueryService(UserManager<ApplicationUser> userManager)
     } 
 
     public async Task<PaginatedList<User>> ListUsersPaginatedAsync(
-        int pageNumber,
-        int pageSize,
-        UserRole? role = null,
-        bool? isActive = null,
+        PaginationQuery<ListUsersQuery> query,
         CancellationToken cancellationToken = default)
     {
-        return await QueryUsers(role, isActive)
+        return await QueryUsers(query.Criteria?.Role, query.Criteria?.IsActive)
             .Select(u => MapToDomainUser(u))
-            .ToPaginatedListAsync(pageNumber, pageSize, cancellationToken);
+            .ToPaginatedListAsync(query.PageNumber, query.PageSize, cancellationToken);
     }
 
     private IQueryable<ApplicationUser> QueryUsers(UserRole? role, bool? isActive)

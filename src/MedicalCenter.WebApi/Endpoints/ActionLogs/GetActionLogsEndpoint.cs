@@ -1,6 +1,7 @@
 using FastEndpoints;
-using MedicalCenter.Core.Aggregates.ActionLogs;
 using MedicalCenter.Core.Authorization;
+using MedicalCenter.Core.Primitives.Pagination;
+using MedicalCenter.Core.Queries;
 using MedicalCenter.Core.Services;
 
 namespace MedicalCenter.WebApi.Endpoints.ActionLogs;
@@ -9,7 +10,7 @@ namespace MedicalCenter.WebApi.Endpoints.ActionLogs;
 /// Endpoint to retrieve action log history with filtering and pagination.
 /// </summary>
 public class GetActionLogsEndpoint(
-    IActionLogService actionLogService)
+    IActionLogQueryService actionLogQueryService)
     : Endpoint<GetActionLogsRequest, GetActionLogsResponse>
 {
     public override void Configure()
@@ -36,18 +37,19 @@ public class GetActionLogsEndpoint(
     public override async Task HandleAsync(GetActionLogsRequest req, CancellationToken ct)
     {
         // Map request to query
-        ActionLogQuery query = new ActionLogQuery
+        var query = new PaginationQuery<ActionLogQuery>(req.PageNumber ?? 1, req.PageSize ?? 20)
         {
-            PageNumber = req.PageNumber ?? 1,
-            PageSize = req.PageSize ?? 20,
-            StartDate = req.StartDate,
-            EndDate = req.EndDate,
-            UserId = req.UserId,
-            ActionName = req.ActionName
+            Criteria = new ActionLogQuery
+            {
+                StartDate = req.StartDate,
+                EndDate = req.EndDate,
+                UserId = req.UserId,
+                ActionName = req.ActionName
+            }
         };
 
         // Get paginated results
-        var result = await actionLogService.GetHistory(query, ct);
+        var result = await actionLogQueryService.GetHistory(query, ct);
 
         // Map to response DTO
         GetActionLogsResponse response = new GetActionLogsResponse

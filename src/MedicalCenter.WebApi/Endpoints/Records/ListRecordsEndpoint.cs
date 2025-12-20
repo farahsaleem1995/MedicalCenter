@@ -36,19 +36,20 @@ public class ListRecordsEndpoint(IMedicalRecordQueryService recordQueryService)
 
     public override async Task HandleAsync(ListRecordsRequest req, CancellationToken ct)
     {
-        // User authentication verified via IUserContext injection
+        
+        var query = new PaginationQuery<ListRecordsQuery>(req.PageNumber ?? 1, req.PageSize ?? 10)
+        {
+            Criteria = new ListRecordsQuery
+            {
+                PractitionerId = req.PractitionerId,
+                PatientId = req.PatientId,
+                RecordType = req.RecordType,
+                DateFrom = req.DateFrom,
+                DateTo = req.DateTo,
+            }
+        };
 
-        // Use query service for optimized query with includes
-        // Practitioners can view all records, with optional filters
-        var paginatedResult = await recordQueryService.ListRecordsAsync(
-            req.PageNumber ?? 1,
-            req.PageSize ?? 10,
-            req.PractitionerId,
-            req.PatientId,
-            req.RecordType,
-            req.DateFrom,
-            req.DateTo,
-            ct);
+        var paginatedResult = await recordQueryService.ListRecordsAsync(query, ct);
 
         await Send.OkAsync(new ListRecordsResponse
         {

@@ -2,34 +2,27 @@ using MedicalCenter.Core.Services;
 using MedicalCenter.Core.Aggregates.ActionLogs;
 using MedicalCenter.Core.Primitives.Pagination;
 using MedicalCenter.Infrastructure.Data;
-using MedicalCenter.Infrastructure.Options;
 using MedicalCenter.Infrastructure.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
+using MedicalCenter.Core.Queries;
 
 namespace MedicalCenter.Infrastructure.Services;
 
 /// <summary>
-/// Implementation of IActionLogService.
+/// Implementation of IActionLogger and IActionLogQueryService.
 /// Enqueues entries for background processing (true fire-and-forget).
+/// Provides query capabilities for action log history.
 /// </summary>
-public class ActionLogService : IActionLogService
+public class ActionLogService(
+    IActionLogQueue queue,
+    MedicalCenterDbContext context,
+    ILogger<ActionLogService> logger) : IActionLogger, IActionLogQueryService
 {
-    private readonly IActionLogQueue _queue;
-    private readonly MedicalCenterDbContext _context;
-    private readonly ILogger<ActionLogService> _logger;
-    
-    public ActionLogService(
-        IActionLogQueue queue,
-        MedicalCenterDbContext context,
-        ILogger<ActionLogService> logger)
-    {
-        _queue = queue;
-        _context = context;
-        _logger = logger;
-    }
-    
+    private readonly IActionLogQueue _queue = queue;
+    private readonly MedicalCenterDbContext _context = context;
+    private readonly ILogger<ActionLogService> _logger = logger;
+
     /// <summary>
     /// Records an action log entry for background processing.
     /// Non-blocking, synchronous operation (like logger pattern).
@@ -49,18 +42,23 @@ public class ActionLogService : IActionLogService
     /// Retrieves paginated action log history with filtering, ordering, and pagination.
     /// </summary>
     public async Task<PaginatedList<ActionLogEntry>> GetHistory(
-        ActionLogQuery query,
+        PaginationQuery<ActionLogQuery> query,
         CancellationToken cancellationToken = default)
     {
-        IQueryable<ActionLogEntry> dbQuery = _context.Set<ActionLogEntry>()
-            .Where(e => !query.StartDate.HasValue || e.ExecutedAt >= query.StartDate.Value)
-            .Where(e => !query.EndDate.HasValue || e.ExecutedAt <= query.EndDate.Value)
-            .Where(e => !query.UserId.HasValue || e.UserId == query.UserId.Value)
-            .Where(e => string.IsNullOrWhiteSpace(query.ActionName) || e.ActionName == query.ActionName)
-            .OrderByDescending(e => e.ExecutedAt);
+        IQueryable<ActionLogEntry> dbQuery = _context.Set<ActionLogEntry>();
+
+        var criteria = query.Criteria;
+        if (criteria != null)
+        {
+            dbQuery = dbQuery.Where(e => !criteria.StartDate.HasValue || e.ExecutedAt >= criteria.StartDate.Value)
+                .Where(e => !criteria.EndDate.HasValue || e.ExecutedAt <= criteria.EndDate.Value)
+                .Where(e => !criteria.UserId.HasValue || e.UserId == criteria.UserId.Value)
+                .Where(e => string.IsNullOrWhiteSpace(criteria.ActionName) || e.ActionName == criteria.ActionName);
+        }
         
         // Return paginated results using extension method
-        return await dbQuery.ToPaginatedListAsync(query.PageNumber, query.PageSize, cancellationToken);
+        return await dbQuery.OrderByDescending(e => e.ExecutedAt)
+            .ToPaginatedListAsync(query.PageNumber, query.PageSize, cancellationToken);
     }
 }
 

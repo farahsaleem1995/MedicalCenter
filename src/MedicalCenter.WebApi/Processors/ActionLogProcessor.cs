@@ -34,7 +34,7 @@ public class ActionLogProcessor : IGlobalPostProcessor
             }
             
             // Resolve service from context
-            IActionLogService actionLogService = context.HttpContext.RequestServices.GetRequiredService<IActionLogService>();
+            IActionLogger actionLogService = context.HttpContext.RequestServices.GetRequiredService<IActionLogger>();
             
             // Extract metadata
             string actionName = ExtractActionName(context.HttpContext);

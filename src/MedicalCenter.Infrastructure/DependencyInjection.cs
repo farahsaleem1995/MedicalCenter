@@ -140,7 +140,9 @@ public static class DependencyInjection
         services.AddSingleton<IActionLogQueue, ActionLogQueue>();
 
         // Register Action Log Service (scoped - uses DbContext)
-        services.AddScoped<IActionLogService, ActionLogService>();
+        services.AddScoped<ActionLogService>();
+        services.AddScoped<IActionLogger>(sp => sp.GetRequiredService<ActionLogService>());
+        services.AddScoped<IActionLogQueryService>(sp => sp.GetRequiredService<ActionLogService>());
 
         // Register Action Log Background Service
         services.AddHostedService<ActionLogBackgroundService>();

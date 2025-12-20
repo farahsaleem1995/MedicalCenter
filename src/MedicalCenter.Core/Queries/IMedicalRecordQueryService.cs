@@ -22,13 +22,7 @@ public interface IMedicalRecordQueryService
     /// Practitioner is automatically loaded as an owned entity.
     /// </summary>
     Task<PaginatedList<MedicalRecord>> ListRecordsAsync(
-        int pageNumber,
-        int pageSize,
-        Guid? practitionerId = null,
-        Guid? patientId = null,
-        RecordType? recordType = null,
-        DateTime? dateFrom = null,
-        DateTime? dateTo = null,
+        PaginationQuery<ListRecordsQuery> query,
         CancellationToken cancellationToken = default);
 
     /// <summary>
@@ -37,12 +31,24 @@ public interface IMedicalRecordQueryService
     /// Practitioner is automatically loaded as an owned entity.
     /// </summary>
     Task<PaginatedList<MedicalRecord>> ListRecordsByPatientAsync(
-        Guid patientId,
-        int pageNumber,
-        int pageSize,
-        RecordType? recordType = null,
-        DateTime? dateFrom = null,
-        DateTime? dateTo = null,
+        PaginationQuery<ListRecordsByPatientQuery> query,
         CancellationToken cancellationToken = default);
+}
+
+public class ListRecordsQuery
+{
+    public Guid? PatientId { get; set; }
+    public Guid? PractitionerId { get; set; }
+    public RecordType? RecordType { get; set; }
+    public DateTime? DateFrom { get; set; }
+    public DateTime? DateTo { get; set; }
+}
+
+public class ListRecordsByPatientQuery
+{
+    public Guid PatientId { get; set; }
+    public RecordType? RecordType { get; set; }
+    public DateTime? DateFrom { get; set; }
+    public DateTime? DateTo { get; set; }
 }
 

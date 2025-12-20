@@ -17,11 +17,12 @@ public interface IUserQueryService
     /// <summary>
     /// Lists users with pagination and optional filtering.
     /// </summary>
-    Task<PaginatedList<User>> ListUsersPaginatedAsync(
-        int pageNumber,
-        int pageSize,
-        UserRole? role = null,
-        bool? isActive = null,
-        CancellationToken cancellationToken = default);
+    Task<PaginatedList<User>> ListUsersPaginatedAsync(PaginationQuery<ListUsersQuery> query, CancellationToken cancellationToken = default);
+}
+
+public class ListUsersQuery
+{
+    public UserRole? Role { get; set; }
+    public bool? IsActive { get; set; }
 }
 

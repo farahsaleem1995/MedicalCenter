@@ -23,78 +23,45 @@ public class MedicalRecordQueryService(MedicalCenterDbContext dbContext) : IMedi
     }
 
     public async Task<PaginatedList<MedicalRecord>> ListRecordsAsync(
-        int pageNumber,
-        int pageSize,
-        Guid? practitionerId = null,
-        Guid? patientId = null,
-        RecordType? recordType = null,
-        DateTime? dateFrom = null,
-        DateTime? dateTo = null,
+        PaginationQuery<ListRecordsQuery> query,
         CancellationToken cancellationToken = default)
     {
-        IQueryable<MedicalRecord> query = dbContext.Set<MedicalRecord>()
+        IQueryable<MedicalRecord> dbQuery = dbContext.Set<MedicalRecord>()
             .Include(mr => mr.Patient)
             .Include(mr => mr.Practitioner);
 
-        // Apply filters
-        if (practitionerId.HasValue)
+        var criteria = query.Criteria;
+        if (criteria != null)
         {
-            query = query.Where(mr => mr.PractitionerId == practitionerId.Value);
-        }
-        if (patientId.HasValue)
-        {
-            query = query.Where(mr => mr.PatientId == patientId.Value);
-        }
-        if (recordType.HasValue)
-        {
-            query = query.Where(mr => mr.RecordType == recordType.Value);
-        }
-        if (dateFrom.HasValue)
-        {
-            query = query.Where(mr => mr.CreatedAt >= dateFrom.Value);
-        }
-        if (dateTo.HasValue)
-        {
-            query = query.Where(mr => mr.CreatedAt <= dateTo.Value);
+            dbQuery = dbQuery.Where(mr => mr.PractitionerId == criteria.PractitionerId)
+                .Where(mr => criteria.PatientId.HasValue && mr.PatientId == criteria.PatientId.Value)
+                .Where(mr => criteria.RecordType.HasValue && mr.RecordType == criteria.RecordType.Value)
+                .Where(mr => criteria.DateFrom.HasValue && mr.CreatedAt >= criteria.DateFrom.Value)
+                .Where(mr => criteria.DateTo.HasValue && mr.CreatedAt <= criteria.DateTo.Value);
         }
 
-        // Apply ordering
-        query = query.OrderByDescending(mr => mr.CreatedAt);
-
-        return await query.ToPaginatedListAsync(pageNumber, pageSize, cancellationToken);
+        return await dbQuery.ToPaginatedListAsync(query.PageNumber, query.PageSize, cancellationToken);
     }
 
     public async Task<PaginatedList<MedicalRecord>> ListRecordsByPatientAsync(
-        Guid patientId,
-        int pageNumber,
-        int pageSize,
-        RecordType? recordType = null,
-        DateTime? dateFrom = null,
-        DateTime? dateTo = null,
+        PaginationQuery<ListRecordsByPatientQuery> query,
         CancellationToken cancellationToken = default)
     {
-        IQueryable<MedicalRecord> query = dbContext.Set<MedicalRecord>()
+        ArgumentNullException.ThrowIfNull(query.Criteria?.PatientId, nameof(query.Criteria.PatientId));
+
+        var criteria = query.Criteria;
+
+        IQueryable<MedicalRecord> dbQuery = dbContext.Set<MedicalRecord>()
             .Include(mr => mr.Patient)
             .Include(mr => mr.Practitioner)
-            .Where(mr => mr.PatientId == patientId);
-
-        // Apply filters
-        if (recordType.HasValue)
-        {
-            query = query.Where(mr => mr.RecordType == recordType.Value);
-        }
-        if (dateFrom.HasValue)
-        {
-            query = query.Where(mr => mr.CreatedAt >= dateFrom.Value);
-        }
-        if (dateTo.HasValue)
-        {
-            query = query.Where(mr => mr.CreatedAt <= dateTo.Value);
-        }
+            .Where(mr => mr.PatientId == criteria.PatientId)
+            .Where(mr => criteria.RecordType.HasValue && mr.RecordType == criteria.RecordType.Value)
+            .Where(mr => criteria.DateFrom.HasValue && mr.CreatedAt >= criteria.DateFrom.Value)
+            .Where(mr => criteria.DateTo.HasValue && mr.CreatedAt <= criteria.DateTo.Value);
 
         // Apply ordering
-        query = query.OrderByDescending(mr => mr.CreatedAt);
+        dbQuery = dbQuery.OrderByDescending(mr => mr.CreatedAt);
 
-        return await query.ToPaginatedListAsync(pageNumber, pageSize, cancellationToken);
+        return await dbQuery.ToPaginatedListAsync(query.PageNumber, query.PageSize, cancellationToken);
     }
 }

@@ -5,6 +5,7 @@ using MedicalCenter.Core.SharedKernel;
 using MedicalCenter.Core.Queries;
 using MedicalCenter.Core.Authorization;
 using MedicalCenter.WebApi.Extensions;
+using MedicalCenter.Core.Primitives.Pagination;
 
 namespace MedicalCenter.WebApi.Endpoints.Admin;
 
@@ -51,15 +52,15 @@ public class ListUsersEndpoint(
             }
         }
 
-        bool? isActive = req.IsActive;
-
-        // Use admin method to ignore query filters (include deactivated users)
-        var paginatedResult = await userQueryService.ListUsersPaginatedAsync(
-            req.PageNumber ?? 1,
-            req.PageSize ?? 10,
-            req.Role,
-            isActive,
-            ct);
+        var query = new PaginationQuery<ListUsersQuery>(req.PageNumber ?? 1, req.PageSize ?? 10)
+        {
+            Criteria = new ListUsersQuery
+            {
+                Role = req.Role,
+                IsActive = req.IsActive
+            }
+        };
+        var paginatedResult = await userQueryService.ListUsersPaginatedAsync(query, ct);
 
         // All SystemAdmin users can view SystemAdmin users in the list
         // Only Super Admins (with CanManageAdmins policy) can modify them
