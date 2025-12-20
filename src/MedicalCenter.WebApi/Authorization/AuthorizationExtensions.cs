@@ -55,15 +55,15 @@ public static class AuthorizationExtensions
             options.AddPolicy(AuthorizationPolicies.CanModifyMedicalAttributes, policy =>
                 policy.RequireRole(
                     UserRole.Doctor.ToString(),
-                    UserRole.HealthcareStaff.ToString(),
-                    UserRole.SystemAdmin.ToString()));
+                    UserRole.HealthcareStaff.ToString()));
 
             options.AddPolicy(AuthorizationPolicies.CanViewRecords, policy =>
                 policy.RequireRole(
                     UserRole.Doctor.ToString(),
                     UserRole.HealthcareStaff.ToString(),
                     UserRole.LabUser.ToString(),
-                    UserRole.ImagingUser.ToString()));
+                    UserRole.ImagingUser.ToString(),
+                    UserRole.SystemAdmin.ToString()));
             
             options.AddPolicy(AuthorizationPolicies.CanModifyRecords, policy =>
                 policy.RequireRole(
