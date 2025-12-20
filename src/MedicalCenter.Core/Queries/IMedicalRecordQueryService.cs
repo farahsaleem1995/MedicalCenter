@@ -24,15 +24,6 @@ public interface IMedicalRecordQueryService
     Task<PaginatedList<MedicalRecord>> ListRecordsAsync(
         PaginationQuery<ListRecordsQuery> query,
         CancellationToken cancellationToken = default);
-
-    /// <summary>
-    /// Lists medical records for a patient with pagination and filtering.
-    /// Includes Patient to avoid N+1 queries.
-    /// Practitioner is automatically loaded as an owned entity.
-    /// </summary>
-    Task<PaginatedList<MedicalRecord>> ListRecordsByPatientAsync(
-        PaginationQuery<ListRecordsByPatientQuery> query,
-        CancellationToken cancellationToken = default);
 }
 
 public class ListRecordsQuery
@@ -43,12 +34,3 @@ public class ListRecordsQuery
     public DateTime? DateFrom { get; set; }
     public DateTime? DateTo { get; set; }
 }
-
-public class ListRecordsByPatientQuery
-{
-    public Guid PatientId { get; set; }
-    public RecordType? RecordType { get; set; }
-    public DateTime? DateFrom { get; set; }
-    public DateTime? DateTo { get; set; }
-}
-

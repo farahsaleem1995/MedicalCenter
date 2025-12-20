@@ -1597,9 +1597,12 @@ Medical records allow providers to create, view, and manage medical records for 
 
 - Lists all medical records for the authenticated patient
 - Supports filtering by record type and date range
+- Supports pagination with `pageNumber` and `pageSize` query parameters
 - Requires `RequirePatient` policy
 
 **Query Parameters**:
+- `pageNumber` (optional, default: 1, minimum: 1)
+- `pageSize` (optional, default: 10, minimum: 1, maximum: 100)
 - `recordType` (optional): Filter by record type
 - `dateFrom` (optional): Filter records from this date
 - `dateTo` (optional): Filter records to this date
@@ -1615,7 +1618,15 @@ Medical records allow providers to create, view, and manage medical records for 
       "createdAt": "2024-01-01T00:00:00Z",
       "attachmentCount": 1
     }
-  ]
+  ],
+  "metadata": {
+    "pageNumber": 1,
+    "pageSize": 10,
+    "totalCount": 50,
+    "totalPages": 5,
+    "hasPrevious": false,
+    "hasNext": true
+  }
 }
 ```
 

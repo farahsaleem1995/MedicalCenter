@@ -42,26 +42,4 @@ public class MedicalRecordQueryService(MedicalCenterDbContext dbContext) : IMedi
 
         return await dbQuery.ToPaginatedListAsync(query.PageNumber, query.PageSize, cancellationToken);
     }
-
-    public async Task<PaginatedList<MedicalRecord>> ListRecordsByPatientAsync(
-        PaginationQuery<ListRecordsByPatientQuery> query,
-        CancellationToken cancellationToken = default)
-    {
-        ArgumentNullException.ThrowIfNull(query.Criteria?.PatientId, nameof(query.Criteria.PatientId));
-
-        var criteria = query.Criteria;
-
-        IQueryable<MedicalRecord> dbQuery = dbContext.Set<MedicalRecord>()
-            .Include(mr => mr.Patient)
-            .Include(mr => mr.Practitioner)
-            .Where(mr => mr.PatientId == criteria.PatientId)
-            .Where(mr => criteria.RecordType.HasValue && mr.RecordType == criteria.RecordType.Value)
-            .Where(mr => criteria.DateFrom.HasValue && mr.CreatedAt >= criteria.DateFrom.Value)
-            .Where(mr => criteria.DateTo.HasValue && mr.CreatedAt <= criteria.DateTo.Value);
-
-        // Apply ordering
-        dbQuery = dbQuery.OrderByDescending(mr => mr.CreatedAt);
-
-        return await dbQuery.ToPaginatedListAsync(query.PageNumber, query.PageSize, cancellationToken);
-    }
 }
