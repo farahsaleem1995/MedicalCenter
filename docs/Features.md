@@ -15,6 +15,7 @@ This document provides a comprehensive overview of all implemented features in t
 - Returns 204 No Content on success
 - Validates email uniqueness and password strength
 - Email confirmation required (OTP sent via email)
+- **Authorization**: None (public endpoint)
 
 **Request**:
 ```json
@@ -27,7 +28,39 @@ This document provides a comprehensive overview of all implemented features in t
 }
 ```
 
-**Response**: `204 No Content`
+**Success Response**: `204 No Content`
+
+**Error Responses**:
+
+**400 Bad Request** (Validation Error):
+```json
+{
+  "type": "https://tools.ietf.org/html/rfc7231#section-6.5.1",
+  "title": "One or more validation errors occurred",
+  "status": 400,
+  "detail": "The request contains validation errors",
+  "errors": {
+    "email": [
+      "Email is required",
+      "Email must be a valid email address"
+    ],
+    "password": [
+      "Password must be at least 8 characters",
+      "Password must contain at least one uppercase letter"
+    ]
+  }
+}
+```
+
+**409 Conflict** (Email Already Exists):
+```json
+{
+  "type": "https://tools.ietf.org/html/rfc7231#section-6.5.8",
+  "title": "Conflict",
+  "status": 409,
+  "detail": "A user with email 'john.doe@example.com' already exists."
+}
+```
 
 **Note**: After registration, patients must confirm their email using the email confirmation endpoint before they can generate access tokens.
 
@@ -38,6 +71,7 @@ This document provides a comprehensive overview of all implemented features in t
 - Authenticates user credentials
 - Returns JWT token and refresh token
 - Includes user role in response
+- **Authorization**: None (public endpoint)
 
 **Request**:
 ```json
@@ -47,7 +81,7 @@ This document provides a comprehensive overview of all implemented features in t
 }
 ```
 
-**Response**:
+**Success Response** (`200 OK`):
 ```json
 {
   "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
@@ -56,6 +90,32 @@ This document provides a comprehensive overview of all implemented features in t
   "email": "john.doe@example.com",
   "fullName": "John Doe",
   "role": "Patient"
+}
+```
+
+**Error Responses**:
+
+**400 Bad Request** (Validation Error):
+```json
+{
+  "type": "https://tools.ietf.org/html/rfc7231#section-6.5.1",
+  "title": "One or more validation errors occurred",
+  "status": 400,
+  "detail": "The request contains validation errors",
+  "errors": {
+    "email": ["Email is required"],
+    "password": ["Password is required"]
+  }
+}
+```
+
+**401 Unauthorized** (Invalid Credentials or Unconfirmed Email):
+```json
+{
+  "type": "https://tools.ietf.org/html/rfc7235#section-3.1",
+  "title": "Unauthorized",
+  "status": 401,
+  "detail": "Authentication failed. Invalid email or password."
 }
 ```
 
@@ -89,14 +149,27 @@ This document provides a comprehensive overview of all implemented features in t
 - Returns authenticated user's generic information
 - Available to all authenticated users
 - Does not include sensitive information like `IsActive` status
+- **Authorization**: Any authenticated user
 
-**Response**:
+**Success Response** (`200 OK`):
 ```json
 {
   "id": "550e8400-e29b-41d4-a716-446655440000",
   "email": "john.doe@example.com",
   "fullName": "John Doe",
   "role": "Patient"
+}
+```
+
+**Error Responses**:
+
+**401 Unauthorized** (Not Authenticated):
+```json
+{
+  "type": "https://tools.ietf.org/html/rfc7235#section-3.1",
+  "title": "Unauthorized",
+  "status": 401,
+  "detail": "Authentication required."
 }
 ```
 
@@ -207,18 +280,81 @@ This document provides a comprehensive overview of all implemented features in t
 - Returns authenticated patient's medical and patient-specific information
 - Includes blood type and medical attributes summary
 - Does not include generic user information (use `/auth/self` for that)
-- Requires `RequirePatient` policy
+- **Authorization**: `RequirePatient` policy (Patient role only)
 
-**Response**:
+**Success Response** (`200 OK`):
 ```json
 {
   "nationalId": "123456789",
   "dateOfBirth": "1990-01-01T00:00:00Z",
   "bloodType": "A+",
-  "allergies": [...],
-  "chronicDiseases": [...],
-  "medications": [...],
-  "surgeries": [...]
+  "allergies": [
+    {
+      "id": "550e8400-e29b-41d4-a716-446655440000",
+      "name": "Peanuts",
+      "severity": "Severe",
+      "notes": "Causes anaphylaxis"
+    }
+  ],
+  "chronicDiseases": [
+    {
+      "id": "550e8400-e29b-41d4-a716-446655440001",
+      "name": "Diabetes Type 2",
+      "diagnosisDate": "2020-01-15T00:00:00Z",
+      "notes": "Controlled with medication"
+    }
+  ],
+  "medications": [
+    {
+      "id": "550e8400-e29b-41d4-a716-446655440002",
+      "name": "Aspirin",
+      "dosage": "100mg daily",
+      "startDate": "2024-01-01T00:00:00Z",
+      "endDate": null,
+      "notes": "For heart health"
+    }
+  ],
+  "surgeries": [
+    {
+      "id": "550e8400-e29b-41d4-a716-446655440003",
+      "name": "Appendectomy",
+      "date": "2015-06-10T00:00:00Z",
+      "surgeon": "Dr. Smith",
+      "notes": "Laparoscopic procedure"
+    }
+  ]
+}
+```
+
+**Error Responses**:
+
+**401 Unauthorized** (Not Authenticated):
+```json
+{
+  "type": "https://tools.ietf.org/html/rfc7235#section-3.1",
+  "title": "Unauthorized",
+  "status": 401,
+  "detail": "Authentication required."
+}
+```
+
+**403 Forbidden** (Not a Patient):
+```json
+{
+  "type": "https://tools.ietf.org/html/rfc7231#section-6.5.3",
+  "title": "Forbidden",
+  "status": 403,
+  "detail": "You do not have permission to perform this action."
+}
+```
+
+**404 Not Found** (Patient Not Found):
+```json
+{
+  "type": "https://tools.ietf.org/html/rfc7231#section-6.5.4",
+  "title": "Not Found",
+  "status": 404,
+  "detail": "Patient not found."
 }
 ```
 
@@ -230,9 +366,9 @@ This document provides a comprehensive overview of all implemented features in t
 
 - Returns all medical attributes for authenticated patient
 - Includes allergies, chronic diseases, medications, surgeries
-- Requires `RequirePatient` policy
+- **Authorization**: `RequirePatient` policy (Patient role only)
 
-**Response**:
+**Success Response** (`200 OK`):
 ```json
 {
   "allergies": [
@@ -265,9 +401,9 @@ All medical attribute endpoints are scoped to a specific patient: `/patients/{pa
 **Endpoint**: `GET /patients/{patientId}/allergies`
 
 - Returns all allergies for a specific patient
-- Requires `CanViewMedicalAttributes` policy
+- **Authorization**: `CanViewMedicalAttributes` policy (Doctor, HealthcareStaff, SystemAdmin)
 
-**Response**:
+**Success Response** (`200 OK`):
 ```json
 {
   "allergies": [
@@ -284,11 +420,43 @@ All medical attribute endpoints are scoped to a specific patient: `/patients/{pa
 }
 ```
 
+**Error Responses**:
+
+**401 Unauthorized** (Not Authenticated):
+```json
+{
+  "type": "https://tools.ietf.org/html/rfc7235#section-3.1",
+  "title": "Unauthorized",
+  "status": 401,
+  "detail": "Authentication required."
+}
+```
+
+**403 Forbidden** (Insufficient Permissions):
+```json
+{
+  "type": "https://tools.ietf.org/html/rfc7231#section-6.5.3",
+  "title": "Forbidden",
+  "status": 403,
+  "detail": "You do not have permission to perform this action."
+}
+```
+
+**404 Not Found** (Patient Not Found):
+```json
+{
+  "type": "https://tools.ietf.org/html/rfc7231#section-6.5.4",
+  "title": "Not Found",
+  "status": 404,
+  "detail": "Patient with ID '550e8400-e29b-41d4-a716-446655440001' was not found."
+}
+```
+
 #### Create Allergy
 **Endpoint**: `POST /patients/{patientId}/allergies`
 
 - Creates a new allergy for a specific patient
-- Requires `CanModifyMedicalAttributes` policy
+- **Authorization**: `CanModifyMedicalAttributes` policy (Doctor, HealthcareStaff)
 
 **Request**:
 ```json
@@ -299,7 +467,7 @@ All medical attribute endpoints are scoped to a specific patient: `/patients/{pa
 }
 ```
 
-**Response**:
+**Success Response** (`200 OK`):
 ```json
 {
   "id": "550e8400-e29b-41d4-a716-446655440000",
@@ -311,11 +479,57 @@ All medical attribute endpoints are scoped to a specific patient: `/patients/{pa
 }
 ```
 
+**Error Responses**:
+
+**400 Bad Request** (Validation Error):
+```json
+{
+  "type": "https://tools.ietf.org/html/rfc7231#section-6.5.1",
+  "title": "One or more validation errors occurred",
+  "status": 400,
+  "detail": "The request contains validation errors",
+  "errors": {
+    "name": ["Name is required"],
+    "severity": ["Severity is required", "Severity must be a valid enum value"]
+  }
+}
+```
+
+**401 Unauthorized** (Not Authenticated):
+```json
+{
+  "type": "https://tools.ietf.org/html/rfc7235#section-3.1",
+  "title": "Unauthorized",
+  "status": 401,
+  "detail": "Authentication required."
+}
+```
+
+**403 Forbidden** (Insufficient Permissions):
+```json
+{
+  "type": "https://tools.ietf.org/html/rfc7231#section-6.5.3",
+  "title": "Forbidden",
+  "status": 403,
+  "detail": "You do not have permission to perform this action."
+}
+```
+
+**404 Not Found** (Patient Not Found):
+```json
+{
+  "type": "https://tools.ietf.org/html/rfc7231#section-6.5.4",
+  "title": "Not Found",
+  "status": 404,
+  "detail": "Patient with ID '550e8400-e29b-41d4-a716-446655440001' was not found."
+}
+```
+
 #### Update Allergy
 **Endpoint**: `PUT /patients/{patientId}/allergies/{allergyId}`
 
 - Updates an existing allergy (name cannot be changed)
-- Requires `CanModifyMedicalAttributes` policy
+- **Authorization**: `CanModifyMedicalAttributes` policy (Doctor, HealthcareStaff)
 
 **Request**:
 ```json
@@ -325,7 +539,7 @@ All medical attribute endpoints are scoped to a specific patient: `/patients/{pa
 }
 ```
 
-**Response**:
+**Success Response** (`200 OK`):
 ```json
 {
   "id": "550e8400-e29b-41d4-a716-446655440000",
@@ -337,12 +551,91 @@ All medical attribute endpoints are scoped to a specific patient: `/patients/{pa
 }
 ```
 
+**Error Responses**:
+
+**400 Bad Request** (Validation Error):
+```json
+{
+  "type": "https://tools.ietf.org/html/rfc7231#section-6.5.1",
+  "title": "One or more validation errors occurred",
+  "status": 400,
+  "detail": "The request contains validation errors",
+  "errors": {
+    "severity": ["Severity must be a valid enum value"]
+  }
+}
+```
+
+**401 Unauthorized** (Not Authenticated):
+```json
+{
+  "type": "https://tools.ietf.org/html/rfc7235#section-3.1",
+  "title": "Unauthorized",
+  "status": 401,
+  "detail": "Authentication required."
+}
+```
+
+**403 Forbidden** (Insufficient Permissions):
+```json
+{
+  "type": "https://tools.ietf.org/html/rfc7231#section-6.5.3",
+  "title": "Forbidden",
+  "status": 403,
+  "detail": "You do not have permission to perform this action."
+}
+```
+
+**404 Not Found** (Patient or Allergy Not Found):
+```json
+{
+  "type": "https://tools.ietf.org/html/rfc7231#section-6.5.4",
+  "title": "Not Found",
+  "status": 404,
+  "detail": "Allergy with ID '550e8400-e29b-41d4-a716-446655440000' was not found for patient."
+}
+```
+
 #### Delete Allergy
 **Endpoint**: `DELETE /patients/{patientId}/allergies/{allergyId}`
 
 - Deletes an existing allergy
-- Requires `CanModifyMedicalAttributes` policy
+- **Authorization**: `CanModifyMedicalAttributes` policy (Doctor, HealthcareStaff)
 - Returns 204 No Content on success
+
+**Success Response**: `204 No Content`
+
+**Error Responses**:
+
+**401 Unauthorized** (Not Authenticated):
+```json
+{
+  "type": "https://tools.ietf.org/html/rfc7235#section-3.1",
+  "title": "Unauthorized",
+  "status": 401,
+  "detail": "Authentication required."
+}
+```
+
+**403 Forbidden** (Insufficient Permissions):
+```json
+{
+  "type": "https://tools.ietf.org/html/rfc7231#section-6.5.3",
+  "title": "Forbidden",
+  "status": 403,
+  "detail": "You do not have permission to perform this action."
+}
+```
+
+**404 Not Found** (Patient or Allergy Not Found):
+```json
+{
+  "type": "https://tools.ietf.org/html/rfc7231#section-6.5.4",
+  "title": "Not Found",
+  "status": 404,
+  "detail": "Allergy with ID '550e8400-e29b-41d4-a716-446655440000' was not found for patient."
+}
+```
 
 ### Chronic Diseases
 
@@ -350,9 +643,9 @@ All medical attribute endpoints are scoped to a specific patient: `/patients/{pa
 **Endpoint**: `GET /patients/{patientId}/chronic-diseases`
 
 - Returns all chronic diseases for a specific patient
-- Requires `CanViewMedicalAttributes` policy
+- **Authorization**: `CanViewMedicalAttributes` policy (Doctor, HealthcareStaff, SystemAdmin)
 
-**Response**:
+**Success Response** (`200 OK`):
 ```json
 {
   "chronicDiseases": [
@@ -373,7 +666,7 @@ All medical attribute endpoints are scoped to a specific patient: `/patients/{pa
 **Endpoint**: `POST /patients/{patientId}/chronic-diseases`
 
 - Creates a new chronic disease for a specific patient
-- Requires `CanModifyMedicalAttributes` policy
+- **Authorization**: `CanModifyMedicalAttributes` policy (Doctor, HealthcareStaff)
 
 **Request**:
 ```json
@@ -384,7 +677,7 @@ All medical attribute endpoints are scoped to a specific patient: `/patients/{pa
 }
 ```
 
-**Response**:
+**Success Response** (`200 OK`):
 ```json
 {
   "id": "550e8400-e29b-41d4-a716-446655440000",
@@ -400,7 +693,7 @@ All medical attribute endpoints are scoped to a specific patient: `/patients/{pa
 **Endpoint**: `PUT /patients/{patientId}/chronic-diseases/{chronicDiseaseId}`
 
 - Updates an existing chronic disease (name and diagnosisDate cannot be changed)
-- Requires `CanModifyMedicalAttributes` policy
+- **Authorization**: `CanModifyMedicalAttributes` policy (Doctor, HealthcareStaff)
 
 **Request**:
 ```json
@@ -409,7 +702,7 @@ All medical attribute endpoints are scoped to a specific patient: `/patients/{pa
 }
 ```
 
-**Response**:
+**Success Response** (`200 OK`):
 ```json
 {
   "id": "550e8400-e29b-41d4-a716-446655440000",
@@ -425,8 +718,12 @@ All medical attribute endpoints are scoped to a specific patient: `/patients/{pa
 **Endpoint**: `DELETE /patients/{patientId}/chronic-diseases/{chronicDiseaseId}`
 
 - Deletes an existing chronic disease
-- Requires `CanModifyMedicalAttributes` policy
+- **Authorization**: `CanModifyMedicalAttributes` policy (Doctor, HealthcareStaff)
 - Returns 204 No Content on success
+
+**Success Response**: `204 No Content`
+
+**Error Responses**: Same as Delete Allergy (401, 403, 404)
 
 ### Medications
 
@@ -434,9 +731,9 @@ All medical attribute endpoints are scoped to a specific patient: `/patients/{pa
 **Endpoint**: `GET /patients/{patientId}/medications`
 
 - Returns all medications for a specific patient
-- Requires `CanViewMedicalAttributes` policy
+- **Authorization**: `CanViewMedicalAttributes` policy (Doctor, HealthcareStaff, SystemAdmin)
 
-**Response**:
+**Success Response** (`200 OK`):
 ```json
 {
   "medications": [
@@ -459,7 +756,7 @@ All medical attribute endpoints are scoped to a specific patient: `/patients/{pa
 **Endpoint**: `POST /patients/{patientId}/medications`
 
 - Creates a new medication for a specific patient
-- Requires `CanModifyMedicalAttributes` policy
+- **Authorization**: `CanModifyMedicalAttributes` policy (Doctor, HealthcareStaff)
 
 **Request**:
 ```json
@@ -472,7 +769,7 @@ All medical attribute endpoints are scoped to a specific patient: `/patients/{pa
 }
 ```
 
-**Response**:
+**Success Response** (`200 OK`):
 ```json
 {
   "id": "550e8400-e29b-41d4-a716-446655440000",
@@ -491,7 +788,7 @@ All medical attribute endpoints are scoped to a specific patient: `/patients/{pa
 
 - Updates an existing medication (name and startDate cannot be changed)
 - EndDate must be after startDate
-- Requires `CanModifyMedicalAttributes` policy
+- **Authorization**: `CanModifyMedicalAttributes` policy (Doctor, HealthcareStaff)
 
 **Request**:
 ```json
@@ -502,7 +799,7 @@ All medical attribute endpoints are scoped to a specific patient: `/patients/{pa
 }
 ```
 
-**Response**:
+**Success Response** (`200 OK`):
 ```json
 {
   "id": "550e8400-e29b-41d4-a716-446655440000",
@@ -520,8 +817,12 @@ All medical attribute endpoints are scoped to a specific patient: `/patients/{pa
 **Endpoint**: `DELETE /patients/{patientId}/medications/{medicationId}`
 
 - Deletes an existing medication
-- Requires `CanModifyMedicalAttributes` policy
+- **Authorization**: `CanModifyMedicalAttributes` policy (Doctor, HealthcareStaff)
 - Returns 204 No Content on success
+
+**Success Response**: `204 No Content`
+
+**Error Responses**: Same as Delete Allergy (401, 403, 404)
 
 ### Surgeries
 
@@ -529,9 +830,9 @@ All medical attribute endpoints are scoped to a specific patient: `/patients/{pa
 **Endpoint**: `GET /patients/{patientId}/surgeries`
 
 - Returns all surgeries for a specific patient
-- Requires `CanViewMedicalAttributes` policy
+- **Authorization**: `CanViewMedicalAttributes` policy (Doctor, HealthcareStaff, SystemAdmin)
 
-**Response**:
+**Success Response** (`200 OK`):
 ```json
 {
   "surgeries": [
@@ -553,7 +854,7 @@ All medical attribute endpoints are scoped to a specific patient: `/patients/{pa
 **Endpoint**: `POST /patients/{patientId}/surgeries`
 
 - Creates a new surgery for a specific patient
-- Requires `CanModifyMedicalAttributes` policy
+- **Authorization**: `CanModifyMedicalAttributes` policy (Doctor, HealthcareStaff)
 
 **Request**:
 ```json
@@ -565,7 +866,7 @@ All medical attribute endpoints are scoped to a specific patient: `/patients/{pa
 }
 ```
 
-**Response**:
+**Success Response** (`200 OK`):
 ```json
 {
   "id": "550e8400-e29b-41d4-a716-446655440000",
@@ -582,7 +883,7 @@ All medical attribute endpoints are scoped to a specific patient: `/patients/{pa
 **Endpoint**: `PUT /patients/{patientId}/surgeries/{surgeryId}`
 
 - Updates an existing surgery (name and date cannot be changed)
-- Requires `CanModifyMedicalAttributes` policy
+- **Authorization**: `CanModifyMedicalAttributes` policy (Doctor, HealthcareStaff)
 
 **Request**:
 ```json
@@ -592,7 +893,7 @@ All medical attribute endpoints are scoped to a specific patient: `/patients/{pa
 }
 ```
 
-**Response**:
+**Success Response** (`200 OK`):
 ```json
 {
   "id": "550e8400-e29b-41d4-a716-446655440000",
@@ -609,8 +910,12 @@ All medical attribute endpoints are scoped to a specific patient: `/patients/{pa
 **Endpoint**: `DELETE /patients/{patientId}/surgeries/{surgeryId}`
 
 - Deletes an existing surgery
-- Requires `CanModifyMedicalAttributes` policy
+- **Authorization**: `CanModifyMedicalAttributes` policy (Doctor, HealthcareStaff)
 - Returns 204 No Content on success
+
+**Success Response**: `204 No Content`
+
+**Error Responses**: Same as Delete Allergy (401, 403, 404)
 
 ### Blood Type
 
@@ -618,7 +923,7 @@ All medical attribute endpoints are scoped to a specific patient: `/patients/{pa
 **Endpoint**: `PUT /patients/{patientId}/blood-type`
 
 - Updates the blood type for a specific patient
-- Requires `CanModifyMedicalAttributes` policy
+- **Authorization**: `CanModifyMedicalAttributes` policy (Doctor, HealthcareStaff)
 - Both ABO and Rh must be provided together, or both omitted to clear the blood type
 
 **Request**:
@@ -637,11 +942,57 @@ Or to clear the blood type:
 }
 ```
 
-**Response**:
+**Success Response** (`200 OK`):
 ```json
 {
   "patientId": "550e8400-e29b-41d4-a716-446655440001",
   "bloodType": "A+"
+}
+```
+
+**Error Responses**:
+
+**400 Bad Request** (Validation Error):
+```json
+{
+  "type": "https://tools.ietf.org/html/rfc7231#section-6.5.1",
+  "title": "One or more validation errors occurred",
+  "status": 400,
+  "detail": "The request contains validation errors",
+  "errors": {
+    "abo": ["ABO and Rh must both be provided or both omitted"],
+    "rh": ["ABO and Rh must both be provided or both omitted"]
+  }
+}
+```
+
+**401 Unauthorized** (Not Authenticated):
+```json
+{
+  "type": "https://tools.ietf.org/html/rfc7235#section-3.1",
+  "title": "Unauthorized",
+  "status": 401,
+  "detail": "Authentication required."
+}
+```
+
+**403 Forbidden** (Insufficient Permissions):
+```json
+{
+  "type": "https://tools.ietf.org/html/rfc7231#section-6.5.3",
+  "title": "Forbidden",
+  "status": 403,
+  "detail": "You do not have permission to perform this action."
+}
+```
+
+**404 Not Found** (Patient Not Found):
+```json
+{
+  "type": "https://tools.ietf.org/html/rfc7231#section-6.5.4",
+  "title": "Not Found",
+  "status": 404,
+  "detail": "Patient with ID '550e8400-e29b-41d4-a716-446655440001' was not found."
 }
 ```
 
@@ -660,6 +1011,7 @@ All admin endpoints require `RequireAdmin` policy (SystemAdmin only).
 - Optional filtering by role and active status
 - Supports pagination with `pageNumber` and `pageSize` query parameters
 - Includes deactivated users (admin override)
+- **Authorization**: `RequireAdmin` policy (SystemAdmin only)
 - **Note**: All SystemAdmin users can view and retrieve SystemAdmin users in the list. Filtering by SystemAdmin role requires `CanManageAdmins` policy (Super Admin only).
 
 **Query Parameters**:
@@ -668,7 +1020,7 @@ All admin endpoints require `RequireAdmin` policy (SystemAdmin only).
 - `role` (optional): Filter by user role (Doctor, HealthcareStaff, LabUser, ImagingUser, Patient, SystemAdmin)
 - `isActive` (optional): Filter by active status (true, false)
 
-**Response**:
+**Success Response** (`200 OK`):
 ```json
 {
   "items": [
@@ -696,6 +1048,7 @@ All admin endpoints require `RequireAdmin` policy (SystemAdmin only).
 
 - Returns detailed user information
 - Includes role-specific details if applicable
+- **Authorization**: `RequireAdmin` policy (SystemAdmin only)
 - **Note**: Only system admins can see `IsActive` status. This field is not exposed in non-admin endpoints.
 - **Note**: All SystemAdmin users can retrieve and view SystemAdmin user details. Only Super Admins can modify SystemAdmin accounts.
 
@@ -833,7 +1186,7 @@ All admin endpoints require `RequireAdmin` policy (SystemAdmin only).
 - Creates practitioner users (Doctor, HealthcareStaff, LabUser, ImagingUser, SystemAdmin)
 - Cannot create patients (use registration endpoint)
 - Validates email uniqueness
-- **Note**: Creating SystemAdmin users requires `CanManageAdmins` policy (Super Admin only)
+- **Authorization**: `RequireAdmin` policy (SystemAdmin only). Creating SystemAdmin users requires `CanManageAdmins` policy (Super Admin only)
 
 **Request** (Doctor):
 ```json
@@ -909,7 +1262,7 @@ All admin endpoints require `RequireAdmin` policy (SystemAdmin only).
 - Updates user information
 - Cannot change email or role
 - Updates provider-specific details
-- **Note**: Updating SystemAdmin users (including CorporateId and Department) requires `CanManageAdmins` policy (Super Admin only).
+- **Authorization**: `RequireAdmin` policy (SystemAdmin only). Updating SystemAdmin users (including CorporateId and Department) requires `CanManageAdmins` policy (Super Admin only)
 
 **Request**:
 ```json
@@ -1008,16 +1361,24 @@ All admin endpoints require `RequireAdmin` policy (SystemAdmin only).
 
 - Soft-deletes user (sets `IsActive` to false)
 - Does not permanently delete user data
+- **Authorization**: `RequireAdmin` policy (SystemAdmin only). Deactivating SystemAdmin users requires `CanManageAdmins` policy (Super Admin only)
 - Returns 204 No Content on success
-- **Note**: Deactivating SystemAdmin users requires `CanManageAdmins` policy (Super Admin only).
+
+**Success Response**: `204 No Content`
+
+**Error Responses**: Standard admin error responses (401 Unauthorized, 403 Forbidden, 404 Not Found)
 
 #### Change Password
 **Endpoint**: `PUT /admin/users/{id}/password`
 
 - Changes user password (admin can change without current password)
 - Validates password strength
+- **Authorization**: `RequireAdmin` policy (SystemAdmin only). Changing SystemAdmin passwords requires `CanManageAdmins` policy (Super Admin only)
 - Returns 204 No Content on success
-- **Note**: Changing SystemAdmin passwords requires `CanManageAdmins` policy (Super Admin only).
+
+**Success Response**: `204 No Content`
+
+**Error Responses**: Standard admin error responses (400 Bad Request for validation, 401 Unauthorized, 403 Forbidden, 404 Not Found)
 
 **Request**:
 ```json
@@ -1383,14 +1744,14 @@ Medical records allow providers to create, view, and manage medical records for 
 
 - Uploads a file attachment that can be referenced when creating medical records
 - Returns attachment metadata including fileId
-- Requires `CanModifyRecords` policy
+- **Authorization**: `CanModifyRecords` policy (Doctor, HealthcareStaff, LabUser, ImagingUser)
 - Maximum file size: 10MB
 - Allowed content types: PDF, images (JPEG, PNG), documents (DOC, DOCX, XLS, XLSX)
 
 **Request**: Multipart form data
 - `file`: IFormFile (required)
 
-**Response**:
+**Success Response** (`200 OK`):
 ```json
 {
   "attachmentId": "550e8400-e29b-41d4-a716-446655440000",
@@ -1408,7 +1769,7 @@ Medical records allow providers to create, view, and manage medical records for 
 - Creates a new medical record for a patient
 - Practitioner is automatically set from authenticated user
 - Can optionally include attachment references from previously uploaded files
-- Requires `CanModifyRecords` policy
+- **Authorization**: `CanModifyRecords` policy (Doctor, HealthcareStaff, LabUser, ImagingUser)
 
 **Request**:
 ```json
@@ -1421,7 +1782,7 @@ Medical records allow providers to create, view, and manage medical records for 
 }
 ```
 
-**Response**:
+**Success Response** (`200 OK`):
 ```json
 {
   "id": "550e8400-e29b-41d4-a716-446655440002",
@@ -1450,7 +1811,7 @@ Medical records allow providers to create, view, and manage medical records for 
 - Lists medical records created by the current authenticated provider
 - Supports filtering by patient, record type, and date range
 - Supports pagination with `pageNumber` and `pageSize` query parameters
-- Requires `CanViewRecords` policy
+- **Authorization**: `CanViewRecords` policy (Doctor, HealthcareStaff, LabUser, ImagingUser)
 
 **Query Parameters**:
 - `pageNumber` (optional, default: 1, minimum: 1)
@@ -1460,7 +1821,7 @@ Medical records allow providers to create, view, and manage medical records for 
 - `dateFrom` (optional): Filter records from this date
 - `dateTo` (optional): Filter records to this date
 
-**Response**:
+**Success Response** (`200 OK`):
 ```json
 {
   "items": [
@@ -1500,10 +1861,10 @@ Medical records allow providers to create, view, and manage medical records for 
 **Endpoint**: `GET /api/records/{recordId}`
 
 - Gets a specific medical record
-- Only the practitioner can view the record
-- Requires `CanViewRecords` policy
+- Only the practitioner who created the record can view it (enforced at endpoint level)
+- **Authorization**: `CanViewRecords` policy (Doctor, HealthcareStaff, LabUser, ImagingUser)
 
-**Response**:
+**Success Response** (`200 OK`):
 ```json
 {
   "id": "550e8400-e29b-41d4-a716-446655440002",
@@ -1523,9 +1884,9 @@ Medical records allow providers to create, view, and manage medical records for 
 **Endpoint**: `PUT /api/records/{recordId}`
 
 - Updates a medical record
-- Only the practitioner can modify the record
+- Only the practitioner who created the record can modify it (enforced at endpoint level)
 - Attachments cannot be modified through this endpoint (use add/remove attachment endpoints)
-- Requires `CanModifyRecords` policy
+- **Authorization**: `CanModifyRecords` policy (Doctor, HealthcareStaff, LabUser, ImagingUser)
 
 **Request**:
 ```json
@@ -1542,17 +1903,21 @@ Medical records allow providers to create, view, and manage medical records for 
 **Endpoint**: `DELETE /api/records/{recordId}`
 
 - Soft deletes a medical record
-- Only the creator can delete the record
-- Requires `CanModifyRecords` policy
+- Only the creator can delete the record (enforced at endpoint level)
+- **Authorization**: `CanModifyRecords` policy (Doctor, HealthcareStaff, LabUser, ImagingUser)
 - Returns 204 No Content on success
+
+**Success Response**: `204 No Content`
+
+**Error Responses**: Standard error responses (401 Unauthorized, 403 Forbidden, 404 Not Found)
 
 ### Add Attachment to Record
 
 **Endpoint**: `POST /api/records/{recordId}/attachments`
 
 - Uploads a file attachment and adds it to an existing medical record
-- Only the practitioner of the record can add attachments
-- Requires `CanModifyRecords` policy
+- Only the practitioner who created the record can add attachments (enforced at endpoint level)
+- **Authorization**: `CanModifyRecords` policy (Doctor, HealthcareStaff, LabUser, ImagingUser)
 - Maximum file size: 10MB (configurable)
 - Allowed content types: PDF, images (JPEG, PNG), documents (DOC, DOCX, XLS, XLSX)
 - Maximum attachments per record: 10 (configurable)
@@ -1576,10 +1941,12 @@ Medical records allow providers to create, view, and manage medical records for 
 **Endpoint**: `DELETE /api/records/{recordId}/attachments/{attachmentId}`
 
 - Removes an attachment from an existing medical record
-- Only the creator of the record can remove attachments
+- Only the creator of the record can remove attachments (enforced at endpoint level)
 - The file itself is not deleted from storage (only the reference is removed)
-- Requires `CanModifyRecords` policy
+- **Authorization**: `CanModifyRecords` policy (Doctor, HealthcareStaff, LabUser, ImagingUser)
 - Returns 204 No Content on success
+
+**Success Response**: `204 No Content`
 
 ### Download Attachment
 
@@ -1588,9 +1955,11 @@ Medical records allow providers to create, view, and manage medical records for 
 - Downloads a file attachment from a medical record
 - Practitioners can download attachments from records they created
 - Patients can download attachments from their own records
-- Requires `CanViewRecords` or `RequirePatient` policy
+- **Authorization**: `RequirePatientOrPractitioner` policy (Patient, Doctor, HealthcareStaff, LabUser, ImagingUser)
 
-**Response**: File stream with appropriate Content-Type header
+**Success Response**: File stream with appropriate Content-Type header
+
+**Error Responses**: Standard error responses (401 Unauthorized, 403 Forbidden, 404 Not Found)
 
 ### Patient View Records
 
@@ -1599,7 +1968,7 @@ Medical records allow providers to create, view, and manage medical records for 
 - Lists all medical records for the authenticated patient
 - Supports filtering by record type and date range
 - Supports pagination with `pageNumber` and `pageSize` query parameters
-- Requires `RequirePatient` policy
+- **Authorization**: `RequirePatient` policy (Patient role only)
 
 **Query Parameters**:
 - `pageNumber` (optional, default: 1, minimum: 1)
@@ -1634,10 +2003,12 @@ Medical records allow providers to create, view, and manage medical records for 
 **Endpoint**: `GET /api/patients/self/records/{recordId}`
 
 - Gets a specific medical record for the authenticated patient
-- Requires `RequirePatient` policy
-- Returns 403 if record does not belong to patient
+- Returns 404 if record does not belong to patient
+- **Authorization**: `RequirePatient` policy (Patient role only)
 
-**Response**: Same as Get Medical Record
+**Success Response** (`200 OK`): Same as Get Medical Record
+
+**Error Responses**: Standard error responses (401 Unauthorized, 403 Forbidden, 404 Not Found)
 
 ### Business Rules
 
@@ -1672,10 +2043,9 @@ Encounters represent clinically meaningful interactions between patients and hea
 **Endpoint**: `GET /api/encounters`
 
 - Lists all encounters in the system
-- Available to practitioners (Doctor, HealthcareStaff, LabUser, ImagingUser) and system administrators
 - Supports filtering by patient and date range
 - Supports pagination
-- Requires `CanViewEncounters` policy
+- **Authorization**: `CanViewEncounters` policy (Doctor, HealthcareStaff, LabUser, ImagingUser, SystemAdmin)
 
 **Query Parameters**:
 - `pageNumber` (optional, default: 1, minimum: 1)
@@ -1684,7 +2054,7 @@ Encounters represent clinically meaningful interactions between patients and hea
 - `dateFrom` (optional): Filter encounters from this date (ISO 8601 format)
 - `dateTo` (optional): Filter encounters to this date (ISO 8601 format)
 
-**Response**:
+**Success Response** (`200 OK`):
 ```json
 {
   "items": [
@@ -1715,6 +2085,8 @@ Encounters represent clinically meaningful interactions between patients and hea
 }
 ```
 
+**Error Responses**: Standard error responses (401 Unauthorized, 403 Forbidden)
+
 **Note**: Results are ordered by `OccurredOn` descending (most recent first).
 
 ### Get Encounter (Practitioners/Admins)
@@ -1722,10 +2094,9 @@ Encounters represent clinically meaningful interactions between patients and hea
 **Endpoint**: `GET /api/encounters/{encounterId}`
 
 - Gets a specific encounter by ID
-- Available to practitioners and system administrators
-- Requires `CanViewEncounters` policy
+- **Authorization**: `CanViewEncounters` policy (Doctor, HealthcareStaff, LabUser, ImagingUser, SystemAdmin)
 
-**Response**:
+**Success Response** (`200 OK`):
 ```json
 {
   "id": "550e8400-e29b-41d4-a716-446655440000",
@@ -1744,6 +2115,38 @@ Encounters represent clinically meaningful interactions between patients and hea
 }
 ```
 
+**Error Responses**:
+
+**401 Unauthorized** (Not Authenticated):
+```json
+{
+  "type": "https://tools.ietf.org/html/rfc7235#section-3.1",
+  "title": "Unauthorized",
+  "status": 401,
+  "detail": "Authentication required."
+}
+```
+
+**403 Forbidden** (Insufficient Permissions):
+```json
+{
+  "type": "https://tools.ietf.org/html/rfc7231#section-6.5.3",
+  "title": "Forbidden",
+  "status": 403,
+  "detail": "You do not have permission to perform this action."
+}
+```
+
+**404 Not Found** (Encounter Not Found):
+```json
+{
+  "type": "https://tools.ietf.org/html/rfc7231#section-6.5.4",
+  "title": "Not Found",
+  "status": 404,
+  "detail": "Encounter with ID '550e8400-e29b-41d4-a716-446655440000' was not found."
+}
+```
+
 ### Patient View Encounters
 
 **Endpoint**: `GET /api/patients/self/encounters`
@@ -1751,7 +2154,7 @@ Encounters represent clinically meaningful interactions between patients and hea
 - Lists all encounters for the authenticated patient
 - Supports filtering by date range
 - Supports pagination
-- Requires `RequirePatient` policy
+- **Authorization**: `RequirePatient` policy (Patient role only)
 
 **Query Parameters**:
 - `pageNumber` (optional, default: 1, minimum: 1)
@@ -1759,7 +2162,7 @@ Encounters represent clinically meaningful interactions between patients and hea
 - `dateFrom` (optional): Filter encounters from this date (ISO 8601 format)
 - `dateTo` (optional): Filter encounters to this date (ISO 8601 format)
 
-**Response**:
+**Success Response** (`200 OK`):
 ```json
 {
   "encounters": [
@@ -1790,9 +2193,9 @@ Encounters represent clinically meaningful interactions between patients and hea
 
 - Gets a specific encounter for the authenticated patient
 - Returns 404 if encounter does not belong to patient
-- Requires `RequirePatient` policy
+- **Authorization**: `RequirePatient` policy (Patient role only)
 
-**Response**:
+**Success Response** (`200 OK`):
 ```json
 {
   "id": "550e8400-e29b-41d4-a716-446655440000",
