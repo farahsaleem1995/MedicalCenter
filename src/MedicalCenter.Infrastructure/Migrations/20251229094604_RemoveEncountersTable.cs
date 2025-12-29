@@ -6,10 +6,17 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace MedicalCenter.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class AddEncountersTable : Migration
+    public partial class RemoveEncountersTable : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
+        {
+            migrationBuilder.DropTable(
+                name: "Encounters");
+        }
+
+        /// <inheritdoc />
+        protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
                 name: "Encounters",
@@ -17,10 +24,10 @@ namespace MedicalCenter.Infrastructure.Migrations
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     PatientId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    PractitionerFullName = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
-                    PractitionerRole = table.Column<int>(type: "int", nullable: false),
                     OccurredOn = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Reason = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: false)
+                    Reason = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: false),
+                    PractitionerFullName = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    PractitionerRole = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -47,13 +54,6 @@ namespace MedicalCenter.Infrastructure.Migrations
                 name: "IX_Encounters_PatientId_OccurredOn",
                 table: "Encounters",
                 columns: new[] { "PatientId", "OccurredOn" });
-        }
-
-        /// <inheritdoc />
-        protected override void Down(MigrationBuilder migrationBuilder)
-        {
-            migrationBuilder.DropTable(
-                name: "Encounters");
         }
     }
 }

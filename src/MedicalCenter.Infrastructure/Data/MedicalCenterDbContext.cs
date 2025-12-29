@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using MedicalCenter.Core.Aggregates.Patients;
 using MedicalCenter.Core.Aggregates.MedicalRecords;
-using MedicalCenter.Core.Aggregates.Encounters;
 using MedicalCenter.Core.Aggregates.Doctors;
 using MedicalCenter.Core.Aggregates.HealthcareStaff;
 using MedicalCenter.Core.Aggregates.Laboratories;
@@ -40,7 +39,6 @@ public class MedicalCenterDbContext(
     public DbSet<RefreshToken> RefreshTokens { get; set; } = null!;
     public DbSet<Patient> Patients { get; set; } = null!;
     public DbSet<MedicalRecord> MedicalRecords { get; set; } = null!;
-    public DbSet<Encounter> Encounters { get; set; } = null!;
     public DbSet<Doctor> Doctors { get; set; } = null!;
     public DbSet<HealthcareStaff> HealthcareStaff { get; set; } = null!;
     public DbSet<Laboratory> Laboratories { get; set; } = null!;

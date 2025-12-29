@@ -200,35 +200,6 @@ namespace MedicalCenter.Infrastructure.Migrations
                     b.ToTable("Doctors", (string)null);
                 });
 
-            modelBuilder.Entity("MedicalCenter.Core.Aggregates.Encounters.Encounter", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("OccurredOn")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("OccurredOn");
-
-                    b.Property<Guid>("PatientId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Reason")
-                        .IsRequired()
-                        .HasMaxLength(1000)
-                        .HasColumnType("nvarchar(1000)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("OccurredOn");
-
-                    b.HasIndex("PatientId");
-
-                    b.HasIndex("PatientId", "OccurredOn");
-
-                    b.ToTable("Encounters", (string)null);
-                });
-
             modelBuilder.Entity("MedicalCenter.Core.Aggregates.HealthcareStaff.HealthcareStaff", b =>
                 {
                     b.Property<Guid>("Id")
@@ -903,43 +874,6 @@ namespace MedicalCenter.Infrastructure.Migrations
                         .WithOne("Doctor")
                         .HasForeignKey("MedicalCenter.Core.Aggregates.Doctors.Doctor", "Id")
                         .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("MedicalCenter.Core.Aggregates.Encounters.Encounter", b =>
-                {
-                    b.HasOne("MedicalCenter.Core.Aggregates.Patients.Patient", "Patient")
-                        .WithMany()
-                        .HasForeignKey("PatientId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.OwnsOne("MedicalCenter.Core.Aggregates.Encounters.ValueObjects.Practitioner", "Practitioner", b1 =>
-                        {
-                            b1.Property<Guid>("EncounterId")
-                                .HasColumnType("uniqueidentifier");
-
-                            b1.Property<string>("FullName")
-                                .IsRequired()
-                                .HasMaxLength(200)
-                                .HasColumnType("nvarchar(200)")
-                                .HasColumnName("PractitionerFullName");
-
-                            b1.Property<int>("Role")
-                                .HasColumnType("int")
-                                .HasColumnName("PractitionerRole");
-
-                            b1.HasKey("EncounterId");
-
-                            b1.ToTable("Encounters", (string)null);
-
-                            b1.WithOwner()
-                                .HasForeignKey("EncounterId");
-                        });
-
-                    b.Navigation("Patient");
-
-                    b.Navigation("Practitioner")
                         .IsRequired();
                 });
 

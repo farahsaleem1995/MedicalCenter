@@ -4,7 +4,7 @@ A comprehensive medical center management system built with .NET 10, following C
 
 ## Overview
 
-The Medical Center Automation System provides a complete solution for managing medical records, patient information, encounters, and provider interactions. It follows a three-layer architecture (Core, Infrastructure, WebApi) and implements DDD patterns for maintainability and scalability.
+The Medical Center Automation System provides a complete solution for managing medical records, patient information, and provider interactions. It follows a three-layer architecture (Core, Infrastructure, WebApi) and implements DDD patterns for maintainability and scalability.
 
 ## Quick Start
 
@@ -265,7 +265,7 @@ MedicalCenter/
 - ✅ Patient aggregate with medical attributes
 - ✅ Blood type management (create/update)
 - ✅ Allergies, Chronic Diseases, Medications, Surgeries
-- ✅ Patient self-service endpoints (records, encounters, medical attributes)
+- ✅ Patient self-service endpoints (records, medical attributes)
 
 ### Medical Attributes Management
 
@@ -281,14 +281,6 @@ MedicalCenter/
 - ✅ Multiple attachments per record (up to 10, configurable)
 - ✅ Practitioner and patient views
 - ✅ Practitioner-based authorization
-
-### Encounters
-
-- ✅ Automatic encounter creation when medical records are created
-- ✅ Immutable historical facts tracking patient interactions
-- ✅ Practitioner and patient views
-- ✅ Date range filtering and pagination
-- ✅ Domain event-driven architecture
 
 ### Action Logging & Audit Trail
 
@@ -425,11 +417,10 @@ This project follows patterns from the [Ardalis Clean Architecture template](htt
 - ✅ **Phase 4**: Identity System Foundation
 - ✅ **Phase 5**: Patient Aggregate & Medical Attributes
 - ✅ **Phase 6**: Medical Records (complete)
-- ✅ **Phase 6.1**: Encounters (complete)
-- 🔄 **Phase 7**: Query Services & Provider Lookups (Core query services complete: UserQueryService, MedicalRecordQueryService, EncounterQueryService)
+- 🔄 **Phase 7**: Query Services & Provider Lookups (Core query services complete: UserQueryService, MedicalRecordQueryService)
 - ✅ **Phase 8**: Action Logging & Audit Trail
 - 🔄 **Phase 10**: Admin Features (User management complete)
-- 🔄 **Phase 11**: Patient Self-Service Features (Basic features and encounters complete)
+- 🔄 **Phase 11**: Patient Self-Service Features (Basic features complete)
 - ✅ **Phase 12**: Dockerization
 
 See [ImplementationPlan.md](docs/ImplementationPlan.md) for detailed progress and future enhancements.

@@ -65,19 +65,13 @@ The Core layer is organized following Domain-Driven Design principles with clear
     - `ValueObjects/`: Practitioner (snapshot)
     - `Enums/`: RecordType
     - `Specifications/`: MedicalRecordByIdSpecification, MedicalRecordsByPatientSpecification
-    - `Events/`: MedicalRecordCreatedEvent (triggers Encounter creation)
-  - **Encounters/**: Encounter aggregate
-    - `Encounter`: Aggregate root (immutable historical facts)
-    - `ValueObjects/`: Practitioner (snapshot)
-    - `Specifications/`: EncounterByIdSpecification, EncountersByPatientSpecification, EncountersByDateRangeSpecification
-    - `Handlers/`: MedicalRecordCreatedEventHandler (creates Encounters from MedicalRecord events)
+    - `Events/`: MedicalRecordCreatedEvent
   - **ActionLogs/**: Action log aggregate
     - `ActionLogEntry`: Aggregate root for tracking business-critical actions
     - `ActionLogQuery`: Query object for retrieving action log history
 
 - **Queries/**: Query service interfaces for read operations
   - `IMedicalRecordQueryService`: Optimized queries for medical records
-  - `IEncounterQueryService`: Optimized queries for encounters
   - `IUserQueryService`: Optimized queries for user entities (returns domain `User` objects)
     - Used for retrieving domain user data after authentication
     - Separated from identity services to maintain clear boundaries
@@ -143,7 +137,6 @@ The Infrastructure layer implements data access and external service integration
 - **Query Services**:
   - `UserQueryService`: Query service for non-aggregate user entities
   - `MedicalRecordQueryService`: Optimized queries for medical records with includes
-  - `EncounterQueryService`: Optimized queries for encounters with filtering and pagination
   - All query services support pagination via `PaginatedList<T>`
   - Handles role-based filtering and query filters
 
@@ -190,7 +183,7 @@ The Infrastructure layer implements data access and external service integration
 - **Identity Tables**: ASP.NET Core Identity tables (AspNetUsers, AspNetRoles, AspNetUserRoles, etc.)
   - `ApplicationUserRole`: Custom user-role join entity with navigation properties
   - Configured directly in `IdentityDbContext` generics to avoid inheritance mapping
-- **Domain Tables**: Patient, MedicalRecord, MedicalRecordAttachments, Encounter, Doctor, HealthcareStaff, Laboratory, ImagingCenter, SystemAdmins, ActionLogs
+- **Domain Tables**: Patient, MedicalRecord, MedicalRecordAttachments, Doctor, HealthcareStaff, Laboratory, ImagingCenter, SystemAdmins, ActionLogs
 - **Relationships**: 
   - Practitioner aggregates (Doctor, HealthcareStaff, Laboratory, ImagingCenter, SystemAdmin) use shared primary key with ApplicationUser
   - MedicalRecord references Patient and Practitioner (practitioner snapshot as value object)
@@ -224,7 +217,7 @@ The Web API layer handles HTTP requests, validation, authorization, and DTOs.
   - `RequirePatient`: Patient-only access
   - `CanViewMedicalAttributes`: View medical attributes (Doctor, HealthcareStaff, SystemAdmin)
   - `CanModifyMedicalAttributes`: Modify medical attributes (Doctor, HealthcareStaff, SystemAdmin)
-  - `CanViewRecords`: View records (Doctor, HealthcareStaff, LabUser, ImagingUser)
+  - `CanViewRecords`: View records (Doctor, HealthcareStaff, LabUser, ImagingUser, SystemAdmin)
   - `CanModifyRecords`: Modify records (Doctor, HealthcareStaff, LabUser, ImagingUser)
   - `CanViewAllPatients`: View all patients (Doctor, HealthcareStaff, SystemAdmin)
   - `CanViewActionLog`: View action logs (SystemAdmin role or AdminTier claim)
@@ -499,5 +492,5 @@ The Web API layer handles HTTP requests, validation, authorization, and DTOs.
 - **CQRS**: Separate read and write models if needed
 - **Event Sourcing**: For audit trail requirements
 - **Microservices**: Split into bounded contexts if needed
-- **Additional Domain Events**: Expand event coverage for other aggregates (MedicalRecord, Encounter, etc.)
+- **Additional Domain Events**: Expand event coverage for other aggregates (MedicalRecord, etc.)
 

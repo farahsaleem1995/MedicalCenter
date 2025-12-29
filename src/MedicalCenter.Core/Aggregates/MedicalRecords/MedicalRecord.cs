@@ -2,7 +2,6 @@ using Ardalis.GuardClauses;
 using MedicalCenter.Core.Abstractions;
 using MedicalCenter.Core.Aggregates.MedicalRecords.ValueObjects;
 using MedicalCenter.Core.Aggregates.MedicalRecords.Enums;
-using MedicalCenter.Core.Aggregates.MedicalRecords.Events;
 using MedicalCenter.Core.Aggregates.Patients;
 
 namespace MedicalCenter.Core.Aggregates.MedicalRecords;
@@ -55,9 +54,6 @@ public class MedicalRecord : BaseEntity, IAggregateRoot, IAuditableEntity
         Guard.Against.InvalidInput(recordType, nameof(recordType), rt => Enum.IsDefined(typeof(RecordType), rt), "Record type must be a valid enum value.");
 
         var record = new MedicalRecord(patientId, practitionerId, practitioner, recordType, title, content);
-        
-        // Raise domain event to trigger Encounter creation
-        record.AddDomainEvent(new MedicalRecordCreatedEvent(record));
 
         return record;
     }

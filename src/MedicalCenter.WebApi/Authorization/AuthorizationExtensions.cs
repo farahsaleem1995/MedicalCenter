@@ -72,14 +72,6 @@ public static class AuthorizationExtensions
                     UserRole.LabUser.ToString(),
                     UserRole.ImagingUser.ToString()));
 
-            options.AddPolicy(AuthorizationPolicies.CanViewEncounters, policy =>
-                policy.RequireRole(
-                    UserRole.Doctor.ToString(),
-                    UserRole.HealthcareStaff.ToString(),
-                    UserRole.LabUser.ToString(),
-                    UserRole.ImagingUser.ToString(),
-                    UserRole.SystemAdmin.ToString()));
-
             options.AddPolicy(AuthorizationPolicies.CanViewAllPatients, policy =>
                 policy.RequireRole(
                     UserRole.Doctor.ToString(),

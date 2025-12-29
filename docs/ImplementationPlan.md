@@ -11,12 +11,12 @@ This document outlines the high-level implementation plan for the Medical Center
 - ✅ **Phase 3**: Infrastructure Foundation
 - ✅ **Phase 4**: Identity System Foundation
 - ✅ **Phase 5**: Patient Aggregate & Medical Attributes
-- ✅ **Phase 6**: Medical Records (✅ Medical Records complete, ✅ Encounters complete - see Phase 6.1)
-- 🔄 **Phase 7**: Query Services & Practitioner Lookups (Partially Complete - UserQueryService, MedicalRecordQueryService, EncounterQueryService implemented)
+- ✅ **Phase 6**: Medical Records (complete)
+- 🔄 **Phase 7**: Query Services & Practitioner Lookups (Partially Complete - UserQueryService, MedicalRecordQueryService implemented)
 - ✅ **Phase 8**: Action Logging & Audit Trail
 - 🔄 **Phase 10**: Admin Features (Partially Complete - User management endpoints implemented)
 - ⏳ **Phase 9**: Complete Provider Endpoints
-- 🔄 **Phase 11**: Patient Self-Service Features (Partially Complete - Basic endpoints and encounters implemented)
+- 🔄 **Phase 11**: Patient Self-Service Features (Partially Complete - Basic endpoints implemented)
 - ✅ **Phase 13**: Dockerization
 
 ### Completed Features
@@ -45,9 +45,6 @@ This document outlines the high-level implementation plan for the Medical Center
 - ✅ Medical records with file attachments support
 - ✅ File storage service (local filesystem)
 - ✅ Unified medical records endpoints for all practitioner types
-- ✅ Encounters system (automatic creation via domain events)
-- ✅ Encounter query service and endpoints
-- ✅ Patient self-service encounter viewing
 - ✅ Action logging system with queue-based background processing
 - ✅ Action log query endpoint for administrators
 - ✅ Domain unit tests passing
@@ -136,7 +133,6 @@ The domain is organized around the following aggregates:
 #### **Patient Aggregate**
 - Root entity: `Patient` (inherits from `User`)
 - Contains medical attributes (Allergies, ChronicDiseases, Medications, Surgeries, BloodType)
-- Owns `Encounter` collection (as references, not owned entities)
 - Enforces invariants for medical attribute updates
 - Domain methods for managing medical attributes
 - **Why it's an aggregate**: Has its own consistency boundary, owns medical attributes, enforces business rules
@@ -147,25 +143,7 @@ The domain is organized around the following aggregates:
 - Business rules:
   - Only practitioner can modify
   - Only practitioner can add or remove attachments
-- Automatically creates `Encounter` when created
 - **Why it's an aggregate**: Has its own consistency boundary, enforces modification rules
-
-#### **Encounter Aggregate**
-- Root entity: `Encounter`
-- Represents a **clinically meaningful interaction** between a patient and the healthcare system
-- A **medical event** with **clinical relevance** that contributes to the patient's **medical history**
-- **Not** a technical log, audit trail, or generic action record
-- **Core responsibilities**:
-  - Capturing **what happened medically**
-  - Defining **who was involved** (responsible practitioner, optional assisting parties)
-  - Preserving **clinical consistency**
-  - Acting as the **only source of truth** for patient interactions
-- **Owns**: EncounterId, PatientId, EncounterType, OccurredOn, Reason (captures "what happened medically" - can be set from various sources, currently from MedicalRecord.Title when created via event), Notes, Results, Diagnoses, Lifecycle state (Created, InProgress, Completed, Cancelled)
-- **Not Auditable**: Does NOT implement `IAuditableEntity` - only has `OccurredOn` property (when the medical event occurred)
-- **Relationships**: References Patients and Practitioners (does NOT reference MedicalRecord - Record is just the trigger)
-- **Creation**: **Only created automatically** when MedicalRecord is created (via `MedicalRecordCreatedEvent` domain event). No manual creation endpoints initially - can be added later if needed.
-- **Domain Events**: Listens for `MedicalRecordCreatedEvent` to create Encounters. May raise `EncounterStarted`, `EncounterCompleted`, `ResultsRecorded` for state transitions.
-- **Why it's an aggregate**: Represents a distinct business concept with its own lifecycle and consistency boundary. Encounters are the domain narrative of the system - the record of care.
 
 #### **ActionLog Aggregate**
 - Root entity: `ActionLog`
@@ -179,18 +157,17 @@ The domain is organized around the following aggregates:
 The practitioner user types (`Doctor`, `HealthcareStaff`, `Laboratory`, `ImagingCenter`) are **aggregate roots**:
 
 - They inherit from `User` for identity and authentication purposes
-- They are **referenced** by other aggregates (Encounters, MedicalRecords) but don't own them
+- They are **referenced** by other aggregates (MedicalRecords) but don't own them
 - Each represents a core domain concept (a healthcare practitioner)
 - They are aggregate roots even though they don't have related data - they represent distinct business concepts
-- They can be queried and displayed, and the core business logic revolves around Patients, Records, Encounters, and Practitioners
+- They can be queried and displayed, and the core business logic revolves around Patients, Records, and Practitioners
 
-**Repository consideration**: Since practitioner aggregates (`Doctor`, `HealthcareStaff`, etc.) are aggregate roots, they can be accessed through the repository pattern. However, for read operations, query service interfaces (e.g., `IUserQueryService`) are used for optimized queries. Practitioner data can also be included in specifications that query aggregates (e.g., a specification that loads Encounters with their associated Practitioner information).
+**Repository consideration**: Since practitioner aggregates (`Doctor`, `HealthcareStaff`, etc.) are aggregate roots, they can be accessed through the repository pattern. However, for read operations, query service interfaces (e.g., `IUserQueryService`) are used for optimized queries.
 
 ### 2.2 Domain Services
 
 - `IActionLogService`: Records actions for audit purposes (✅ implemented)
 - ⏳ `MedicalAttributeValidationService`: Validates medical attribute updates (if needed)
-- **Note**: Encounter creation is handled via domain event handler (`MedicalRecordCreatedEventHandler`), not a separate domain service
 
 ### 2.3 Value Objects
 
@@ -425,23 +402,18 @@ Following the folder structure from documentation:
 Endpoints/
 ├── Admin/
 │   ├── Users/
-│   ├── Records/
-│   └── Encounters/
+│   └── Records/
 ├── Patients/
 │   ├── Self/
 │   └── Registration/
 ├── Doctors/
-│   ├── Records/
-│   └── Encounters/
+│   └── Records/
 ├── Healthcare/
-│   ├── Records/
-│   └── Encounters/
+│   └── Records/
 ├── Labs/
-│   ├── Records/
-│   └── Encounters/
+│   └── Records/
 └── Imaging/
-    ├── Records/
-    └── Encounters/
+    └── Records/
 ```
 
 ### 4.2 FastEndpoints Configuration
@@ -785,25 +757,25 @@ Medical attributes are part of the `Patient` aggregate:
   - It owns medical attributes (Allergies, ChronicDiseases, etc.) with complex business rules
   - It enforces invariants (e.g., only practitioners can modify certain attributes)
   - It has a consistency boundary (medical attributes must be consistent with each other)
-  - It's referenced by Encounters but also has its own domain logic
+  - It has its own domain logic
 
 - **Practitioner types are aggregates** because:
   - Each represents a core domain concept (a healthcare practitioner)
   - Even though they don't have related data, they are distinct business concepts
-  - They identify who created a record or participated in an encounter
+  - They identify who created a record
   - They can be queried and referenced by other aggregates
   - Making them aggregates maintains consistency in the domain model
 
 **DDD Principle**: Aggregates represent consistency boundaries and core domain concepts. Even if an aggregate doesn't have related data, if it represents a distinct business concept, it should be an aggregate root.
 
-**Repository Pattern**: Practitioner aggregates can be accessed through the repository pattern since they are aggregate roots. However, for read operations, query service interfaces are used for optimized queries. Practitioner data can also be included in specifications that query aggregates (e.g., loading Encounters with their Practitioner information).
+**Repository Pattern**: Practitioner aggregates can be accessed through the repository pattern since they are aggregate roots. However, for read operations, query service interfaces are used for optimized queries.
 
 #### 7.0.3 Generic Repository with Specification Pattern
 
 **Decision**: Use a single generic `IRepository<T>` interface for all aggregate roots, integrated with the Specification pattern.
 
 **Rationale**:
-- **DRY Principle**: Avoids code duplication - one implementation serves all aggregates (Patient, MedicalRecord, Encounter, ActionLog)
+- **DRY Principle**: Avoids code duplication - one implementation serves all aggregates (Patient, MedicalRecord, ActionLog)
 - **Consistency**: Same interface and behavior across all aggregates ensures predictable usage
 - **Specification Pattern Integration**: All queries use specifications (`ISpecification<T>`), which:
   - Encapsulates business rules in queries
@@ -912,7 +884,7 @@ public class ActionLog : BaseEntity, IAggregateRoot
 - **Specification Pattern**: Encapsulate complex queries and business rules in reusable, composable specifications
 - **Result Pattern**: Handle operation outcomes without exceptions for expected business errors
 - **Value Objects**: Immutable domain concepts (e.g., `BloodType`)
-- **Aggregates**: Consistency boundaries (Patient, MedicalRecord, Encounter, ActionLog)
+- **Aggregates**: Consistency boundaries (Patient, MedicalRecord, ActionLog)
 
 ### 7.2 Framework Choices
 
@@ -1317,7 +1289,6 @@ This section provides a comprehensive, phase-by-phase implementation guide. Each
 
 **Status**: ✅ **Medical Records Complete** - All medical record functionality implemented with file attachments, authorization, and query services.
 
-**Note**: Encounters implementation is planned as a separate phase (see Phase 6.1 below). Domain events infrastructure is now in place, enabling Encounter implementation. When Encounters are implemented, MedicalRecord will raise a `MedicalRecordCreatedEvent` to trigger automatic Encounter creation.
 
 #### Tasks:
 
@@ -1401,116 +1372,6 @@ This section provides a comprehensive, phase-by-phase implementation guide. Each
 
 ---
 
-### Phase 6.1: Encounters Implementation
-
-**Goal**: Implement Encounter aggregate to track clinically meaningful interactions between patients and healthcare providers.
-
-**Deliverable**: Working encounter system that captures medical events with clinical relevance.
-
-**Status**: ✅ **Complete** - Encounters fully implemented with domain events, query services, and endpoints.
-
-#### Tasks:
-
-1. **MedicalRecord Domain Event (Core)**
-   - ✅ Create `MedicalRecordCreatedEvent` domain event in MedicalRecord aggregate
-   - ✅ Event contains: MedicalRecord (full object for data consistency)
-   - ✅ Raise event when MedicalRecord is created (in `Create` factory method)
-   - ✅ Event serves as trigger for Encounter creation (but Encounters don't reference MedicalRecords - proper separation of concerns)
-
-2. **Encounter Aggregate (Core)**
-   - ✅ Create `Encounter` aggregate root class
-   - ✅ **NOT auditable**: Does NOT implement `IAuditableEntity` - only has `OccurredOn` property
-   - ✅ Implement identity and context properties: Id, PatientId, OccurredOn
-   - ✅ Implement participant tracking: Practitioner value object (snapshot with FullName and Role)
-   - ✅ Implement clinical content: **Reason** (generated from medical record type, title, and content)
-   - ✅ Enforce business rules (immutable medical facts once created - no state or modification methods)
-
-3. **Encounter Domain Event Handler (Core)**
-   - ✅ Create `MedicalRecordCreatedEventHandler` in Encounter aggregate namespace
-   - ✅ Handler implements `INotificationHandler<MedicalRecordCreatedEvent>`
-   - ✅ Handler creates Encounter by mapping event data to Encounter properties (proper separation - Encounter doesn't know about MedicalRecord):
-     - PatientId → PatientId (direct mapping)
-     - Practitioner snapshot → Practitioner value object (FullName, Role)
-     - RecordType, Title, Content → Reason (mapping: generates descriptive reason from record details)
-     - OccurredOn → OccurredOn (mapping)
-   - ✅ Handler uses Encounter factory method to create new Encounter
-   - ✅ Handler persists Encounter via repository (Infrastructure layer handles persistence)
-
-4. **Encounter Domain Events (Optional - for future use)**
-   - ⏸️ Deferred - Not needed initially (encounters are immutable historical facts)
-
-5. **Specifications**
-   - ✅ `EncounterByIdSpecification`
-   - ✅ `EncountersByPatientSpecification`
-   - ✅ `EncountersByDateRangeSpecification`
-
-6. **EF Core Mappings**
-   - ✅ Configure Encounter as aggregate root
-   - ✅ Set up relationships (Patient reference, Practitioner as owned entity - NO MedicalRecord reference)
-   - ✅ Configure `OccurredOn` property (NOT `CreatedAt` - encounters are not auditable)
-   - ✅ Add indexes for query performance
-
-7. **Encounter Query Service**
-   - ✅ Create `IEncounterQueryService` interface (Core)
-   - ✅ Implement `EncounterQueryService` (Infrastructure)
-   - ✅ Support pagination and filtering (by patient, date range)
-
-8. **API Endpoints (Read-Only)**
-   - ✅ `GET /api/encounters` - List encounters with pagination and filtering (practitioners and admins)
-   - ✅ `GET /api/encounters/{encounterId}` - Get specific encounter
-   - ✅ `GET /api/patients/self/encounters` - List patient's own encounters
-   - ✅ `GET /api/patients/self/encounters/{encounterId}` - Get patient's specific encounter
-
-9. **Authorization**
-   - ✅ View: `CanViewEncounters` policy (Doctor, HealthcareStaff, LabUser, ImagingUser, SystemAdmin)
-   - ✅ Patient view: `RequirePatient` + ownership verification
-
-10. **Domain Event Handlers (Additional - if needed)**
-    - ⏸️ Not needed - encounters are immutable historical facts
-
-11. **Tests**
-    - ⏸️ Domain unit tests - implemented as needed following classical school approach
-
-12. **Update Documentation**
-    - ✅ Encounters API documentation (Features.md)
-    - ✅ Encounter lifecycle documentation
-    - ✅ Relationship to Medical Records documentation
-    - ✅ Domain event-driven creation flow documentation
-
-**Verification**:
-- ✅ MedicalRecord raises `MedicalRecordCreatedEvent` when created
-- ✅ Encounter is automatically created when MedicalRecord is created (via event handler)
-- ✅ Business rules are enforced (immutable facts once created)
-- ✅ Authorization policies work correctly
-- ✅ Patient can view their own encounters
-- ✅ Practitioners and admins can view all encounters
-
-**Design Decisions**:
-- **Domain Purity**: Encounters are pure domain concepts - no infrastructure dependencies
-- **Clinical Focus**: Encounters represent medical events, not technical logs
-- **Immutable Facts**: Once created, encounters represent immutable medical facts
-- **Event-Driven Creation**: **Encounters are currently created automatically when MedicalRecord is created** (via `MedicalRecordCreatedEvent`), but can be created from other sources in the future
-- **No Manual Creation/Update**: No manual create/update endpoints initially - encounters are purely event-driven. Can be added later if needed.
-- **Not Auditable**: Encounters do NOT implement `IAuditableEntity` - they only have `OccurredOn` property (when the medical event occurred)
-- **Separation of Concerns**: Encounter does NOT reference MedicalRecord in any way - only stores PatientId and PractitionerId. MedicalRecord is just a trigger via domain event. This proper separation allows Encounters to be created from other sources without coupling.
-- **Reason Property**: Single property (`Reason`) captures "what happened medically" - currently set from MedicalRecord.Title in the event handler, but designed to be set from any source when Encounters are created for other reasons
-- **Patient-Visible**: Encounters are part of patient-visible history (unlike Action Logs)
-- **Domain Narrative**: Encounters are the domain narrative of the system - the record of care
-
-**Relationship to Medical Records**:
-- **Primary Flow**: MedicalRecord creation triggers Encounter creation via domain event (currently the main trigger, but Encounters can be created from other sources in the future)
-- **Event-Driven**: `MedicalRecordCreatedEvent` is raised when a record is created (when report is uploaded)
-- **Handler Pattern**: `MedicalRecordCreatedEventHandler` in Encounter aggregate listens for the event and creates Encounter
-- **Data Mapping**: Event handler maps/transforms data from MedicalRecord event to Encounter properties (proper separation - Encounter doesn't know about MedicalRecord):
-  - `MedicalRecord.Title` → `Encounter.Reason` (mapping: transforms Title to Reason to capture "what happened medically" - Reason is a general property that can be mapped from other sources)
-  - `MedicalRecord.RecordType` → `Encounter.EncounterType` (mapping)
-  - `MedicalRecord.CreatedAt` → `Encounter.OccurredOn` (mapping)
-- **Separation of Concerns**: Encounter does NOT reference MedicalRecord in any way - only stores PatientId and PractitionerId. MedicalRecord is just a trigger via domain event. This allows Encounters to be created from other sources in the future without coupling.
-- **Separate Aggregates**: Encounters and Medical Records are separate aggregates with independent consistency boundaries
-- **Both Contribute to History**: Both contribute to patient medical history
-- **Focus Difference**: Encounters focus on the interaction/event; Medical Records focus on the documentation/content
-- **Future Extensibility**: The `Reason` property is designed to capture "what happened medically" from any source - currently set from MedicalRecord.Title, but can be set from other sources when Encounters are created for other reasons
-
 ---
 
 ### Phase 7: Query Services & Practitioner Lookups
@@ -1519,7 +1380,7 @@ This section provides a comprehensive, phase-by-phase implementation guide. Each
 
 **Deliverable**: Working query services for practitioner aggregates.
 
-**Status**: 🔄 **Partially Complete** - `IUserQueryService`, `IMedicalRecordQueryService`, and `IEncounterQueryService` implemented. Practitioner-specific lookup endpoints pending.
+**Status**: 🔄 **Partially Complete** - `IUserQueryService` and `IMedicalRecordQueryService` implemented. Practitioner-specific lookup endpoints pending.
 
 #### Tasks:
 
@@ -1530,7 +1391,6 @@ This section provides a comprehensive, phase-by-phase implementation guide. Each
 2. **Query Service Implementations (Infrastructure)**
    - ✅ Implement `UserQueryService` (completed)
    - ✅ Implement `MedicalRecordQueryService` (completed)
-   - ✅ Implement `EncounterQueryService` (completed)
    - ⏳ Create specifications for practitioner queries (optional)
 
 3. **Practitioner Endpoints Enhancement**
@@ -1623,17 +1483,14 @@ This section provides a comprehensive, phase-by-phase implementation guide. Each
 1. **Healthcare Entity Endpoints**
    - ⏳ POST /healthcare/records (or use unified /api/records)
    - ⏳ GET /healthcare/records (or use unified /api/records with filters)
-   - ⏳ GET /healthcare/encounters (after Phase 6.1)
 
 2. **Laboratory Endpoints**
    - ⏳ POST /labs/records (or use unified /api/records)
    - ⏳ GET /labs/records (or use unified /api/records with filters)
-   - ⏳ GET /labs/encounters (after Phase 6.1)
 
 3. **Imaging Center Endpoints**
    - ⏳ POST /imaging/records (or use unified /api/records)
    - ⏳ GET /imaging/records (or use unified /api/records with filters)
-   - ⏳ GET /imaging/encounters (after Phase 6.1)
 
 4. **Authorization**
    - ⏳ Ensure proper role-based authorization for each endpoint
@@ -1662,7 +1519,7 @@ This section provides a comprehensive, phase-by-phase implementation guide. Each
 
 **Deliverable**: Complete admin functionality.
 
-**Status**: 🔄 **Partially Complete** - User management endpoints implemented, records/encounters management pending.
+**Status**: 🔄 **Partially Complete** - User management endpoints implemented, records management pending.
 
 #### Tasks:
 
@@ -1678,9 +1535,6 @@ This section provides a comprehensive, phase-by-phase implementation guide. Each
    - ⏳ GET /admin/records (list all records with filters)
    - ⏳ GET /admin/records/{id}
 
-3. **Encounters Management Endpoints**
-   - ⏳ GET /admin/encounters (list all encounters with filters) (depends on Phase 6.1)
-   - ⏳ GET /admin/encounters/{id} (depends on Phase 6.1)
 
 4. **Admin Query Services**
    - ⏳ Create admin-specific query services if needed
@@ -1689,7 +1543,7 @@ This section provides a comprehensive, phase-by-phase implementation guide. Each
 5. **Tests**
    - ✅ Test all admin endpoints (user management tests completed)
    - ✅ Test admin authorization (user management authorization tests completed)
-   - ⏳ Test records/encounters admin endpoints
+   - ⏳ Test records admin endpoints
 
 6. **Update README.md**
    - ✅ Admin API documentation (user management documented)
@@ -1697,7 +1551,7 @@ This section provides a comprehensive, phase-by-phase implementation guide. Each
 
 **Verification**:
 - ✅ Admin can manage users
-- ⏳ Admin can view all records and encounters
+- ⏳ Admin can view all records
 - ✅ Authorization is enforced (for user management)
 - ✅ All existing tests pass
 
@@ -1709,7 +1563,7 @@ This section provides a comprehensive, phase-by-phase implementation guide. Each
 
 **Deliverable**: Full patient self-service functionality.
 
-**Status**: 🔄 **Partially Complete** - Basic patient self-service endpoints implemented including encounters, report generation pending.
+**Status**: 🔄 **Partially Complete** - Basic patient self-service endpoints implemented, report generation pending.
 
 #### Tasks:
 
@@ -1718,14 +1572,12 @@ This section provides a comprehensive, phase-by-phase implementation guide. Each
    - ✅ GET /patients/self/medical-attributes (completed)
    - ✅ GET /patients/self/records (view own records) (completed)
    - ✅ GET /patients/self/records/{recordId} (completed)
-   - ✅ GET /patients/self/encounters (completed)
-   - ✅ GET /patients/self/encounters/{encounterId} (completed)
    - ⏳ GET /patients/self/report (generate patient report)
    - ⏳ Any additional patient self-service features
 
 2. **Patient Report Generation**
    - ⏳ Implement report generation logic
-   - ⏳ Include medical records, encounters, medical attributes
+   - ⏳ Include medical records, medical attributes
    - ⏳ Export formats (PDF, JSON, etc.)
 
 3. **Tests**
@@ -1875,12 +1727,11 @@ Each phase produces a working, testable deliverable:
 - **Phase 4**: ✅ Identity system with authentication
 - **Phase 5**: ✅ Patient aggregate with medical attributes
 - **Phase 6**: ✅ Medical records (complete)
-- **Phase 6.1**: ✅ Encounters implementation (clinically meaningful interactions)
 - **Phase 7**: 🔄 Practitioner query services (core query services complete, practitioner lookup endpoints pending)
 - **Phase 8**: ✅ Action logging and audit trail
 - **Phase 9**: ⏳ Complete practitioner endpoints (see Future Enhancements)
 - **Phase 10**: 🔄 Admin management features (user management complete, additional admin features in Future Enhancements)
-- **Phase 11**: 🔄 Patient self-service (basic features and encounters complete, reports in Future Enhancements)
+- **Phase 11**: 🔄 Patient self-service (basic features complete, reports in Future Enhancements)
 - **Phase 12**: ✅ Testing and quality maintained gradually (classical school approach, domain tests implemented as needed)
 - **Phase 13**: ✅ Fully containerized application with Docker Compose
 
@@ -1931,19 +1782,18 @@ The following items represent potential future enhancements that are not current
 ### Practitioner-Specific Endpoints (Phase 9)
 
 - Additional practitioner-specific lookup endpoints (e.g., `GET /doctors`, `GET /doctors/{id}`)
-- Practitioner-specific views or filters for records and encounters
+- Practitioner-specific views or filters for records
 - Specialized endpoints for different provider types if business requirements emerge
 
 ### Admin Features Expansion (Phase 10 - Partial)
 
 - Admin endpoints for viewing all medical records with advanced filtering
-- Admin endpoints for viewing all encounters (currently available through general encounter endpoints)
 - Administrative reporting and analytics capabilities
 
 ### Patient Self-Service Enhancements (Phase 11 - Partial)
 
 - **Patient Report Generation**: Generate comprehensive patient health reports
-  - Include medical records, encounters, and medical attributes
+  - Include medical records and medical attributes
   - Export formats (PDF, JSON, CSV)
   - Configurable report templates
 - Additional patient self-service features based on user feedback
