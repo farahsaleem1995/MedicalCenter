@@ -15,7 +15,7 @@ public class ListRecordsEndpoint(IMedicalRecordQueryService recordQueryService)
 {
     public override void Configure()
     {
-        Get("/records");
+        Get("/");
         Group<RecordsGroup>();
         Policies(AuthorizationPolicies.CanViewRecords);
         Summary(s =>

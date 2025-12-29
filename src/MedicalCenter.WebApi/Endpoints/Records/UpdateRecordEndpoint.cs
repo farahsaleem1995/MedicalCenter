@@ -21,7 +21,7 @@ public class UpdateRecordEndpoint(
 {
     public override void Configure()
     {
-        Put("/records/{recordId}");
+        Put("/{recordId}");
         Group<RecordsGroup>();
         Policies(AuthorizationPolicies.CanModifyRecords);
         Summary(s =>

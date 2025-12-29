@@ -21,7 +21,7 @@ public class DownloadAttachmentEndpoint(
 {
     public override void Configure()
     {
-        Get("/records/{recordId}/attachments/{attachmentId}/download");
+        Get("/{recordId}/attachments/{attachmentId}/download");
         Group<RecordsGroup>();
         Policies(AuthorizationPolicies.RequirePatientOrPractitioner);
         Summary(s =>

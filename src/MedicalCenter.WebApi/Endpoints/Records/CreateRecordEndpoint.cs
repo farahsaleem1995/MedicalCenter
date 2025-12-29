@@ -28,7 +28,7 @@ public class CreateRecordEndpoint(
 {
     public override void Configure()
     {
-        Post("/records");
+        Post("/");
         Group<RecordsGroup>();
         Policies(AuthorizationPolicies.CanModifyRecords);
         Summary(s =>

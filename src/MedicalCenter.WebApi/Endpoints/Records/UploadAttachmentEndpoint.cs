@@ -19,7 +19,7 @@ public class UploadAttachmentEndpoint(
 {
     public override void Configure()
     {
-        Post("/records/attachments/upload");
+        Post("/attachments/upload");
         Group<RecordsGroup>();
         Policies(AuthorizationPolicies.CanModifyRecords);
         AllowFileUploads();

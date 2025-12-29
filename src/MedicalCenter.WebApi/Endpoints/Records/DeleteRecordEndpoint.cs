@@ -21,7 +21,7 @@ public class DeleteRecordEndpoint(
 {
     public override void Configure()
     {
-        Delete("/records/{recordId}");
+        Delete("/{recordId}");
         Group<RecordsGroup>();
         Policies(AuthorizationPolicies.CanModifyRecords);
         Summary(s =>

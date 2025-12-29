@@ -20,7 +20,7 @@ public class GetRecordEndpoint(
 {
     public override void Configure()
     {
-        Get("/records/{recordId}");
+        Get("/{recordId}");
         Group<RecordsGroup>();
         Policies(AuthorizationPolicies.CanViewRecords);
         Summary(s =>

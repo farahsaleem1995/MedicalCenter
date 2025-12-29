@@ -26,7 +26,7 @@ public class AddAttachmentToRecordEndpoint(
 {
     public override void Configure()
     {
-        Post("/records/{recordId}/attachments");
+        Post("/{recordId}/attachments");
         Group<RecordsGroup>();
         Policies(AuthorizationPolicies.CanModifyRecords);
         AllowFileUploads();

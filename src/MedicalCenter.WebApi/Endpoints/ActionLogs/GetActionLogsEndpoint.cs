@@ -15,7 +15,7 @@ public class GetActionLogsEndpoint(
 {
     public override void Configure()
     {
-        Get("/action-logs");
+        Get("/");
         Group<ActionLogsGroup>();
         Policies(AuthorizationPolicies.CanViewActionLog);
         Summary(s =>

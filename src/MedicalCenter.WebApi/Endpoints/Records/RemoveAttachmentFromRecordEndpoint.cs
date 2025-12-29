@@ -21,7 +21,7 @@ public class RemoveAttachmentFromRecordEndpoint(
 {
     public override void Configure()
     {
-        Delete("/records/{recordId}/attachments/{attachmentId}");
+        Delete("/{recordId}/attachments/{attachmentId}");
         Group<RecordsGroup>();
         Policies(AuthorizationPolicies.CanModifyRecords);
         Summary(s =>
