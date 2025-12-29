@@ -267,6 +267,12 @@ MedicalCenter/
 - ✅ Allergies, Chronic Diseases, Medications, Surgeries
 - ✅ Patient self-service endpoints (records, medical attributes)
 
+### Practitioner Management
+
+- ✅ Practitioner self-service endpoint for custom attributes
+- ✅ Role-specific attribute retrieval (Doctor, HealthcareStaff, Laboratory, ImagingCenter, SystemAdmin)
+- ✅ Supports all practitioner types with their unique attributes
+
 ### Medical Attributes Management
 
 - ✅ CRUD operations for all medical attributes
@@ -292,6 +298,7 @@ MedicalCenter/
 
 ### Admin Features
 
+- ✅ Admin self-service endpoint for custom attributes
 - ✅ User management (CRUD)
 - ✅ Pagination support
 - ✅ User filtering and search

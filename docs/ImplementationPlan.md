@@ -34,6 +34,8 @@ This document outlines the high-level implementation plan for the Medical Center
 - ✅ Identity service for user management
 - ✅ Admin user management endpoints (CRUD, change password)
 - ✅ Get current user endpoint (`GET /auth/self`)
+- ✅ Get current practitioner custom attributes endpoint (`GET /practitioners/self`)
+- ✅ Get current admin custom attributes endpoint (`GET /admin/self`)
 - ✅ FluentValidation for all endpoints
 - ✅ Swagger/OpenAPI documentation (FastEndpoints.Swagger)
 - ✅ Security enhancements (RequirePatient policy, JWT role mapping)
@@ -1531,10 +1533,12 @@ This section provides a comprehensive, phase-by-phase implementation guide. Each
    - ✅ DELETE /admin/users/{id} (completed)
    - ✅ PUT /admin/users/{id}/password (change password) (completed)
 
-2. **Records Management Endpoints**
+2. **Admin Self-Service Endpoints**
+   - ✅ GET /admin/self (get own admin custom attributes) (completed)
+
+3. **Records Management Endpoints**
    - ⏳ GET /admin/records (list all records with filters)
    - ⏳ GET /admin/records/{id}
-
 
 4. **Admin Query Services**
    - ⏳ Create admin-specific query services if needed
@@ -1575,16 +1579,19 @@ This section provides a comprehensive, phase-by-phase implementation guide. Each
    - ⏳ GET /patients/self/report (generate patient report)
    - ⏳ Any additional patient self-service features
 
-2. **Patient Report Generation**
+2. **Practitioner Self-Service Endpoints**
+   - ✅ GET /practitioners/self (get own practitioner custom attributes) (completed)
+
+3. **Patient Report Generation**
    - ⏳ Implement report generation logic
    - ⏳ Include medical records, medical attributes
    - ⏳ Export formats (PDF, JSON, etc.)
 
-3. **Tests**
+4. **Tests**
    - ✅ Test all patient self-service endpoints (basic endpoints tested)
    - ⏳ Test report generation
 
-4. **Update README.md**
+5. **Update README.md**
    - ✅ Patient self-service documentation (basic documentation completed)
    - ⏳ Report generation features
 

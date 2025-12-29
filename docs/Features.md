@@ -385,6 +385,109 @@ This document provides a comprehensive overview of all implemented features in t
 }
 ```
 
+## Practitioner Features
+
+### Get Own Practitioner Attributes
+
+**Endpoint**: `GET /api/practitioners/self`
+
+- Returns authenticated practitioner's custom attributes based on their role
+- Supports all practitioner types: Doctor, HealthcareStaff, Laboratory, and ImagingCenter
+- Returns role-specific attributes only (other attributes will be null)
+- **Authorization**: `RequirePractitioner` policy (Doctor, HealthcareStaff, LabUser, ImagingUser)
+
+**Success Response** (`200 OK`):
+
+**Doctor**:
+```json
+{
+  "role": "Doctor",
+  "licenseNumber": "MD12345",
+  "specialty": "Cardiology",
+  "organizationName": null,
+  "department": null,
+  "labName": null,
+  "centerName": null,
+  "corporateId": null
+}
+```
+
+**HealthcareStaff**:
+```json
+{
+  "role": "HealthcareStaff",
+  "licenseNumber": null,
+  "specialty": null,
+  "organizationName": "City General Hospital",
+  "department": "Emergency Department",
+  "labName": null,
+  "centerName": null,
+  "corporateId": null
+}
+```
+
+**LabUser**:
+```json
+{
+  "role": "LabUser",
+  "licenseNumber": "LAB78901",
+  "specialty": null,
+  "organizationName": null,
+  "department": null,
+  "labName": "City Medical Laboratory",
+  "centerName": null,
+  "corporateId": null
+}
+```
+
+**ImagingUser**:
+```json
+{
+  "role": "ImagingUser",
+  "licenseNumber": "IMG45678",
+  "specialty": null,
+  "organizationName": null,
+  "department": null,
+  "labName": null,
+  "centerName": "Advanced Imaging Center",
+  "corporateId": null
+}
+```
+
+**Error Responses**:
+
+**401 Unauthorized** (Not Authenticated):
+```json
+{
+  "type": "https://tools.ietf.org/html/rfc7235#section-3.1",
+  "title": "Unauthorized",
+  "status": 401,
+  "detail": "Authentication required."
+}
+```
+
+**403 Forbidden** (Not a Practitioner):
+```json
+{
+  "type": "https://tools.ietf.org/html/rfc7231#section-6.5.3",
+  "title": "Forbidden",
+  "status": 403,
+  "detail": "You do not have permission to perform this action."
+}
+```
+
+**404 Not Found** (Practitioner Not Found):
+```json
+{
+  "type": "https://tools.ietf.org/html/rfc7231#section-6.5.4",
+  "title": "Not Found",
+  "status": 404,
+  "detail": "Practitioner not found."
+}
+```
+
+**Note**: Generic user information (ID, email, full name, role) should be retrieved from `/auth/self` endpoint.
+
 ## Medical Attributes Management
 
 Medical attributes endpoints use separate policies for view and modify operations:
@@ -999,6 +1102,58 @@ Or to clear the blood type:
 **Note**: When blood type is cleared, `bloodType` will be `null` in the response.
 
 ## Admin Features
+
+### Get Own Admin Attributes
+
+**Endpoint**: `GET /api/admin/self`
+
+- Returns authenticated system admin's custom attributes
+- Includes CorporateId and Department
+- **Authorization**: `RequireAdmin` policy (SystemAdmin only)
+
+**Success Response** (`200 OK`):
+```json
+{
+  "corporateId": "SYS-ADMIN-001",
+  "department": "IT Department"
+}
+```
+
+**Error Responses**:
+
+**401 Unauthorized** (Not Authenticated):
+```json
+{
+  "type": "https://tools.ietf.org/html/rfc7235#section-3.1",
+  "title": "Unauthorized",
+  "status": 401,
+  "detail": "Authentication required."
+}
+```
+
+**403 Forbidden** (Not a System Admin):
+```json
+{
+  "type": "https://tools.ietf.org/html/rfc7231#section-6.5.3",
+  "title": "Forbidden",
+  "status": 403,
+  "detail": "You do not have permission to perform this action."
+}
+```
+
+**404 Not Found** (System Admin Not Found):
+```json
+{
+  "type": "https://tools.ietf.org/html/rfc7231#section-6.5.4",
+  "title": "Not Found",
+  "status": 404,
+  "detail": "System admin not found."
+}
+```
+
+**Note**: Generic user information (ID, email, full name, role) should be retrieved from `/auth/self` endpoint.
+
+### User Management
 
 All admin endpoints require `RequireAdmin` policy (SystemAdmin only).
 
