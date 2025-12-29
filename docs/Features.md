@@ -2115,6 +2115,94 @@ Medical records allow providers to create, view, and manage medical records for 
 
 **Error Responses**: Standard error responses (401 Unauthorized, 403 Forbidden, 404 Not Found)
 
+### Generate Medical Report
+
+**Endpoint**: `GET /patients/self/report`
+
+- Generates a PDF medical report for the authenticated patient
+- Includes patient information, medical attributes (allergies, chronic diseases, medications, surgeries), and medical records
+- Supports optional date filtering for medical records
+- Returns PDF file as a stream
+- **Authorization**: `RequirePatient` policy (Patient role only)
+
+**Query Parameters**:
+- `dateFrom` (optional, DateTime): Filter medical records from this date (inclusive). Only records created on or after this date will be included.
+- `dateTo` (optional, DateTime): Filter medical records to this date (inclusive). Only records created on or before this date will be included.
+
+**Request Example**:
+```
+GET /patients/self/report?dateFrom=2024-01-01T00:00:00Z&dateTo=2024-12-31T23:59:59Z
+```
+
+**Success Response** (`200 OK`):
+- Content-Type: `application/pdf`
+- Content-Disposition: `attachment; filename="MedicalReport_{PatientName}_{Date}.pdf"`
+- Body: PDF file stream
+
+The PDF report includes:
+1. **Header**: Medical Center title and generation timestamp
+2. **Patient Information**: Full name, email, National ID, date of birth, blood type
+3. **Medical Attributes**:
+   - Allergies (with severity and notes)
+   - Chronic Diseases (with diagnosis date and notes)
+   - Medications (with dosage, date range, and notes)
+   - Surgeries (with surgeon and notes)
+4. **Medical Records**: All active medical records within the date range (if specified), including:
+   - Record type
+   - Title and content
+   - Creation date
+   - Practitioner name
+   - Attachment count
+5. **Footer**: Confidentiality notice
+
+**Error Responses**:
+
+**400 Bad Request** (Validation Error):
+```json
+{
+  "type": "https://tools.ietf.org/html/rfc7231#section-6.5.1",
+  "title": "One or more validation errors occurred",
+  "status": 400,
+  "detail": "The request contains validation errors",
+  "errors": {
+    "dateFrom": ["DateFrom cannot be in the future."],
+    "dateTo": ["DateTo must be greater than or equal to DateFrom."]
+  }
+}
+```
+
+**401 Unauthorized** (Not Authenticated):
+```json
+{
+  "type": "https://tools.ietf.org/html/rfc7235#section-3.1",
+  "title": "Unauthorized",
+  "status": 401,
+  "detail": "Authentication required."
+}
+```
+
+**403 Forbidden** (Not a Patient):
+```json
+{
+  "type": "https://tools.ietf.org/html/rfc7231#section-6.5.3",
+  "title": "Forbidden",
+  "status": 403,
+  "detail": "You do not have permission to perform this action."
+}
+```
+
+**404 Not Found** (Patient Not Found):
+```json
+{
+  "type": "https://tools.ietf.org/html/rfc7231#section-6.5.4",
+  "title": "Not Found",
+  "status": 404,
+  "detail": "Patient not found."
+}
+```
+
+**Note**: The report is generated using QuestPDF library and includes all patient data available at the time of generation. If no date filters are provided, all active medical records are included.
+
 ### Patient View Records
 
 **Endpoint**: `GET /api/patients/self/records`

@@ -7,8 +7,12 @@ using MedicalCenter.Infrastructure.Data;
 using MedicalCenter.Core.Services;
 using Microsoft.EntityFrameworkCore;
 using MedicalCenter.WebApi.Authorization;
+using QuestPDF.Infrastructure;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
+
+// Configure QuestPDF license (Community/MIT license - free for individuals, non-profits, and businesses under $1M revenue)
+QuestPDF.Settings.License = LicenseType.Community;
 
 // Add services to the container
 builder.Services.AddInfrastructure(builder.Configuration);

@@ -246,6 +246,7 @@ MedicalCenter/
 - **ASP.NET Core Identity**: Authentication/Authorization
 - **FluentValidation**: Request validation
 - **Ardalis.Specification**: Query pattern
+- **QuestPDF**: PDF generation library
 - **xUnit**: Testing framework
 - **FluentAssertions**: Test assertions
 
@@ -266,6 +267,7 @@ MedicalCenter/
 - ✅ Blood type management (create/update)
 - ✅ Allergies, Chronic Diseases, Medications, Surgeries
 - ✅ Patient self-service endpoints (records, medical attributes)
+- ✅ PDF medical report generation with date filtering
 
 ### Practitioner Management
 
