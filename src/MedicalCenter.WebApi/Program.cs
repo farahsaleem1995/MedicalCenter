@@ -40,6 +40,17 @@ builder.Services.AddScoped<IUserContext, AspNetUserContextAdapter>();
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();
 
+// Add CORS policy to allow requests from any origin
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAnyOrigin", builder =>
+    {
+        builder.AllowAnyOrigin()
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+    });
+});
+
 WebApplication app = builder.Build();
 
 // Apply database migrations automatically (for Docker/containerized environments)
@@ -66,6 +77,9 @@ app.UseExceptionHandler();
 // Use Authentication & Authorization
 app.UseAuthentication();
 app.UseAuthorization();
+
+// Use CORS policy
+app.UseCors("AllowAnyOrigin");
 
 // Use FastEndpoints (this maps the endpoints) and Swagger
 app.UseFastEndpoints(c =>
