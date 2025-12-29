@@ -60,8 +60,8 @@ This will:
 - Seed initial data (roles, system admin)
 
 The API will be available at:
-- **HTTP**: `http://localhost:5000`
-- **Swagger**: `http://localhost:5000/swagger`
+- **HTTP**: `http://localhost:5001`
+- **Swagger**: `http://localhost:5001/swagger`
 
 **Note**: The database and all tables are created automatically on first startup. Migrations run automatically when the container starts.
 
@@ -69,7 +69,7 @@ The API will be available at:
 
 Open your browser and navigate to:
 ```
-http://localhost:5000/swagger
+http://localhost:5001/swagger
 ```
 
 #### Default System Admin Credentials
