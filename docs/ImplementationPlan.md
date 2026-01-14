@@ -35,6 +35,7 @@ This document outlines the high-level implementation plan for the Medical Center
 - ✅ Admin user management endpoints (CRUD, change password)
 - ✅ Get current user endpoint (`GET /auth/self`)
 - ✅ Get current practitioner custom attributes endpoint (`GET /practitioners/self`)
+- ✅ Get current practitioner's medical records endpoint (`GET /practitioners/self/records`)
 - ✅ Get current admin custom attributes endpoint (`GET /admin/self`)
 - ✅ PDF medical report generation for patients (`GET /patients/self/report`) with date filtering
 - ✅ FluentValidation for all endpoints
@@ -1583,6 +1584,7 @@ This section provides a comprehensive, phase-by-phase implementation guide. Each
 
 2. **Practitioner Self-Service Endpoints**
    - ✅ GET /practitioners/self (get own practitioner custom attributes) (completed)
+   - ✅ GET /practitioners/self/records (list own records) (completed)
 
 3. **Patient Report Generation**
    - ✅ Implement report generation logic (completed with QuestPDF)

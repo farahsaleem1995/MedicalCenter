@@ -424,6 +424,18 @@ This document provides a comprehensive overview of all implemented features in t
 - Returns role-specific attributes only (other attributes will be null)
 - **Authorization**: `RequirePractitioner` policy (Doctor, HealthcareStaff, LabUser, ImagingUser)
 
+### Get Own Medical Records (Practitioner)
+
+**Endpoint**: `GET /api/practitioners/self/records`
+
+- Lists medical records created by the authenticated practitioner
+- Supports filtering by:
+  - `patientId` (optional)
+  - `recordType` (optional)
+  - `dateFrom`, `dateTo` (optional)
+- Supports pagination
+- **Authorization**: `CanViewRecords` policy (Doctor, HealthcareStaff, LabUser, ImagingUser, SystemAdmin)
+
 **Success Response** (`200 OK`):
 
 **Doctor**:

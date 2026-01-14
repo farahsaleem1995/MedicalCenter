@@ -1,6 +1,6 @@
 using FastEndpoints;
 
-namespace MedicalCenter.WebApi.Endpoints.Patients.Practitioners;
+namespace MedicalCenter.WebApi.Endpoints.Practitioners;
 
 /// <summary>
 /// OpenAPI group for practitioner endpoints.
@@ -19,4 +19,5 @@ public class PractitionersGroup : Group
         });
     }
 }
+
 

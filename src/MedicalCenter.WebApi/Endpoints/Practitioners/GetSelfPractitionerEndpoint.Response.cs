@@ -1,4 +1,4 @@
-namespace MedicalCenter.WebApi.Endpoints.Patients.Practitioners;
+namespace MedicalCenter.WebApi.Endpoints.Practitioners;
 
 /// <summary>
 /// Response DTO for getting current practitioner's custom attributes.
@@ -50,4 +50,5 @@ public class GetSelfPractitionerResponse
     /// </summary>
     public string? CorporateId { get; set; }
 }
+
 

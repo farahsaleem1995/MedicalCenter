@@ -273,6 +273,7 @@ MedicalCenter/
 ### Practitioner Management
 
 - ✅ Practitioner self-service endpoint for custom attributes
+- ✅ Practitioner self-service endpoint for listing own medical records (filters + pagination)
 - ✅ Role-specific attribute retrieval (Doctor, HealthcareStaff, Laboratory, ImagingCenter, SystemAdmin)
 - ✅ Supports all practitioner types with their unique attributes
 

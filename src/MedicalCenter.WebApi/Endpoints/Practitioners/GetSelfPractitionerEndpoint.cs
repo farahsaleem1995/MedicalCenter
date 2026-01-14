@@ -7,7 +7,7 @@ using MedicalCenter.Core.SharedKernel;
 using MedicalCenter.Core.Services;
 using MedicalCenter.WebApi.Authorization;
 
-namespace MedicalCenter.WebApi.Endpoints.Patients.Practitioners;
+namespace MedicalCenter.WebApi.Endpoints.Practitioners;
 
 /// <summary>
 /// Get current practitioner's own custom attributes endpoint.
@@ -56,7 +56,7 @@ public class GetSelfPractitionerEndpoint(
     private async Task<GetSelfPractitionerResponse> GetDoctorAttributes(Guid userId, CancellationToken ct)
     {
         var doctor = await doctorRepository.GetByIdAsync(userId, ct);
-        
+
         if (doctor == null)
         {
             ThrowError("Doctor not found", 404);
@@ -74,7 +74,7 @@ public class GetSelfPractitionerEndpoint(
     private async Task<GetSelfPractitionerResponse> GetHealthcareStaffAttributes(Guid userId, CancellationToken ct)
     {
         var healthcareStaff = await healthcareStaffRepository.GetByIdAsync(userId, ct);
-        
+
         if (healthcareStaff == null)
         {
             ThrowError("Healthcare staff not found", 404);
@@ -92,7 +92,7 @@ public class GetSelfPractitionerEndpoint(
     private async Task<GetSelfPractitionerResponse> GetLaboratoryAttributes(Guid userId, CancellationToken ct)
     {
         var laboratory = await laboratoryRepository.GetByIdAsync(userId, ct);
-        
+
         if (laboratory == null)
         {
             ThrowError("Laboratory not found", 404);
@@ -110,7 +110,7 @@ public class GetSelfPractitionerEndpoint(
     private async Task<GetSelfPractitionerResponse> GetImagingCenterAttributes(Guid userId, CancellationToken ct)
     {
         var imagingCenter = await imagingCenterRepository.GetByIdAsync(userId, ct);
-        
+
         if (imagingCenter == null)
         {
             ThrowError("Imaging center not found", 404);
@@ -124,6 +124,6 @@ public class GetSelfPractitionerEndpoint(
             LicenseNumber = imagingCenter.LicenseNumber
         };
     }
-
 }
+
 
