@@ -31,6 +31,7 @@ public static class AuthorizationPolicies
     
     // Other role-based policies (evaluated from JWT token)
     public const string CanViewAllPatients = "CanViewAllPatients";
+    public const string CanViewPatients = "CanViewPatients";
     
     // Claims-based policies (evaluated via database lookup)
     /// <summary>

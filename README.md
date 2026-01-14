@@ -267,6 +267,7 @@ MedicalCenter/
 - ✅ Blood type management (create/update)
 - ✅ Allergies, Chronic Diseases, Medications, Surgeries
 - ✅ Patient self-service endpoints (records, medical attributes)
+- ✅ Practitioner patient lookup endpoints (list with filters + pagination, get by ID) — active patients only for list
 - ✅ PDF medical report generation with date filtering
 
 ### Practitioner Management

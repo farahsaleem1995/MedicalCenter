@@ -77,6 +77,14 @@ public static class AuthorizationExtensions
                     UserRole.Doctor.ToString(),
                     UserRole.HealthcareStaff.ToString(),
                     UserRole.SystemAdmin.ToString()));
+
+            options.AddPolicy(AuthorizationPolicies.CanViewPatients, policy =>
+                policy.RequireRole(
+                    UserRole.Doctor.ToString(),
+                    UserRole.HealthcareStaff.ToString(),
+                    UserRole.LabUser.ToString(),
+                    UserRole.ImagingUser.ToString(),
+                    UserRole.SystemAdmin.ToString()));
             
             // Claims-based policies (require database lookups via authorization handlers)
             options.AddPolicy(AuthorizationPolicies.CanManageAdmins, policy =>

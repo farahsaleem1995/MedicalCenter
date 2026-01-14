@@ -109,6 +109,7 @@ public static class DependencyInjection
         services.AddScoped<ITokenProvider, TokenProvider>();
         services.AddScoped<IUserQueryService, UserQueryService>();
         services.AddScoped<IMedicalRecordQueryService, MedicalRecordQueryService>();
+        services.AddScoped<IPatientQueryService, PatientQueryService>();
         services.AddScoped<IMedicalReportService, MedicalReportService>();
 
         // Configure File Storage Options

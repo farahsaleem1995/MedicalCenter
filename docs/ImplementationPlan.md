@@ -631,6 +631,8 @@ public override async Task HandleAsync(GetPatientRecordsRequest req, Cancellatio
 |----------|--------|-------------------|
 | `POST /patients` | None (public) | N/A (self-registration) |
 | `GET /patients/self/*` | `RequirePatient` | Verify `userId` claim matches resource |
+| `GET /patients` | `CanViewPatients` | N/A |
+| `GET /patients/{patientId}` | `CanViewPatients` | N/A |
 | `PUT /patients/self/medical-attributes` | `RequirePatient` | Verify ownership + business rules |
 | `POST /doctors/records` | `RequireDoctor` | N/A |
 | `GET /doctors/records` | `RequireDoctor` | Optional: filter by own records |

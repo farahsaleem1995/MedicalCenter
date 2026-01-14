@@ -387,6 +387,34 @@ This document provides a comprehensive overview of all implemented features in t
 
 ## Practitioner Features
 
+### Patient Lookup (Practitioners)
+
+#### List Patients
+
+**Endpoint**: `GET /patients`
+
+- Lists patients with pagination
+- Supports filtering by:
+  - `searchTerm` (searches in full name, email, national ID)
+  - `dateOfBirthFrom`, `dateOfBirthTo`
+- **Returns active patients only**
+- **Authorization**: `CanViewPatients` policy (Doctor, HealthcareStaff, LabUser, ImagingUser, SystemAdmin)
+
+**Query Parameters**:
+- `pageNumber` (default: 1, minimum: 1)
+- `pageSize` (default: 10, minimum: 1, maximum: 100)
+- `searchTerm` (optional)
+- `dateOfBirthFrom` (optional)
+- `dateOfBirthTo` (optional)
+
+#### Get Patient By ID
+
+**Endpoint**: `GET /patients/{patientId}`
+
+- Retrieves a patient by ID
+- Includes medical attributes summary (allergies, chronic diseases, medications, surgeries)
+- **Authorization**: `CanViewPatients` policy (Doctor, HealthcareStaff, LabUser, ImagingUser, SystemAdmin)
+
 ### Get Own Practitioner Attributes
 
 **Endpoint**: `GET /api/practitioners/self`
@@ -1878,6 +1906,7 @@ This ensures that even unexpected errors follow the Problem Details format.
   - `CanViewRecords`: Doctor, HealthcareStaff, LabUser, ImagingUser
   - `CanModifyRecords`: Doctor, HealthcareStaff, LabUser, ImagingUser
   - `CanViewAllPatients`: Doctor, HealthcareStaff, SystemAdmin
+  - `CanViewPatients`: Doctor, HealthcareStaff, LabUser, ImagingUser, SystemAdmin
 - **Resource-Based Authorization**: Users can only access their own data (for patient endpoints)
 - **Sensitive Information**: `IsActive` status is only exposed to system administrators through admin endpoints
 - **SystemAdmin Management**: All SystemAdmin users can retrieve/view SystemAdmin accounts. Creating, updating, deleting, and changing passwords for SystemAdmin accounts require `CanManageAdmins` policy (Super Admin only)
