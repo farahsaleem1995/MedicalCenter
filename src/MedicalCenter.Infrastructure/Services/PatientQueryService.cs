@@ -17,10 +17,6 @@ public class PatientQueryService(MedicalCenterDbContext dbContext) : IPatientQue
     {
         return await dbContext.Set<Patient>()
             .IgnoreQueryFilters() // Include inactive patients if needed
-            .Include(p => p.Allergies)
-            .Include(p => p.ChronicDiseases)
-            .Include(p => p.Medications)
-            .Include(p => p.Surgeries)
             .FirstOrDefaultAsync(p => p.Id == patientId, cancellationToken);
     }
 

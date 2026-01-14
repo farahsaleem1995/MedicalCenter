@@ -411,8 +411,8 @@ This document provides a comprehensive overview of all implemented features in t
 
 **Endpoint**: `GET /patients/{patientId}`
 
-- Retrieves a patient by ID
-- Includes medical attributes summary (allergies, chronic diseases, medications, surgeries)
+- Retrieves basic patient information by ID
+- **Optimized**: No longer includes large medical attribute collections (allergies, chronic diseases, medications, surgeries) for performance reasons. Use dedicated endpoints for these collections.
 - **Authorization**: `CanViewPatients` policy (Doctor, HealthcareStaff, LabUser, ImagingUser, SystemAdmin)
 
 ### Get Own Practitioner Attributes

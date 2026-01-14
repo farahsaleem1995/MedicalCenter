@@ -267,7 +267,7 @@ MedicalCenter/
 - ✅ Blood type management (create/update)
 - ✅ Allergies, Chronic Diseases, Medications, Surgeries
 - ✅ Patient self-service endpoints (records, medical attributes)
-- ✅ Practitioner patient lookup endpoints (list with filters + pagination, get by ID) — active patients only for list
+- ✅ Practitioner patient lookup endpoints (list with filters + pagination, get by ID) — optimized get by ID without large medical attribute collections
 - ✅ PDF medical report generation with date filtering
 
 ### Practitioner Management
@@ -428,7 +428,7 @@ This project follows patterns from the [Ardalis Clean Architecture template](htt
 - ✅ **Phase 4**: Identity System Foundation
 - ✅ **Phase 5**: Patient Aggregate & Medical Attributes
 - ✅ **Phase 6**: Medical Records (complete)
-- 🔄 **Phase 7**: Query Services & Provider Lookups (Core query services complete: UserQueryService, MedicalRecordQueryService)
+- 🔄 **Phase 7**: Query Services & Provider Lookups (Core query services complete: UserQueryService, MedicalRecordQueryService, PatientQueryService)
 - ✅ **Phase 8**: Action Logging & Audit Trail
 - 🔄 **Phase 10**: Admin Features (User management complete)
 - 🔄 **Phase 11**: Patient Self-Service Features (Basic features complete)

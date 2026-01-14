@@ -12,7 +12,7 @@ This document outlines the high-level implementation plan for the Medical Center
 - ✅ **Phase 4**: Identity System Foundation
 - ✅ **Phase 5**: Patient Aggregate & Medical Attributes
 - ✅ **Phase 6**: Medical Records (complete)
-- 🔄 **Phase 7**: Query Services & Practitioner Lookups (Partially Complete - UserQueryService, MedicalRecordQueryService implemented)
+- 🔄 **Phase 7**: Query Services & Practitioner Lookups (Partially Complete - UserQueryService, MedicalRecordQueryService, PatientQueryService implemented. Patient lookup optimized.)
 - ✅ **Phase 8**: Action Logging & Audit Trail
 - 🔄 **Phase 10**: Admin Features (Partially Complete - User management endpoints implemented)
 - ⏳ **Phase 9**: Complete Provider Endpoints
