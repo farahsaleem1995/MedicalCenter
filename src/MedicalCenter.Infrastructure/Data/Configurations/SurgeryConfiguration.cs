@@ -14,6 +14,7 @@ public class SurgeryConfiguration : IEntityTypeConfiguration<Surgery>
         builder.ToTable("Surgeries");
 
         builder.HasKey(s => s.Id);
+        builder.Property(s => s.Id).ValueGeneratedNever();
 
         builder.Property(s => s.PatientId)
             .IsRequired();

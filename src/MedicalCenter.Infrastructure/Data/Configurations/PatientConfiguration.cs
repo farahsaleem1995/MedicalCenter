@@ -64,20 +64,36 @@ public class PatientConfiguration : IEntityTypeConfiguration<Patient>
             .HasForeignKey(a => a.PatientId)
             .OnDelete(DeleteBehavior.Cascade);
 
+        builder.Navigation(p => p.Allergies)
+            .HasField("_allergies")
+            .UsePropertyAccessMode(PropertyAccessMode.Field);
+
         builder.HasMany(p => p.ChronicDiseases)
             .WithOne(cd => cd.Patient)
             .HasForeignKey(cd => cd.PatientId)
             .OnDelete(DeleteBehavior.Cascade);
+
+        builder.Navigation(p => p.ChronicDiseases)
+            .HasField("_chronicDiseases")
+            .UsePropertyAccessMode(PropertyAccessMode.Field);
 
         builder.HasMany(p => p.Medications)
             .WithOne(m => m.Patient)
             .HasForeignKey(m => m.PatientId)
             .OnDelete(DeleteBehavior.Cascade);
 
+        builder.Navigation(p => p.Medications)
+            .HasField("_medications")
+            .UsePropertyAccessMode(PropertyAccessMode.Field);
+
         builder.HasMany(p => p.Surgeries)
             .WithOne(s => s.Patient)
             .HasForeignKey(s => s.PatientId)
             .OnDelete(DeleteBehavior.Cascade);
+
+        builder.Navigation(p => p.Surgeries)
+            .HasField("_surgeries")
+            .UsePropertyAccessMode(PropertyAccessMode.Field);
 
         // Indexes
         builder.HasIndex(p => p.Email)

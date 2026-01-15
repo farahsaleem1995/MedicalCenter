@@ -414,6 +414,10 @@ This project follows patterns from the [Ardalis Clean Architecture template](htt
   - Cross-cutting technical concerns (Result pattern, Pagination) in `Primitives/`
   - Shared domain concepts (User, Repository, Domain Events) in `SharedKernel/`
   - Aggregate-specific types (enums, value objects, entities, specifications) within their aggregates
+- **Domain-Generated IDs**: Identity is managed by the domain layer (constructors) rather than the database, explicitly configured in EF Core via `ValueGeneratedNever()`.
+- **Encapsulated Collections**: Private backing fields are mapped in EF Core to support change tracking on collections exposed as `IReadOnlyCollection`.
+- **Domain-Generated IDs**: Identity is managed by the domain layer (constructors) rather than the database, explicitly configured in EF Core via `ValueGeneratedNever()`.
+- **Encapsulated Collections**: Private backing fields are mapped in EF Core to support change tracking on collections exposed as `IReadOnlyCollection`.
 - **IAuditableEntity Interface**: Opt-in audit tracking via EF Core interceptor
 - **Result Pattern**: For operation outcomes without exceptions (in Primitives/)
 - **Pagination Pattern**: Standardized paginated responses (in Primitives/Pagination/)

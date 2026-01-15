@@ -15,7 +15,8 @@ The Core layer contains the domain model and business logic. It has no dependenc
 The Core layer is organized following Domain-Driven Design principles with clear separation of concerns:
 
 - **Abstractions/**: DDD building blocks and framework contracts
-  - `BaseEntity`: Base class for all entities with `Id` (Guid)
+  - `BaseEntity`: Base class for all entities with `Id` (Guid). 
+    - **Note**: Identifiers are generated in the domain layer (constructors) rather than by the database.
   - `IAggregateRoot`: Marker interface for aggregate roots
   - `IAuditableEntity`: Interface for entities requiring audit tracking
   - `ValueObject`: Base class for value objects
@@ -115,6 +116,12 @@ The Infrastructure layer implements data access and external service integration
   - `MedicalCenterDbContext`: Main database context
     - Inherits from `IdentityDbContext<ApplicationUser, ApplicationRole, Guid, IdentityUserClaim<Guid>, ApplicationUserRole, ...>`
     - Uses `ApplicationUserRole` directly (no inheritance mapping, no discriminator column)
+  - **Entity Mappings**:
+    - **Domain-Generated IDs**: Configurations use `ValueGeneratedNever()` for primary keys to respect IDs pre-generated in the domain layer.
+    - **Encapsulated Collections**: Navigations are mapped to private backing fields (e.g., `_allergies`) with `PropertyAccessMode.Field` to allow change tracking on encapsulated domain collections.
+  - **Entity Mappings**:
+    - **Domain-Generated IDs**: Configurations use `ValueGeneratedNever()` for primary keys to respect IDs pre-generated in the domain layer.
+    - **Encapsulated Collections**: Navigations are mapped to private backing fields (e.g., `_allergies`) with `PropertyAccessMode.Field` to allow change tracking on encapsulated domain collections.
   - Entity configurations for all domain entities
   - Migrations for database schema management
 

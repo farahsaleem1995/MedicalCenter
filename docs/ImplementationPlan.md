@@ -884,6 +884,20 @@ public class ActionLog : BaseEntity, IAggregateRoot
 }
 ```
 
+#### 7.0.6 Domain-Generated Identifiers & Change Tracking
+
+**Decision**: Domain entities generate their own identifiers (Guids) in their constructors, and EF Core is configured to respect these pre-set IDs.
+
+**Rationale**:
+- **Consistency**: IDs are available immediately after construction, even before the entity is saved to the database.
+- **DDD Compliance**: The domain layer owns the identity of its objects.
+- **EF Core Configuration**: To prevent EF Core from incorrectly assuming a pre-set ID means an entity already exists in the database (which triggers an `UPDATE` instead of an `INSERT` during graph updates), entities are configured with `ValueGeneratedNever()`.
+- **Encapsulation**: Domain collections are exposed as `IReadOnlyCollection<T>` but backed by private lists (e.g., `_allergies`). EF Core is configured to use these backing fields directly for persistence and change tracking.
+
+**Implementation**:
+- **Configuration**: `builder.Property(x => x.Id).ValueGeneratedNever();`
+- **Navigation**: `builder.Navigation(p => p.Allergies).HasField("_allergies").UsePropertyAccessMode(PropertyAccessMode.Field);`
+
 ### 7.1 Design Patterns
 
 - **Generic Repository Pattern**: Single `IRepository<T>` interface for all aggregate roots, abstracting data access

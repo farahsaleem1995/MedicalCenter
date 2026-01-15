@@ -14,6 +14,7 @@ public class ChronicDiseaseConfiguration : IEntityTypeConfiguration<ChronicDisea
         builder.ToTable("ChronicDiseases");
 
         builder.HasKey(cd => cd.Id);
+        builder.Property(cd => cd.Id).ValueGeneratedNever();
 
         builder.Property(cd => cd.PatientId)
             .IsRequired();
