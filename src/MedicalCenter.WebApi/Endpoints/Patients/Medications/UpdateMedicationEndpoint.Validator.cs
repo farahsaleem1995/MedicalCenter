@@ -12,7 +12,7 @@ namespace MedicalCenter.WebApi.Endpoints.Patients.Medications;
 /// </summary>
 public class UpdateMedicationEndpointValidator : Validator<UpdateMedicationRequest>
 {
-    public UpdateMedicationEndpointValidator(IRepository<Patient> patientRepository)
+    public UpdateMedicationEndpointValidator()
     {
         RuleFor(x => x.PatientId)
             .NotEmpty()
@@ -39,6 +39,7 @@ public class UpdateMedicationEndpointValidator : Validator<UpdateMedicationReque
                 if (!endDate.HasValue)
                     return true; // EndDate is optional
 
+                var patientRepository = Resolve<IRepository<Patient>>();
                 var specification = new PatientByIdSpecification(request.PatientId);
                 var patient = await patientRepository.FirstOrDefaultAsync(specification, cancellation);
                 

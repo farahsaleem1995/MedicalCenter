@@ -23,7 +23,7 @@ public class GenerateReportValidator : Validator<GenerateReportRequest>
         RuleFor(x => x.DateTo)
             .GreaterThanOrEqualTo(x => x.DateFrom)
             .When(x => x.DateFrom.HasValue && x.DateTo.HasValue)
-            .WithMessage("DateTo must be greater than or equal to DateFrom.");
+            .WithMessage("DateTo must be greater than or equal to From.");
     }
 }
 

@@ -46,13 +46,12 @@ public class RegisterPatientRequestValidator : Validator<RegisterPatientRequest>
             .MaximumLength(50)
             .WithMessage("National ID must not exceed 50 characters.");
 
-        var now = dateTimeProvider.Now;
         RuleFor(x => x.DateOfBirth)
             .NotEmpty()
             .WithMessage("Date of birth is required.")
-            .LessThan(now)
+            .LessThan(_ => dateTimeProvider.Now)
             .WithMessage("Date of birth must be in the past.")
-            .Must(dob => dob.Date >= now.Date.AddYears(-150))
+            .Must(dob => dob.Date >= dateTimeProvider.Now.Date.AddYears(-150))
             .WithMessage("Date of birth must be within a reasonable range.");
     }
 

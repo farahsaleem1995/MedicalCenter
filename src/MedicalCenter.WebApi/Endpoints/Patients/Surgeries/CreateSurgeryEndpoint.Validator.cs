@@ -24,7 +24,7 @@ public class CreateSurgeryEndpointValidator : Validator<CreateSurgeryRequest>
         RuleFor(x => x.Date)
             .NotEmpty()
             .WithMessage("Surgery date is required.")
-            .LessThanOrEqualTo(dateTimeProvider.Now)
+            .LessThanOrEqualTo(_ => dateTimeProvider.Now)
             .WithMessage("Surgery date cannot be in the future.");
 
         RuleFor(x => x.Surgeon)

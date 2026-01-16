@@ -898,6 +898,16 @@ public class ActionLog : BaseEntity, IAggregateRoot
 - **Configuration**: `builder.Property(x => x.Id).ValueGeneratedNever();`
 - **Navigation**: `builder.Navigation(p => p.Allergies).HasField("_allergies").UsePropertyAccessMode(PropertyAccessMode.Field);`
 
+#### 7.0.7 Validation Service Lifetime Pattern
+
+**Decision**: Resolve scoped services within validation rules using `Resolve<T>()` rather than injecting them via the constructor.
+
+**Rationale**:
+- **Singleton Lifetime**: FastEndpoints validators are registered as singletons by default.
+- **Avoid Disposal Issues**: Injecting a scoped service (like `IRepository<T>`) into a singleton constructor keeps it alive after the first request is disposed, leading to `ObjectDisposedException` on subsequent requests.
+- **Runtime Resolution**: Using `Resolve<T>()` inside validation rules (like `MustAsync`) ensures the service is resolved from the current request's scope.
+- **Time Consistency**: Singleton dependencies like `IDateTimeProvider` can be safely injected, but rules involving dynamic values (like `DateTime.Now`) should evaluate those values inside the rule to prevent "time drift" bugs.
+
 ### 7.1 Design Patterns
 
 - **Generic Repository Pattern**: Single `IRepository<T>` interface for all aggregate roots, abstracting data access

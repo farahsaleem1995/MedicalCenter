@@ -119,9 +119,6 @@ The Infrastructure layer implements data access and external service integration
   - **Entity Mappings**:
     - **Domain-Generated IDs**: Configurations use `ValueGeneratedNever()` for primary keys to respect IDs pre-generated in the domain layer.
     - **Encapsulated Collections**: Navigations are mapped to private backing fields (e.g., `_allergies`) with `PropertyAccessMode.Field` to allow change tracking on encapsulated domain collections.
-  - **Entity Mappings**:
-    - **Domain-Generated IDs**: Configurations use `ValueGeneratedNever()` for primary keys to respect IDs pre-generated in the domain layer.
-    - **Encapsulated Collections**: Navigations are mapped to private backing fields (e.g., `_allergies`) with `PropertyAccessMode.Field` to allow change tracking on encapsulated domain collections.
   - Entity configurations for all domain entities
   - Migrations for database schema management
 
@@ -468,6 +465,7 @@ The Web API layer handles HTTP requests, validation, authorization, and DTOs.
 ### Validation Errors
 
 - **FluentValidation**: Request validation using FastEndpoints' `Validator<T>` base class
+- **Validation Service Lifetime Pattern**: Since FastEndpoints validators are singletons by default, scoped services (like `IRepository<T>`) are resolved within validation rules using `Resolve<T>()` to avoid `ObjectDisposedException`.
 - **Validation Error Format**: Returns 400 Bad Request with Problem Details format including field-specific errors
 - **Automatic Validation**: FastEndpoints automatically validates requests before endpoint execution
 

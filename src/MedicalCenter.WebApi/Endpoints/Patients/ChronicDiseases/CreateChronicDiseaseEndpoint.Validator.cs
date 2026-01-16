@@ -24,7 +24,7 @@ public class CreateChronicDiseaseEndpointValidator : Validator<CreateChronicDise
         RuleFor(x => x.DiagnosisDate)
             .NotEmpty()
             .WithMessage("Diagnosis date is required.")
-            .LessThanOrEqualTo(dateTimeProvider.Now)
+            .LessThanOrEqualTo(_ => dateTimeProvider.Now)
             .WithMessage("Diagnosis date cannot be in the future.");
 
         RuleFor(x => x.Notes)
