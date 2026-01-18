@@ -59,6 +59,8 @@ This will:
 - Automatically run database migrations on startup
 - Seed initial data (roles, system admin)
 
+**Optional**: After startup, you can seed the database with fake test data using the development endpoint (see [Database Seeding](#database-seeding) section below).
+
 The API will be available at:
 - **HTTP**: `http://localhost:5001`
 - **Swagger**: `http://localhost:5001/swagger`
@@ -187,7 +189,29 @@ A system administrator account is automatically seeded when the database is crea
 
 **⚠️ Important**: Change the default password in production environments.
 
-### Step 6: Test the API
+### Step 6: Seed Database with Test Data (Optional)
+
+You can seed the database with realistic fake data for testing and presentation:
+
+```bash
+curl -X POST http://localhost:5000/api/dev/seed \
+  -H "Content-Type: application/json" \
+  -d '{
+    "patientCount": 100,
+    "doctorCount": 20,
+    "healthcareStaffCount": 15
+  }' \
+  --output SeedingSummary.md
+```
+
+This will:
+- Generate fake data for all aggregates (Patients, Doctors, Medical Records, etc.)
+- Create Identity users with default password `Test@123!`
+- Return a summary document (`SeedingSummary.md`) with all user credentials
+
+**Note**: This endpoint is only available in Development environment.
+
+### Step 7: Test the API
 
 #### Register a Patient
 
@@ -247,6 +271,7 @@ MedicalCenter/
 - **FluentValidation**: Request validation
 - **Ardalis.Specification**: Query pattern
 - **QuestPDF**: PDF generation library
+- **Bogus**: Fake data generator for testing and seeding
 - **xUnit**: Testing framework
 - **FluentAssertions**: Test assertions
 
@@ -308,6 +333,16 @@ MedicalCenter/
 - ✅ User filtering and search
 - ✅ Password management
 
+### Database Seeding
+
+- ✅ Runtime database seeding with Bogus fake data generator
+- ✅ Development-only seeding endpoint (`POST /api/dev/seed`)
+- ✅ Generates realistic test data for all aggregates (Patients, Doctors, Medical Records, etc.)
+- ✅ Patient medical attributes (Allergies, Chronic Diseases, Medications, Surgeries)
+- ✅ Seeding summary document with user credentials (returned as downloadable file)
+- ✅ Configurable seeding options (counts, password, etc.)
+- ✅ Respects DDD principles (uses domain factory methods)
+
 ### API Features
 
 - ✅ RESTful API design
@@ -322,6 +357,7 @@ MedicalCenter/
 - **[Architecture](docs/Architecture.md)** - Comprehensive architecture documentation
 - **[Features](docs/Features.md)** - Detailed features documentation with API endpoint details, authorization policies, response examples, and enum value mappings
 - **[Implementation Plan](docs/ImplementationPlan.md)** - Implementation roadmap and progress tracking
+- **[Database Seeding Plan](docs/DatabaseSeedingPlan.md)** - Database seeding implementation with Bogus fake data generator
 
 ## Testing
 
@@ -436,6 +472,7 @@ This project follows patterns from the [Ardalis Clean Architecture template](htt
 - 🔄 **Phase 10**: Admin Features (User management complete)
 - 🔄 **Phase 11**: Patient Self-Service Features (Basic features complete)
 - ✅ **Phase 12**: Dockerization
+- ✅ **Database Seeding**: Runtime seeding with Bogus fake data generator
 
 See [ImplementationPlan.md](docs/ImplementationPlan.md) for detailed progress and future enhancements.
 

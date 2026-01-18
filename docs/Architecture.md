@@ -147,6 +147,20 @@ The Infrastructure layer implements data access and external service integration
 - **File Storage Service**:
   - `LocalFileStorageService`: Local filesystem implementation of `IFileStorageService`
   - Stores files in configurable directory
+
+- **Database Seeding**:
+  - **Migration-Based Seeding**: Essential data (roles, system admin) seeded via EF Core `HasData()` in migrations
+  - **Runtime Seeding**: Test/demo data seeded via development endpoint using [Bogus](https://github.com/bchavez/Bogus) library
+  - **Seeder Infrastructure**:
+    - `IDatabaseSeeder`: Interface for all runtime seeders
+    - `DatabaseSeeder`: Main orchestrator coordinating all seeders
+    - `SeedingOptions`: Configuration class for seeding operations
+    - `SeedingSummaryGenerator`: Generates summary document with user credentials
+  - **Seeders**: Separate seeders for each aggregate (Doctor, HealthcareStaff, Laboratory, ImagingCenter, Patient, MedicalRecord)
+  - **Fakers**: Bogus faker configurations for generating realistic fake data
+  - **DDD Compliance**: All entities created through domain factory methods
+  - **Identity Integration**: Creates ASP.NET Core Identity users and roles for seeded entities
+  - See [DatabaseSeedingPlan.md](DatabaseSeedingPlan.md) for detailed documentation
   - Supports file upload, download, and deletion
   - Can be replaced with cloud storage implementation (Azure Blob, S3, etc.)
 
@@ -162,6 +176,26 @@ The Infrastructure layer implements data access and external service integration
   - `ActionLogBackgroundService`: Hosted service that processes action log entries from the queue
   - Queue-based fire-and-forget pattern ensures action logging doesn't impact request performance
   - Only logs successful requests (2xx status codes) for endpoints marked with `[ActionLog]` attribute
+
+- **Database Seeding**:
+  - **Migration-Based Seeding**: Essential data (roles, system admin) seeded via EF Core `HasData()` in migrations
+    - `RoleSeeder`: Seeds all Identity roles
+    - `SystemAdminSeeder`: Seeds system administrator user
+    - Executed during `OnModelCreating` via `ModelBuilderExtensions.SeedData()`
+  - **Runtime Seeding**: Test/demo data seeded via development endpoint using [Bogus](https://github.com/bchavez/Bogus) library
+    - `IDatabaseSeeder`: Interface for all runtime seeders
+    - `DatabaseSeeder`: Main orchestrator coordinating all seeders in dependency order
+    - `SeedingOptions`: Configuration class for seeding operations
+    - `SeedingSummaryGenerator`: Generates summary document with user credentials as file stream
+    - **Seeders**: Separate seeders for each aggregate:
+      - `DoctorSeeder`, `HealthcareStaffSeeder`, `LaboratorySeeder`, `ImagingCenterSeeder`
+      - `PatientSeeder` (with medical attributes: allergies, chronic diseases, medications, surgeries)
+      - `MedicalRecordSeeder` (with proper patient/practitioner relationships)
+    - **Fakers**: Bogus faker configurations for generating realistic fake data
+    - **DDD Compliance**: All entities created through domain factory methods
+    - **Identity Integration**: Creates ASP.NET Core Identity users and roles for seeded entities
+    - **Development Only**: Seeding endpoint (`POST /api/dev/seed`) only available in Development environment
+    - See [DatabaseSeedingPlan.md](DatabaseSeedingPlan.md) for detailed documentation
 
 - **EF Core Interceptors**:
   - `AuditableEntityInterceptor`: Automatically sets `CreatedAt` and `UpdatedAt`
@@ -201,8 +235,9 @@ The Web API layer handles HTTP requests, validation, authorization, and DTOs.
 #### Key Components
 
 - **FastEndpoints**: API framework for endpoint definition
-  - Endpoint classes inherit from `Endpoint<TRequest, TResponse>`
+  - Endpoint classes inherit from `Endpoint<TRequest, TResponse>` or `Endpoint<TRequest>`
   - Built-in validation and authorization support
+  - Endpoint groups: `AdminGroup`, `AuthGroup`, `PatientsGroup`, `RecordsGroup`, `PractitionersGroup`, `DevGroup` (development-only)
   - Route prefix: All endpoints prefixed with `/api`
   - Error handling: Problem Details format for standardized error responses
   - Global post-processors: `ActionLogProcessor` registered globally to check for `[ActionLog]` attributes

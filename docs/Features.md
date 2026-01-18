@@ -2386,6 +2386,117 @@ The following business-critical endpoints are marked with `[ActionLog]` attribut
 - **Queue-Based**: Fire-and-forget pattern using background service
 - **Aggregate Root**: `ActionLogEntry` is a domain aggregate root (not an auditable entity)
 
+## Database Seeding
+
+### Seed Database with Fake Data
+
+**Endpoint**: `POST /api/dev/seed`
+
+- Seeds the database with realistic fake data for testing and presentation purposes
+- Uses [Bogus](https://github.com/bchavez/Bogus) library for generating realistic test data
+- Only available in Development environment
+- Generates data for all aggregates: Patients, Doctors, HealthcareStaff, Laboratories, ImagingCenters, MedicalRecords
+- Creates Identity users with configurable default password
+- Returns seeding summary as downloadable markdown file
+- **Authorization**: None (Development only - environment check)
+
+**Request**:
+```json
+{
+  "doctorCount": 20,
+  "healthcareStaffCount": 15,
+  "laboratoryCount": 5,
+  "imagingCenterCount": 5,
+  "patientCount": 100,
+  "medicalRecordsPerPatientMin": 2,
+  "medicalRecordsPerPatientMax": 10,
+  "clearExistingData": false,
+  "defaultPassword": "Test@123!"
+}
+```
+
+**Request Parameters** (all optional):
+- `doctorCount` (int, default: 20): Number of doctors to create
+- `healthcareStaffCount` (int, default: 15): Number of healthcare staff to create
+- `laboratoryCount` (int, default: 5): Number of laboratories to create
+- `imagingCenterCount` (int, default: 5): Number of imaging centers to create
+- `patientCount` (int, default: 100): Number of patients to create
+- `medicalRecordsPerPatientMin` (int, default: 2): Minimum medical records per patient
+- `medicalRecordsPerPatientMax` (int, default: 10): Maximum medical records per patient
+- `clearExistingData` (bool, default: false): Whether to clear existing seeded data before seeding
+- `defaultPassword` (string, default: "Test@123!"): Default password for all seeded users
+
+**Success Response**: 
+- Status: `200 OK`
+- Content-Type: `text/markdown`
+- Content-Disposition: `attachment; filename="SeedingSummary.md"`
+- Body: Markdown file stream containing:
+  - All user credentials (email, password, role, additional info)
+  - Data statistics (counts, distributions, date ranges)
+  - Sample IDs for testing
+  - Seeding timestamp and options used
+
+**Error Responses**:
+
+**403 Forbidden** (Not Development Environment):
+```json
+{
+  "type": "https://tools.ietf.org/html/rfc7231#section-6.5.3",
+  "title": "Forbidden",
+  "status": 403,
+  "detail": "This endpoint is only available in Development environment"
+}
+```
+
+**500 Internal Server Error** (Seeding Failed):
+```json
+{
+  "type": "https://tools.ietf.org/html/rfc7231#section-6.6.1",
+  "title": "Internal Server Error",
+  "status": 500,
+  "detail": "An error occurred during database seeding"
+}
+```
+
+### Generated Data
+
+The seeding process generates:
+
+**Practitioners**:
+- Doctors with specialties (Cardiology, Pediatrics, Orthopedics, etc.) and license numbers
+- Healthcare staff with organizations and departments
+- Laboratories with lab names and license numbers
+- Imaging centers with center names and license numbers
+
+**Patients**:
+- Patients with 11-digit national IDs and dates of birth (18-80 years old)
+- Blood types (random distribution of ABO and Rh combinations)
+- Medical attributes:
+  - Allergies (0-5 per patient): Common allergies with severity levels
+  - Chronic diseases (0-3 per patient): Common diseases with diagnosis dates
+  - Medications (0-6 per patient): Common medications with dosages and date ranges
+  - Surgeries (0-4 per patient): Common surgeries with dates and surgeon names
+
+**Medical Records**:
+- Records distributed across all record types (ConsultationNote, LaboratoryResult, ImagingReport, Prescription, Diagnosis, TreatmentPlan)
+- Records linked to patients and practitioners
+- Realistic medical content based on record type
+- Historical dates (last 5 years)
+
+### Key Features
+
+- **DDD Compliant**: All entities created through domain factory methods
+- **Realistic Data**: Uses Bogus for varied, realistic fake data
+- **Identity Integration**: Creates ASP.NET Core Identity users with roles
+- **Medical Attributes**: Patients include comprehensive medical history
+- **Relationship Integrity**: Medical records properly reference patients and practitioners
+- **Summary Document**: Auto-generates downloadable summary with all credentials
+- **Configurable**: Customize counts, password, and other options via request
+
+**Note**: This endpoint is only available in Development environment. In Production, this endpoint will return 403 Forbidden.
+
+See [DatabaseSeedingPlan.md](DatabaseSeedingPlan.md) for detailed implementation documentation.
+
 ## Future Features
 
 ### Planned Features

@@ -17,6 +17,7 @@ using MedicalCenter.Infrastructure.Repositories;
 using MedicalCenter.Infrastructure.Services;
 using System.IO.Abstractions;
 using MedicalCenter.Core.SharedKernel.Events;
+using MedicalCenter.Infrastructure.Data.Seeders.Runtime;
 
 namespace MedicalCenter.Infrastructure;
 
@@ -143,6 +144,16 @@ public static class DependencyInjection
 
         // Register Action Log Background Service
         services.AddHostedService<ActionLogBackgroundService>();
+
+        // Register Database Seeders
+        services.AddScoped<IDatabaseSeeder, DoctorSeeder>();
+        services.AddScoped<IDatabaseSeeder, HealthcareStaffSeeder>();
+        services.AddScoped<IDatabaseSeeder, LaboratorySeeder>();
+        services.AddScoped<IDatabaseSeeder, ImagingCenterSeeder>();
+        services.AddScoped<IDatabaseSeeder, PatientSeeder>();
+        services.AddScoped<IDatabaseSeeder, MedicalRecordSeeder>();
+        services.AddScoped<DatabaseSeeder>();
+        services.AddScoped<SeedingSummaryGenerator>();
 
         return services;
     }
