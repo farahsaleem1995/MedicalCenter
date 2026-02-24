@@ -2,6 +2,8 @@ using FastEndpoints;
 using MedicalCenter.Core.Aggregates.MedicalRecords;
 using MedicalCenter.Core.Primitives.Pagination;
 using MedicalCenter.Core.Queries;
+using MedicalCenter.Core.Services;
+using MedicalCenter.Core.SharedKernel;
 using MedicalCenter.WebApi.Authorization;
 
 namespace MedicalCenter.WebApi.Endpoints.Records;
@@ -10,7 +12,9 @@ namespace MedicalCenter.WebApi.Endpoints.Records;
 /// List all medical records endpoint.
 /// Practitioners can view all records with optional filtering.
 /// </summary>
-public class ListRecordsEndpoint(IMedicalRecordQueryService recordQueryService)
+public class ListRecordsEndpoint(
+    IMedicalRecordQueryService recordQueryService,
+    IUserContext userContext)
     : Endpoint<ListRecordsRequest, ListRecordsResponse>
 {
     public override void Configure()
@@ -36,12 +40,20 @@ public class ListRecordsEndpoint(IMedicalRecordQueryService recordQueryService)
 
     public override async Task HandleAsync(ListRecordsRequest req, CancellationToken ct)
     {
-        
+
+        var practitionerId = req.PractitionerId;
+
+        // Lab/Imaging users can only list their own records
+        if (userContext.Role is UserRole.LabUser or UserRole.ImagingUser)
+        {
+            practitionerId = userContext.UserId;
+        }
+
         var query = new PaginationQuery<ListRecordsQuery>(req.PageNumber ?? 1, req.PageSize ?? 10)
         {
             Criteria = new ListRecordsQuery
             {
-                PractitionerId = req.PractitionerId,
+                PractitionerId = practitionerId,
                 PatientId = req.PatientId,
                 RecordType = req.RecordType,
                 DateFrom = req.DateFrom,

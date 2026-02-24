@@ -46,9 +46,10 @@ public class GetRecordEndpoint(
             return;
         }
 
-        // Resource-based authorization: Only practitioner can view (or we can add CanViewAllPatients check)
-        // For now, only practitioner can view
-        if (record.PractitionerId != currentUserId)
+        // Resource-based authorization
+        bool canViewAll = userContext.Role is UserRole.Doctor or UserRole.HealthcareStaff or UserRole.SystemAdmin;
+
+        if (!canViewAll && record.PractitionerId != currentUserId)
         {
             ThrowError("You are not authorized to view this record", 403);
             return;

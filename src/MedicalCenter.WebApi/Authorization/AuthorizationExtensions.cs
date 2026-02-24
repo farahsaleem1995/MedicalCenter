@@ -50,12 +50,20 @@ public static class AuthorizationExtensions
                 policy.RequireRole(
                     UserRole.Doctor.ToString(),
                     UserRole.HealthcareStaff.ToString(),
+                    UserRole.LabUser.ToString(),
+                    UserRole.ImagingUser.ToString(),
                     UserRole.SystemAdmin.ToString()));
-            
+
             options.AddPolicy(AuthorizationPolicies.CanModifyMedicalAttributes, policy =>
                 policy.RequireRole(
                     UserRole.Doctor.ToString(),
                     UserRole.HealthcareStaff.ToString()));
+
+            options.AddPolicy(AuthorizationPolicies.CanEditBloodType, policy =>
+                policy.RequireRole(
+                    UserRole.Doctor.ToString(),
+                    UserRole.HealthcareStaff.ToString(),
+                    UserRole.LabUser.ToString()));
 
             options.AddPolicy(AuthorizationPolicies.CanViewRecords, policy =>
                 policy.RequireRole(
@@ -64,7 +72,7 @@ public static class AuthorizationExtensions
                     UserRole.LabUser.ToString(),
                     UserRole.ImagingUser.ToString(),
                     UserRole.SystemAdmin.ToString()));
-            
+
             options.AddPolicy(AuthorizationPolicies.CanModifyRecords, policy =>
                 policy.RequireRole(
                     UserRole.Doctor.ToString(),
@@ -85,7 +93,7 @@ public static class AuthorizationExtensions
                     UserRole.LabUser.ToString(),
                     UserRole.ImagingUser.ToString(),
                     UserRole.SystemAdmin.ToString()));
-            
+
             // Claims-based policies (require database lookups via authorization handlers)
             options.AddPolicy(AuthorizationPolicies.CanManageAdmins, policy =>
                 policy.Requirements.Add(new CanManageAdminsRequirement()));

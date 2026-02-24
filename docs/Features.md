@@ -699,7 +699,7 @@ Admin endpoints for managing all non-patient users. All endpoints require `Requi
 ## Medical Attributes Management
 
 Medical attributes endpoints use separate policies for view and modify operations:
-- **View operations** (List): `CanViewMedicalAttributes` policy (Doctor, HealthcareStaff, SystemAdmin)
+- **View operations** (List): `CanViewMedicalAttributes` policy (Doctor, HealthcareStaff, LabUser, ImagingUser, SystemAdmin)
 - **Modify operations** (Create, Update, Delete): `CanModifyMedicalAttributes` policy (Doctor, HealthcareStaff, SystemAdmin)
 
 This separation provides flexibility for future role-based permission changes.
@@ -712,7 +712,7 @@ All medical attribute endpoints are scoped to a specific patient: `/patients/{pa
 **Endpoint**: `GET /patients/{patientId}/allergies`
 
 - Returns all allergies for a specific patient
-- **Authorization**: `CanViewMedicalAttributes` policy (Doctor, HealthcareStaff, SystemAdmin)
+- **Authorization**: `CanViewMedicalAttributes` policy (Doctor, HealthcareStaff, LabUser, ImagingUser, SystemAdmin)
 
 **Success Response** (`200 OK`):
 ```json
@@ -954,7 +954,7 @@ All medical attribute endpoints are scoped to a specific patient: `/patients/{pa
 **Endpoint**: `GET /patients/{patientId}/chronic-diseases`
 
 - Returns all chronic diseases for a specific patient
-- **Authorization**: `CanViewMedicalAttributes` policy (Doctor, HealthcareStaff, SystemAdmin)
+- **Authorization**: `CanViewMedicalAttributes` policy (Doctor, HealthcareStaff, LabUser, ImagingUser, SystemAdmin)
 
 **Success Response** (`200 OK`):
 ```json
@@ -1042,7 +1042,7 @@ All medical attribute endpoints are scoped to a specific patient: `/patients/{pa
 **Endpoint**: `GET /patients/{patientId}/medications`
 
 - Returns all medications for a specific patient
-- **Authorization**: `CanViewMedicalAttributes` policy (Doctor, HealthcareStaff, SystemAdmin)
+- **Authorization**: `CanViewMedicalAttributes` policy (Doctor, HealthcareStaff, LabUser, ImagingUser, SystemAdmin)
 
 **Success Response** (`200 OK`):
 ```json
@@ -1141,7 +1141,7 @@ All medical attribute endpoints are scoped to a specific patient: `/patients/{pa
 **Endpoint**: `GET /patients/{patientId}/surgeries`
 
 - Returns all surgeries for a specific patient
-- **Authorization**: `CanViewMedicalAttributes` policy (Doctor, HealthcareStaff, SystemAdmin)
+- **Authorization**: `CanViewMedicalAttributes` policy (Doctor, HealthcareStaff, LabUser, ImagingUser, SystemAdmin)
 
 **Success Response** (`200 OK`):
 ```json
@@ -1234,7 +1234,7 @@ All medical attribute endpoints are scoped to a specific patient: `/patients/{pa
 **Endpoint**: `PUT /patients/{patientId}/blood-type`
 
 - Updates the blood type for a specific patient
-- **Authorization**: `CanModifyMedicalAttributes` policy (Doctor, HealthcareStaff)
+- **Authorization**: `CanEditBloodType` policy (Doctor, HealthcareStaff, LabUser)
 - Both ABO and Rh must be provided together, or both omitted to clear the blood type
 
 **Request**:

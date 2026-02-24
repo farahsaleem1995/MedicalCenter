@@ -22,7 +22,7 @@ public class UpdateBloodTypeEndpoint(
     {
         Put("/{patientId}/blood-type");
         Group<PatientsGroup>();
-        Policies(AuthorizationPolicies.CanModifyMedicalAttributes);
+        Policies(AuthorizationPolicies.CanEditBloodType);
         Summary(s =>
         {
             s.Summary = "Update patient blood type";

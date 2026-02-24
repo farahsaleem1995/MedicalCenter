@@ -24,28 +24,29 @@ public static class AuthorizationPolicies
     // Medical attributes policies (evaluated from JWT token)
     public const string CanViewMedicalAttributes = "CanViewMedicalAttributes";
     public const string CanModifyMedicalAttributes = "CanModifyMedicalAttributes";
-    
+    public const string CanEditBloodType = "CanEditBloodType";
+
     // Records policies (evaluated from JWT token)
     public const string CanViewRecords = "CanViewRecords";
     public const string CanModifyRecords = "CanModifyRecords";
-    
+
     // Other role-based policies (evaluated from JWT token)
     public const string CanViewAllPatients = "CanViewAllPatients";
     public const string CanViewPatients = "CanViewPatients";
-    
+
     // Claims-based policies (evaluated via database lookup)
     /// <summary>
     /// Policy: Can manage (create/update/delete) SystemAdmin accounts.
     /// Requirement: AdminTier claim with value "Super" (checked via database)
     /// </summary>
     public const string CanManageAdmins = "CanManageAdmins";
-    
+
     /// <summary>
     /// Policy: Can view action log entries.
     /// Requirement: SystemAdmin role OR any AdminTier claim (checked via database)
     /// </summary>
     public const string CanViewActionLog = "CanViewActionLog";
-    
+
     /// <summary>
     /// Policy: Can access PHI (Protected Health Information).
     /// Requirement: Certification claim "HIPAA" or "PHI-Access" (checked via database)
