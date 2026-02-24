@@ -15,7 +15,7 @@ public static class SystemAdminSeeder
 {
     private const string AdminEmail = "sys.admin@medicalcenter.com";
     private const string AdminPassword = "Admin@123!ChangeMe";
-    
+
     // Pre-computed password hash for Admin@123!ChangeMe using ASP.NET Core Identity's PasswordHasher
     // This must be a constant to ensure deterministic migrations
     private const string AdminPasswordHash = "AQAAAAIAAYagAAAAENiQk5IFLxsI3vzGppLOS4O56DOxnsRaArsRQlh+qa2jhzyB7Qtznk23hZnlhIGsPw==";
@@ -62,6 +62,7 @@ public static class SystemAdminSeeder
             Id = adminId,
             FullName = "System Administrator",
             Email = AdminEmail,
+            NationalId = "00000000001",
             CorporateId = "SYS-ADMIN-001",
             Department = "IT",
             Role = UserRole.SystemAdmin,

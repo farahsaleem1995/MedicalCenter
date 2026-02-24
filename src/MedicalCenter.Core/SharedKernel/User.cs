@@ -10,6 +10,7 @@ public abstract class User : BaseEntity, IAuditableEntity
 {
     public string FullName { get; protected set; } = string.Empty;
     public string Email { get; protected set; } = string.Empty;
+    public string NationalId { get; protected set; } = string.Empty;
     public UserRole Role { get; protected set; }
     public bool IsActive { get; protected set; }
     public DateTime CreatedAt { get; set; }
@@ -17,17 +18,18 @@ public abstract class User : BaseEntity, IAuditableEntity
 
     protected User() { } // EF Core
 
-    protected User(Guid id, string fullName, string email, UserRole role)
+    protected User(Guid id, string fullName, string email, UserRole role, string nationalId = "")
     {
         Guard.Against.Default(id, nameof(id));
         Guard.Against.NullOrWhiteSpace(fullName, nameof(fullName));
         Guard.Against.NullOrWhiteSpace(email, nameof(email));
         Guard.Against.OutOfRange((int)role, nameof(role), 1, Enum.GetValues<UserRole>().Length);
-        
+
         Id = id;
         FullName = fullName;
         Email = email;
         Role = role;
+        NationalId = nationalId ?? string.Empty;
         IsActive = true;
     }
 
@@ -45,6 +47,12 @@ public abstract class User : BaseEntity, IAuditableEntity
     {
         Guard.Against.NullOrWhiteSpace(fullName, nameof(fullName));
         FullName = fullName;
+    }
+
+    public void UpdateNationalId(string nationalId)
+    {
+        NationalId = nationalId ?? string.Empty;
+        UpdatedAt = DateTime.UtcNow;
     }
 }
 

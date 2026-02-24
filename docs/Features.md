@@ -271,6 +271,174 @@ This document provides a comprehensive overview of all implemented features in t
 - **LabUser**: Laboratory technicians
 - **ImagingUser**: Imaging technicians
 
+## Admin User Management
+
+Admin endpoints for managing all non-patient users. All endpoints require `RequireAdmin` policy (SystemAdmin role).
+
+### List Users
+
+**Endpoint**: `GET /admin/users`
+
+- Lists all users with pagination, filtering, and sorting
+- Supports filtering by role, active status, and national ID (partial match)
+- Supports sorting by multiple fields
+- Filtering by SystemAdmin role requires Super Administrator privileges
+- **Authorization**: `RequireAdmin` policy (SystemAdmin role)
+
+**Query Parameters**:
+- `pageNumber` (default: 1, minimum: 1)
+- `pageSize` (default: 10, minimum: 1, maximum: 100)
+- `role` (optional): Filter by user role (Doctor, HealthcareStaff, LabUser, ImagingUser, Patient, SystemAdmin)
+- `isActive` (optional): Filter by active status (true, false)
+- `nationalId` (optional): Filter by national ID (partial match, case-insensitive, uses `EF.Functions.Like`)
+- `sortBy` (optional): Sort field — `FullName` (default), `Email`, `Role`, `CreatedAt`, `NationalId`
+- `sortDirection` (optional): `Asc` (default) or `Desc`
+
+**Success Response** (`200 OK`):
+```json
+{
+  "items": [
+    {
+      "id": "550e8400-e29b-41d4-a716-446655440000",
+      "fullName": "Dr. Jane Smith",
+      "email": "jane.smith@example.com",
+      "nationalId": "1234567890",
+      "role": "Doctor",
+      "isActive": true,
+      "createdAt": "2024-01-01T00:00:00Z",
+      "updatedAt": null,
+      "doctorDetails": {
+        "licenseNumber": "MD-1234",
+        "specialty": "Cardiology"
+      }
+    }
+  ],
+  "metadata": {
+    "totalCount": 50,
+    "pageSize": 10,
+    "currentPage": 1,
+    "totalPages": 5,
+    "hasNextPage": true,
+    "hasPreviousPage": false
+  }
+}
+```
+
+### Get User by ID
+
+**Endpoint**: `GET /admin/users/{id}`
+
+- Retrieves user details by ID (includes deactivated users)
+- Returns role-specific details alongside common properties
+- **Authorization**: `RequireAdmin` policy (SystemAdmin role)
+
+**Success Response** (`200 OK`):
+```json
+{
+  "id": "550e8400-e29b-41d4-a716-446655440000",
+  "fullName": "Dr. Jane Smith",
+  "email": "jane.smith@example.com",
+  "nationalId": "1234567890",
+  "role": "Doctor",
+  "isActive": true,
+  "createdAt": "2024-01-01T00:00:00Z",
+  "updatedAt": null,
+  "doctorDetails": {
+    "licenseNumber": "MD-1234",
+    "specialty": "Cardiology"
+  }
+}
+```
+
+### Create User
+
+**Endpoint**: `POST /admin/users`
+
+- Creates a non-patient user (Doctor, HealthcareStaff, LabUser, ImagingUser, SystemAdmin)
+- Creates both Identity user and domain entity in a transaction
+- `NationalId` is **required** for all user types
+- SystemAdmin creation requires Super Administrator privileges
+- **Authorization**: `RequireAdmin` policy (SystemAdmin role)
+
+**Request**:
+```json
+{
+  "fullName": "Dr. Jane Smith",
+  "email": "jane.smith@example.com",
+  "password": "SecurePass123!",
+  "role": "Doctor",
+  "nationalId": "1234567890",
+  "licenseNumber": "MD-1234",
+  "specialty": "Cardiology"
+}
+```
+
+**Role-specific fields**:
+- **Doctor**: `licenseNumber` (required), `specialty` (required)
+- **HealthcareStaff**: `organizationName` (required), `department` (required)
+- **LabUser**: `labName` (required), `licenseNumber` (required)
+- **ImagingUser**: `centerName` (required), `licenseNumber` (required)
+- **SystemAdmin**: `corporateId` (required), `department` (required)
+
+**Validation rules**:
+- `fullName`: Required, max 200 characters
+- `email`: Required, valid email, max 256 characters
+- `password`: Required, min 8 characters
+- `role`: Required, must be a non-Patient role
+- `nationalId`: Required, max 50 characters
+
+**Success Response** (`200 OK`):
+```json
+{
+  "userId": "550e8400-e29b-41d4-a716-446655440000",
+  "email": "jane.smith@example.com",
+  "fullName": "Dr. Jane Smith",
+  "role": "Doctor"
+}
+```
+
+**Error Responses**:
+- `400 Bad Request`: Validation errors
+- `403 Forbidden`: Only Super Admins can create SystemAdmin accounts
+- `409 Conflict`: Email already exists
+
+### Update User
+
+**Endpoint**: `PUT /admin/users/{id}`
+
+- Updates user details (partial update — only provided fields are updated)
+- Can update deactivated users
+- SystemAdmin accounts can only be updated by Super Administrators
+- Revokes all refresh tokens for the user after update
+- **Authorization**: `RequireAdmin` policy (SystemAdmin role)
+
+**Request**:
+```json
+{
+  "fullName": "Dr. Jane Smith-Johnson",
+  "nationalId": "9876543210",
+  "specialty": "Interventional Cardiology"
+}
+```
+
+**Common updatable fields** (all optional):
+- `fullName`: Updated full name
+- `nationalId`: Updated national ID
+
+**Role-specific updatable fields** (all optional):
+- **Doctor**: `specialty`
+- **HealthcareStaff**: `organizationName`, `department` (both required together)
+- **LabUser**: `labName`
+- **ImagingUser**: `centerName`
+- **SystemAdmin**: `corporateId`, `department`
+
+**Success Response**: `204 No Content`
+
+**Error Responses**:
+- `400 Bad Request`: Validation errors
+- `403 Forbidden`: Only Super Admins can update SystemAdmin accounts
+- `404 Not Found`: User not found
+
 ## Patient Features
 
 ### Get Own Patient Data

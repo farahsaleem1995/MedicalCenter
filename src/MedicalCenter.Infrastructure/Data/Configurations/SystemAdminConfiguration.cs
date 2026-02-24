@@ -35,6 +35,10 @@ public class SystemAdminConfiguration : IEntityTypeConfiguration<SystemAdmin>
             .IsRequired()
             .HasDefaultValue(true);
 
+        builder.Property(sa => sa.NationalId)
+            .IsRequired(false)
+            .HasMaxLength(50);
+
         // Enhanced organizational properties
         builder.Property(sa => sa.CorporateId)
             .IsRequired()

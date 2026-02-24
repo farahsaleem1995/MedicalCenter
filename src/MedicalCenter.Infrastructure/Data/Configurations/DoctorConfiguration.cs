@@ -32,6 +32,10 @@ public class DoctorConfiguration : IEntityTypeConfiguration<Doctor>
         builder.Property(d => d.IsActive)
             .IsRequired();
 
+        builder.Property(d => d.NationalId)
+            .IsRequired(false)
+            .HasMaxLength(50);
+
         builder.Property(d => d.LicenseNumber)
             .IsRequired()
             .HasMaxLength(100);

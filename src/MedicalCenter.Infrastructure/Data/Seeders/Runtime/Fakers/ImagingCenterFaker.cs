@@ -23,7 +23,8 @@ public static class ImagingCenterFaker
                 f.Internet.Email(),
                 f.PickRandom(CenterNames),
                 f.Random.Replace("IMG-####")
-            ));
+            ))
+            .FinishWith((f, i) => i.UpdateNationalId(f.Random.Replace("###########")));
     }
 }
 

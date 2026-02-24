@@ -24,7 +24,8 @@ public static class DoctorFaker
                 f.Internet.Email(),
                 f.Random.Replace("MD-####"),
                 f.PickRandom(MedicalSpecialties)
-            ));
+            ))
+            .FinishWith((f, d) => d.UpdateNationalId(f.Random.Replace("###########")));
     }
 }
 

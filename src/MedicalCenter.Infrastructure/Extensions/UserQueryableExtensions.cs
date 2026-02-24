@@ -50,4 +50,16 @@ public static class UserQueryableExtensions {
     {
         return query.Where(u => u.Roles.Any(r => r.Role.NormalizedName == role.ToString().ToUpper()));
     }
+
+    public static IQueryable<ApplicationUser> WhereNationalIdContains(this IQueryable<ApplicationUser> query, string nationalId)
+    {
+        var searchTerm = nationalId.Trim().ToLower();
+        return query.Where(u =>
+            (u.Patient != null && u.Patient.NationalId.ToLower().Contains(searchTerm)) ||
+            (u.Doctor != null && u.Doctor.NationalId.ToLower().Contains(searchTerm)) ||
+            (u.HealthcareStaff != null && u.HealthcareStaff.NationalId.ToLower().Contains(searchTerm)) ||
+            (u.Laboratory != null && u.Laboratory.NationalId.ToLower().Contains(searchTerm)) ||
+            (u.ImagingCenter != null && u.ImagingCenter.NationalId.ToLower().Contains(searchTerm)) ||
+            (u.SystemAdmin != null && u.SystemAdmin.NationalId.ToLower().Contains(searchTerm)));
+    }
 }

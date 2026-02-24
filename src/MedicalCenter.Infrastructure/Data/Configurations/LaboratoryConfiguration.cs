@@ -32,6 +32,10 @@ public class LaboratoryConfiguration : IEntityTypeConfiguration<Laboratory>
         builder.Property(l => l.IsActive)
             .IsRequired();
 
+        builder.Property(l => l.NationalId)
+            .IsRequired(false)
+            .HasMaxLength(50);
+
         builder.Property(l => l.LabName)
             .IsRequired()
             .HasMaxLength(200);

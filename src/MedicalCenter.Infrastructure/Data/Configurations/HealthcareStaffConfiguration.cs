@@ -32,6 +32,10 @@ public class HealthcareStaffConfiguration : IEntityTypeConfiguration<HealthcareS
         builder.Property(h => h.IsActive)
             .IsRequired();
 
+        builder.Property(h => h.NationalId)
+            .IsRequired(false)
+            .HasMaxLength(50);
+
         builder.Property(h => h.OrganizationName)
             .IsRequired()
             .HasMaxLength(200);

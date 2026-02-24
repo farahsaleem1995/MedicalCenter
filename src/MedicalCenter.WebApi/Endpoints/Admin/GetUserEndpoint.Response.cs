@@ -15,6 +15,7 @@ public class GetUserResponse
     public Guid Id { get; set; }
     public string FullName { get; set; } = string.Empty;
     public string Email { get; set; } = string.Empty;
+    public string NationalId { get; set; } = string.Empty;
     public string Role { get; set; } = string.Empty;
     public bool IsActive { get; set; }
     public DateTime CreatedAt { get; set; }
@@ -34,6 +35,7 @@ public class GetUserResponse
             Id = user.Id,
             FullName = user.FullName,
             Email = user.Email,
+            NationalId = user.NationalId,
             Role = user.Role.ToString(),
             IsActive = user.IsActive,
             CreatedAt = user.CreatedAt,
@@ -46,7 +48,7 @@ public class GetUserResponse
             case Patient patient:
                 response.PatientDetails = new PatientDetails
                 {
-                    NationalId = patient.NationalId,
+                    NationalId = user.NationalId,
                     DateOfBirth = patient.DateOfBirth,
                     BloodType = patient.BloodType
                 };

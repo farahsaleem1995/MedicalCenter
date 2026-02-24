@@ -23,7 +23,8 @@ public static class LaboratoryFaker
                 f.Internet.Email(),
                 f.PickRandom(LabNames),
                 f.Random.Replace("LAB-####")
-            ));
+            ))
+            .FinishWith((f, l) => l.UpdateNationalId(f.Random.Replace("###########")));
     }
 }
 

@@ -54,9 +54,9 @@ public class CreateUserEndpoint(
         if (req.Role == UserRole.SystemAdmin)
         {
             var authorizationResult = await authorizationService.AuthorizeAsync(
-                User, 
+                User,
                 AuthorizationPolicies.CanManageAdmins);
-            
+
             if (!authorizationResult.Succeeded)
             {
                 ThrowError("Only Super Administrators can create SystemAdmin accounts.", 403);
@@ -92,26 +92,31 @@ public class CreateUserEndpoint(
             {
                 case UserRole.Doctor:
                     var doctor = new Doctor(userId, req.FullName, req.Email, req.LicenseNumber!, req.Specialty!);
+                    doctor.UpdateNationalId(req.NationalId.Trim());
                     await doctorRepository.AddAsync(doctor, ct);
                     break;
 
                 case UserRole.HealthcareStaff:
                     var healthcareStaff = new HealthcareStaff(userId, req.FullName, req.Email, req.OrganizationName!, req.Department!);
+                    healthcareStaff.UpdateNationalId(req.NationalId.Trim());
                     await healthcareStaffRepository.AddAsync(healthcareStaff, ct);
                     break;
 
                 case UserRole.LabUser:
                     var laboratory = new Laboratory(userId, req.FullName, req.Email, req.LabName!, req.LicenseNumber!);
+                    laboratory.UpdateNationalId(req.NationalId.Trim());
                     await laboratoryRepository.AddAsync(laboratory, ct);
                     break;
 
                 case UserRole.ImagingUser:
                     var imagingCenter = new ImagingCenter(userId, req.FullName, req.Email, req.CenterName!, req.LicenseNumber!);
+                    imagingCenter.UpdateNationalId(req.NationalId.Trim());
                     await imagingCenterRepository.AddAsync(imagingCenter, ct);
                     break;
 
                 case UserRole.SystemAdmin:
                     var systemAdmin = new SystemAdmin(userId, req.FullName, req.Email, req.CorporateId!, req.Department!);
+                    systemAdmin.UpdateNationalId(req.NationalId.Trim());
                     await systemAdminRepository.AddAsync(systemAdmin, ct);
                     break;
 

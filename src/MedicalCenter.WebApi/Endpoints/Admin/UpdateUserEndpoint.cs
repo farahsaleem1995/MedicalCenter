@@ -57,9 +57,9 @@ public class UpdateUserEndpoint(
         if (user.Role == UserRole.SystemAdmin)
         {
             var authorizationResult = await authorizationService.AuthorizeAsync(
-                User, 
+                User,
                 AuthorizationPolicies.CanManageAdmins);
-            
+
             if (!authorizationResult.Succeeded)
             {
                 ThrowError("Only Super Administrators can update SystemAdmin accounts.", 403);
@@ -71,6 +71,11 @@ public class UpdateUserEndpoint(
         if (!string.IsNullOrWhiteSpace(req.FullName))
         {
             user.UpdateFullName(req.FullName);
+        }
+
+        if (!string.IsNullOrWhiteSpace(req.NationalId))
+        {
+            user.UpdateNationalId(req.NationalId.Trim());
         }
 
         // Update role-specific properties

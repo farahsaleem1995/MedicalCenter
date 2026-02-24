@@ -32,6 +32,10 @@ public class ImagingCenterConfiguration : IEntityTypeConfiguration<ImagingCenter
         builder.Property(i => i.IsActive)
             .IsRequired();
 
+        builder.Property(i => i.NationalId)
+            .IsRequired(false)
+            .HasMaxLength(50);
+
         builder.Property(i => i.CenterName)
             .IsRequired()
             .HasMaxLength(200);

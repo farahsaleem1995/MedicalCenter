@@ -10,6 +10,9 @@ public class CreateUserRequest
     public string Password { get; set; } = string.Empty;
     public UserRole Role { get; set; }
 
+    // Common required property
+    public string NationalId { get; set; } = string.Empty;
+
     // Doctor-specific
     public string? LicenseNumber { get; set; }
     public string? Specialty { get; set; }

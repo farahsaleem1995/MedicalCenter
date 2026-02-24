@@ -162,7 +162,7 @@ public class DatabaseSeeder
 - Use medical specialties list: "Cardiology", "Pediatrics", "Orthopedics", etc.
 
 **Estimated Properties:**
-- FullName, Email, LicenseNumber, Specialty
+- FullName, Email, LicenseNumber, Specialty, NationalId
 
 #### 2.2 HealthcareStaff Seeder
 
@@ -615,7 +615,7 @@ Stream summaryStream = await summaryGenerator.GenerateSummaryAsync(options);
 
 - Bogus package integrated
 - All seeder infrastructure created
-- All fakers implemented (Doctor, HealthcareStaff, Laboratory, ImagingCenter, Patient, MedicalRecord, MedicalAttributes)
+- All fakers implemented (Doctor, HealthcareStaff, Laboratory, ImagingCenter, Patient, MedicalRecord, MedicalAttributes) — all user fakers generate NationalId via `UpdateNationalId()`
 - All seeders implemented with Identity integration
 - Seeding endpoint created (`POST /api/dev/seed`)
 - Summary generator implemented (returns as file stream)

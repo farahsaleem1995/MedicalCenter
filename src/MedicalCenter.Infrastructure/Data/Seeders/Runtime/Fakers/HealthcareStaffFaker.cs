@@ -29,7 +29,8 @@ public static class HealthcareStaffFaker
                 f.Internet.Email(),
                 f.PickRandom(OrganizationNames),
                 f.PickRandom(Departments)
-            ));
+            ))
+            .FinishWith((f, h) => h.UpdateNationalId(f.Random.Replace("###########")));
     }
 }
 

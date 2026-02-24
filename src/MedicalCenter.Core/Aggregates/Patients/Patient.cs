@@ -13,7 +13,6 @@ namespace MedicalCenter.Core.Aggregates.Patients;
 /// </summary>
 public class Patient : User, IAggregateRoot
 {
-    public string NationalId { get; private set; } = string.Empty;
     public DateTime DateOfBirth { get; private set; }
     public BloodType? BloodType { get; private set; }
 
@@ -31,9 +30,8 @@ public class Patient : User, IAggregateRoot
     private Patient() { } // EF Core
 
     public Patient(Guid id, string fullName, string email, string nationalId, DateTime dateOfBirth)
-        : base(id, fullName, email, UserRole.Patient)
+        : base(id, fullName, email, UserRole.Patient, nationalId)
     {
-        NationalId = nationalId;
         DateOfBirth = dateOfBirth;
     }
 

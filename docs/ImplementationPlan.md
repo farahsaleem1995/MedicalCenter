@@ -1810,6 +1810,124 @@ This ensures the README remains a living document that accurately reflects the c
 
 ---
 
+## Common NationalId & ListUsers Sorting
+
+### Overview
+
+Moved **NationalId** from the `Patient` aggregate to the shared `User` base class so it is available on all user types. Added **NationalId filtering** and **multi-field sorting** to the admin List Users endpoint.
+
+### What Was Implemented
+
+#### Domain Layer (`MedicalCenter.Core`)
+
+| File | Change |
+|------|--------|
+| `SharedKernel/User.cs` | Added `NationalId` property + optional constructor param `string nationalId = ""` |
+| `Aggregates/Patients/Patient.cs` | Removed its own `NationalId`, now passes it to `base(...)` — all references resolve via inheritance |
+| `Queries/IUserQueryService.cs` | `ListUsersQuery` gained `NationalId?`, `SortBy?`, `SortDirection?` |
+| `Queries/ListUsersSortBy.cs` | **New** enum: `FullName`, `Email`, `Role`, `CreatedAt`, `NationalId` |
+| `Primitives/SortDirection.cs` | Already existed (`Asc`, `Desc`) — unchanged |
+
+#### Infrastructure Layer (`MedicalCenter.Infrastructure`)
+
+| File | Change |
+|------|--------|
+| `Data/Configurations/DoctorConfiguration.cs` | Added `NationalId` mapped as nullable `nvarchar(50)` |
+| `Data/Configurations/HealthcareStaffConfiguration.cs` | Same |
+| `Data/Configurations/LaboratoryConfiguration.cs` | Same |
+| `Data/Configurations/ImagingCenterConfiguration.cs` | Same |
+| `Data/Configurations/SystemAdminConfiguration.cs` | Same |
+| `Extensions/UserQueryableExtensions.cs` | Added `WhereNationalIdContains()` — partial match across all 6 entity types |
+| `Services/UserQueryService.cs` | Added `ApplySorting()` method + NationalId filter in `QueryUsers()` |
+| `Migrations/...AddNationalIdToUser.cs` | Adds nullable `NationalId` column to 5 non-Patient tables; Patient table unchanged |
+
+#### WebApi Layer (`MedicalCenter.WebApi`)
+
+| File | Change |
+|------|--------|
+| `Endpoints/Admin/ListUsersEndpoint.Request.cs` | Added `NationalId?`, `SortBy?`, `SortDirection?` query params |
+| `Endpoints/Admin/ListUsersEndpoint.cs` | Passes new params to query; defaults to `SortBy=FullName`, `SortDirection=Asc` |
+| `Endpoints/Admin/GetUserEndpoint.Response.cs` | Uses `user.NationalId` (base class) for `PatientDetails.NationalId` |
+
+#### Documentation
+
+| File | Content |
+|------|---------|
+| `docs/ImplementationPlan.md` | This section — comprehensive plan, risk assessment, and enhancement tracking |
+
+### Risk Assessment
+
+**Overall Risk: 🟢 LOW**
+
+| Area | Risk | Reason |
+|------|------|--------|
+| `User.cs` constructor | 🟢 None | Optional parameter — all existing `base(...)` calls compile without changes |
+| `Patient.cs` property removal | 🟢 None | Property resolves via inheritance; EF config explicitly maps it |
+| EF migration (add columns) | 🟢 None | Nullable columns only — no data loss, no breaking change |
+| New API query params | 🟢 None | All optional — existing callers unaffected |
+| Sorting (CASE expressions) | 🟡 Low | Performance concern for large datasets — generates SQL CASE across 6 JOINs |
+| NationalId filter (`EF.Functions.Like`) | 🟢 Fixed | Originally used `.ToLower().Contains()` — now uses `EF.Functions.Like` for proper SQL translation |
+
+**Deployment order**: Migration must be applied before code deployment (code expects columns to exist).
+
+### Recommended Enhancements
+
+The following enhancements build on the common NationalId implementation and are recommended as follow-up work, prioritized by impact:
+
+#### Enhancement 1: Use `EF.Functions.Like()` for NationalId filter (Medium Impact) ✅
+
+Replaced `.ToLower().Contains()` with `EF.Functions.Like()` in `WhereNationalIdContains`:
+
+```csharp
+// Before
+u.Patient.NationalId.ToLower().Contains(searchTerm)
+
+// After
+EF.Functions.Like(u.Patient.NationalId, $"%{searchTerm}%")
+```
+
+`EF.Functions.Like` is the canonical approach — translates to SQL `LIKE` directly and avoids forcing `LOWER()` on every row.
+
+#### Enhancement 2: Expose `NationalId` at base response level (Medium Impact) ✅
+
+`NationalId` is now exposed at the top level of `GetUserResponse` for all roles:
+
+```csharp
+var response = new GetUserResponse
+{
+    Id = user.Id,
+    FullName = user.FullName,
+    Email = user.Email,
+    NationalId = user.NationalId,  // visible for all roles
+    ...
+};
+```
+
+#### Enhancement 3: Accept `NationalId` on non-Patient creation endpoints (Medium Impact) ✅
+
+`NationalId` is now a **required** field on `CreateUserRequest` with FluentValidation rule (`NotEmpty`, `MaxLength(50)`). The endpoint calls `UpdateNationalId()` on the domain entity after construction. Also added optional `NationalId` to `UpdateUserRequest`.
+
+#### Enhancement 4: Add `UpdateNationalId` method to `User` (Low Impact) ✅
+
+Added a method analogous to `UpdateFullName()` for admin workflows:
+
+```csharp
+public void UpdateNationalId(string nationalId)
+{
+    NationalId = nationalId ?? string.Empty;
+    UpdatedAt = DateTime.UtcNow;
+}
+```
+
+#### Enhancement 5: Update Bogus seeder for non-Patient NationalIds (Low Impact) ✅
+
+All practitioner fakers (`DoctorFaker`, `HealthcareStaffFaker`, `LaboratoryFaker`, `ImagingCenterFaker`) now generate 10-digit NationalIds via `.FinishWith((f, d) => d.UpdateNationalId(f.Random.Replace("##########")))`.
+
+> [!NOTE]
+> `ApplicationUser` is kept purely for ASP.NET Core Identity concerns. `NationalId` is a business property managed through domain entities only — no denormalization onto the Identity layer.
+
+---
+
 ## Future Enhancements
 
 The following items represent potential future enhancements that are not currently planned for immediate implementation but may be valuable additions:

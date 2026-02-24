@@ -27,7 +27,7 @@ The Core layer is organized following Domain-Driven Design principles with clear
   - `Pagination/`: `PaginatedList<T>`, `PaginationMetadata` for standardized pagination
 
 - **SharedKernel/**: Shared domain concepts (ubiquitous language)
-  - `User`: Abstract base class for all users
+  - `User`: Abstract base class for all users (properties: `FullName`, `Email`, `NationalId`, `Role`, `IsActive`; methods: `UpdateFullName()`, `UpdateNationalId()`, `Activate()`, `Deactivate()`)
   - `UserRole`: User role enumeration
   - `ProviderType`: Healthcare provider type enumeration
   - `Attachment`: File attachment value object (shared concept)
@@ -140,6 +140,8 @@ The Infrastructure layer implements data access and external service integration
 
 - **Query Services**:
   - `UserQueryService`: Query service for non-aggregate user entities
+    - Supports filtering by Role, IsActive, and NationalId (partial match via `EF.Functions.Like`)
+    - Supports sorting by FullName, Email, Role, CreatedAt, NationalId
   - `MedicalRecordQueryService`: Optimized queries for medical records with includes
   - All query services support pagination via `PaginatedList<T>`
   - Handles role-based filtering and query filters
@@ -191,7 +193,7 @@ The Infrastructure layer implements data access and external service integration
       - `DoctorSeeder`, `HealthcareStaffSeeder`, `LaboratorySeeder`, `ImagingCenterSeeder`
       - `PatientSeeder` (with medical attributes: allergies, chronic diseases, medications, surgeries)
       - `MedicalRecordSeeder` (with proper patient/practitioner relationships)
-    - **Fakers**: Bogus faker configurations for generating realistic fake data
+    - **Fakers**: Bogus faker configurations for generating realistic fake data (including NationalId for all user types)
     - **DDD Compliance**: All entities created through domain factory methods
     - **Identity Integration**: Creates ASP.NET Core Identity users and roles for seeded entities
     - **Development Only**: Seeding endpoint (`POST /api/dev/seed`) only available in Development environment

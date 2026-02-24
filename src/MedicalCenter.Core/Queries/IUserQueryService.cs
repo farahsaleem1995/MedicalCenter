@@ -1,3 +1,4 @@
+using MedicalCenter.Core.Primitives;
 using MedicalCenter.Core.Primitives.Pagination;
 using MedicalCenter.Core.SharedKernel;
 
@@ -24,5 +25,8 @@ public class ListUsersQuery
 {
     public UserRole? Role { get; set; }
     public bool? IsActive { get; set; }
+    public string? NationalId { get; set; }
+    public ListUsersSortBy? SortBy { get; set; }
+    public SortDirection? SortDirection { get; set; }
 }
 

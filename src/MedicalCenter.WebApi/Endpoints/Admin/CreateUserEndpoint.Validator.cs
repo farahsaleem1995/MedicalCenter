@@ -25,6 +25,10 @@ public class CreateUserRequestValidator : Validator<CreateUserRequest>
             .Must(role => role != MedicalCenter.Core.SharedKernel.UserRole.Patient)
             .WithMessage("Patient role is not allowed. Use the registration endpoint for patient accounts.");
 
+        RuleFor(x => x.NationalId)
+            .NotEmpty()
+            .MaximumLength(50);
+
         // Doctor validation
         When(x => x.Role == MedicalCenter.Core.SharedKernel.UserRole.Doctor, () =>
         {
